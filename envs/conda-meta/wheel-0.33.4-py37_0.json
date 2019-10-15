@@ -1,0 +1,299 @@
+{
+  "build": "py37_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.7,<3.8.0a0",
+    "setuptools"
+  ],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\wheel-0.33.4-py37_0",
+  "features": "",
+  "files": [
+    "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/PKG-INFO",
+    "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/SOURCES.txt",
+    "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/dependency_links.txt",
+    "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/entry_points.txt",
+    "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/not-zip-safe",
+    "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/requires.txt",
+    "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/top_level.txt",
+    "Lib/site-packages/wheel/__init__.py",
+    "Lib/site-packages/wheel/__main__.py",
+    "Lib/site-packages/wheel/__pycache__/__init__.cpython-37.pyc",
+    "Lib/site-packages/wheel/__pycache__/__main__.cpython-37.pyc",
+    "Lib/site-packages/wheel/__pycache__/bdist_wheel.cpython-37.pyc",
+    "Lib/site-packages/wheel/__pycache__/metadata.cpython-37.pyc",
+    "Lib/site-packages/wheel/__pycache__/pep425tags.cpython-37.pyc",
+    "Lib/site-packages/wheel/__pycache__/pkginfo.cpython-37.pyc",
+    "Lib/site-packages/wheel/__pycache__/util.cpython-37.pyc",
+    "Lib/site-packages/wheel/__pycache__/wheelfile.cpython-37.pyc",
+    "Lib/site-packages/wheel/bdist_wheel.py",
+    "Lib/site-packages/wheel/cli/__init__.py",
+    "Lib/site-packages/wheel/cli/__pycache__/__init__.cpython-37.pyc",
+    "Lib/site-packages/wheel/cli/__pycache__/convert.cpython-37.pyc",
+    "Lib/site-packages/wheel/cli/__pycache__/pack.cpython-37.pyc",
+    "Lib/site-packages/wheel/cli/__pycache__/unpack.cpython-37.pyc",
+    "Lib/site-packages/wheel/cli/convert.py",
+    "Lib/site-packages/wheel/cli/pack.py",
+    "Lib/site-packages/wheel/cli/unpack.py",
+    "Lib/site-packages/wheel/metadata.py",
+    "Lib/site-packages/wheel/pep425tags.py",
+    "Lib/site-packages/wheel/pkginfo.py",
+    "Lib/site-packages/wheel/util.py",
+    "Lib/site-packages/wheel/wheelfile.py",
+    "Scripts/wheel-script.py",
+    "Scripts/wheel.exe"
+  ],
+  "fn": "wheel-0.33.4-py37_0.tar.bz2",
+  "license": "MIT",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\wheel-0.33.4-py37_0",
+    "type": 1
+  },
+  "md5": "3af12b81202a646b264110460fd03fab",
+  "name": "wheel",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\wheel-0.33.4-py37_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/PKG-INFO",
+        "path_type": "hardlink",
+        "sha256": "1acf174ee973df189cc7ac98fc3656eb0798a3faf5b456a25c554b4aecff13bd",
+        "sha256_in_prefix": "1acf174ee973df189cc7ac98fc3656eb0798a3faf5b456a25c554b4aecff13bd",
+        "size_in_bytes": 2263
+      },
+      {
+        "_path": "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/SOURCES.txt",
+        "path_type": "hardlink",
+        "sha256": "33a8412e12f07eb43efaa08cead6f045254a43b0f6aed538c81d209c6b6060b8",
+        "sha256_in_prefix": "33a8412e12f07eb43efaa08cead6f045254a43b0f6aed538c81d209c6b6060b8",
+        "size_in_bytes": 483
+      },
+      {
+        "_path": "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/dependency_links.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/entry_points.txt",
+        "path_type": "hardlink",
+        "sha256": "37c1db605493df2acd418781db05d60443d4845b04b4a3513da0851893f2ab27",
+        "sha256_in_prefix": "37c1db605493df2acd418781db05d60443d4845b04b4a3513da0851893f2ab27",
+        "size_in_bytes": 108
+      },
+      {
+        "_path": "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/not-zip-safe",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/requires.txt",
+        "path_type": "hardlink",
+        "sha256": "ed39738d628f8c7ad4a82ba62ae1b32f2fb9ec2bf5b3b7121eaea76a31fcceeb",
+        "sha256_in_prefix": "ed39738d628f8c7ad4a82ba62ae1b32f2fb9ec2bf5b3b7121eaea76a31fcceeb",
+        "size_in_bytes": 33
+      },
+      {
+        "_path": "Lib/site-packages/wheel-0.33.4-py3.7.egg-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "1f148121b804b2d30f7b87856b0840eba32af90607328a5756802771f8dbff57",
+        "sha256_in_prefix": "1f148121b804b2d30f7b87856b0840eba32af90607328a5756802771f8dbff57",
+        "size_in_bytes": 6
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "81d7c36bab9f5373fc69f444143043dba8e8fa772e2adba682f96764819298a7",
+        "sha256_in_prefix": "81d7c36bab9f5373fc69f444143043dba8e8fa772e2adba682f96764819298a7",
+        "size_in_bytes": 96
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__main__.py",
+        "path_type": "hardlink",
+        "sha256": "945f982cee217509a85ae87879665df182f553de5149d9bbeac34b0576b4be31",
+        "sha256_in_prefix": "945f982cee217509a85ae87879665df182f553de5149d9bbeac34b0576b4be31",
+        "size_in_bytes": 417
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/__init__.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "2156721fc5433194e4c21a91574fc24838ffd53ba8b6337ce4bd42d4e3dd7a23",
+        "sha256_in_prefix": "2156721fc5433194e4c21a91574fc24838ffd53ba8b6337ce4bd42d4e3dd7a23",
+        "size_in_bytes": 144
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/__main__.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "0fe40a7553b50b1b36a78830a58283b7971f45237122c00aabaa9c2fc7572019",
+        "sha256_in_prefix": "0fe40a7553b50b1b36a78830a58283b7971f45237122c00aabaa9c2fc7572019",
+        "size_in_bytes": 537
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/bdist_wheel.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "3b6778f4447a2748cf9e511f95a57a0fd57784d542923da9a4e849dd523b722a",
+        "sha256_in_prefix": "3b6778f4447a2748cf9e511f95a57a0fd57784d542923da9a4e849dd523b722a",
+        "size_in_bytes": 10029
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/metadata.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "990a5a4dc2165b506cb8b86b5e3e69c5a2457689815d434cff2cacf1e12d8daa",
+        "sha256_in_prefix": "990a5a4dc2165b506cb8b86b5e3e69c5a2457689815d434cff2cacf1e12d8daa",
+        "size_in_bytes": 3720
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/pep425tags.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "9307c8b665b4517cadd44bdc1a3941f76cc2f94337bec70e5ffa2edcb64bdfee",
+        "sha256_in_prefix": "9307c8b665b4517cadd44bdc1a3941f76cc2f94337bec70e5ffa2edcb64bdfee",
+        "size_in_bytes": 4655
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/pkginfo.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "c5f2ac21392c523bd5b7557ac3f362c0fd8cd33c01fa124f0a1c5ba68a36ecd6",
+        "sha256_in_prefix": "c5f2ac21392c523bd5b7557ac3f362c0fd8cd33c01fa124f0a1c5ba68a36ecd6",
+        "size_in_bytes": 1515
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/util.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "5125daf15ef5bcf4982af945505cd27fed293bfb3c34d59884981327d87318c3",
+        "sha256_in_prefix": "5125daf15ef5bcf4982af945505cd27fed293bfb3c34d59884981327d87318c3",
+        "size_in_bytes": 1260
+      },
+      {
+        "_path": "Lib/site-packages/wheel/__pycache__/wheelfile.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "3a54be489f03e6c5b0dbda24c82d55436adda631ccb42a05cb7f661493082dba",
+        "sha256_in_prefix": "3a54be489f03e6c5b0dbda24c82d55436adda631ccb42a05cb7f661493082dba",
+        "size_in_bytes": 5415
+      },
+      {
+        "_path": "Lib/site-packages/wheel/bdist_wheel.py",
+        "path_type": "hardlink",
+        "sha256": "53796300e1a073c50630aab139fe5810a1355be9edf7d5fa45e98c8bea68041f",
+        "sha256_in_prefix": "53796300e1a073c50630aab139fe5810a1355be9edf7d5fa45e98c8bea68041f",
+        "size_in_bytes": 14757
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "1964a8194a5169b4dff1b93716c3533eb73916cafc60ebf6757e79898d96ede6",
+        "sha256_in_prefix": "1964a8194a5169b4dff1b93716c3533eb73916cafc60ebf6757e79898d96ede6",
+        "size_in_bytes": 2572
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/__pycache__/__init__.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "00f71d46a8cbc89a27f562fd29b81847d3afd3e8f9b8d883fc950e0652cf109e",
+        "sha256_in_prefix": "00f71d46a8cbc89a27f562fd29b81847d3afd3e8f9b8d883fc950e0652cf109e",
+        "size_in_bytes": 2986
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/__pycache__/convert.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "a4ad9c1b57570af43f406ce29c67f758fcef99d079cbdf2e9b9706a59592d510",
+        "sha256_in_prefix": "a4ad9c1b57570af43f406ce29c67f758fcef99d079cbdf2e9b9706a59592d510",
+        "size_in_bytes": 6155
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/__pycache__/pack.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "3bf63e011f12880b3b7987f14ed3f67f217a6ccf3bd65fbf2c0c3c6129167eda",
+        "sha256_in_prefix": "3bf63e011f12880b3b7987f14ed3f67f217a6ccf3bd65fbf2c0c3c6129167eda",
+        "size_in_bytes": 2444
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/__pycache__/unpack.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "17a14406a6568d9e6d780a802f7694de882e314144698e73eda968fa62a9395f",
+        "sha256_in_prefix": "17a14406a6568d9e6d780a802f7694de882e314144698e73eda968fa62a9395f",
+        "size_in_bytes": 889
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/convert.py",
+        "path_type": "hardlink",
+        "sha256": "99ed25e86e204b0f840558738d2afbc96616069f6ca4ccfb9a75e5c894e25eca",
+        "sha256_in_prefix": "99ed25e86e204b0f840558738d2afbc96616069f6ca4ccfb9a75e5c894e25eca",
+        "size_in_bytes": 9497
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/pack.py",
+        "path_type": "hardlink",
+        "sha256": "be4bd9738fab459c968b073ab078e9a888f3c0344c105e6edc950d53d358fe30",
+        "sha256_in_prefix": "be4bd9738fab459c968b073ab078e9a888f3c0344c105e6edc950d53d358fe30",
+        "size_in_bytes": 2263
+      },
+      {
+        "_path": "Lib/site-packages/wheel/cli/unpack.py",
+        "path_type": "hardlink",
+        "sha256": "d155b34fb53fc727a74cfc0455abf1aaf75e7bddc63ef0051e747752ef756917",
+        "sha256_in_prefix": "d155b34fb53fc727a74cfc0455abf1aaf75e7bddc63ef0051e747752ef756917",
+        "size_in_bytes": 673
+      },
+      {
+        "_path": "Lib/site-packages/wheel/metadata.py",
+        "path_type": "hardlink",
+        "sha256": "b81bf668ecf8536b04445f37e02f0378da36df976b72ca77ca94f34fb3135840",
+        "sha256_in_prefix": "b81bf668ecf8536b04445f37e02f0378da36df976b72ca77ca94f34fb3135840",
+        "size_in_bytes": 4699
+      },
+      {
+        "_path": "Lib/site-packages/wheel/pep425tags.py",
+        "path_type": "hardlink",
+        "sha256": "25d8db9ead7b92ac0f44a24231bd84d5571c3609c2dc7ea240bed519ac643daa",
+        "sha256_in_prefix": "25d8db9ead7b92ac0f44a24231bd84d5571c3609c2dc7ea240bed519ac643daa",
+        "size_in_bytes": 5908
+      },
+      {
+        "_path": "Lib/site-packages/wheel/pkginfo.py",
+        "path_type": "hardlink",
+        "sha256": "191efa92ea50ce7d71f6c283697b84e81e85b19e0e91f46d1bba677655cfbd0e",
+        "sha256_in_prefix": "191efa92ea50ce7d71f6c283697b84e81e85b19e0e91f46d1bba677655cfbd0e",
+        "size_in_bytes": 1257
+      },
+      {
+        "_path": "Lib/site-packages/wheel/util.py",
+        "path_type": "hardlink",
+        "sha256": "cf054893ef6a59540b44c8248104cca784d11381d8d37fad094c4baed0a9b1f5",
+        "sha256_in_prefix": "cf054893ef6a59540b44c8248104cca784d11381d8d37fad094c4baed0a9b1f5",
+        "size_in_bytes": 924
+      },
+      {
+        "_path": "Lib/site-packages/wheel/wheelfile.py",
+        "path_type": "hardlink",
+        "sha256": "32db7a99469e6bec0006ab4de525b7467e9b56fc3e6dd71229a4764a35992c6e",
+        "sha256_in_prefix": "32db7a99469e6bec0006ab4de525b7467e9b56fc3e6dd71229a4764a35992c6e",
+        "size_in_bytes": 7222
+      },
+      {
+        "_path": "Scripts/wheel-script.py",
+        "path_type": "hardlink",
+        "sha256": "f81e86d226fd97f3a9fb708b803859f8922740e5b62a4577b0b6b8b1d6b8e333",
+        "sha256_in_prefix": "f81e86d226fd97f3a9fb708b803859f8922740e5b62a4577b0b6b8b1d6b8e333",
+        "size_in_bytes": 203
+      },
+      {
+        "_path": "Scripts/wheel.exe",
+        "path_type": "hardlink",
+        "sha256": "993203a406e04936a07829b1f482fd27d739b640482e213f4c49ea1ee78a5fcf",
+        "sha256_in_prefix": "993203a406e04936a07829b1f482fd27d739b640482e213f4c49ea1ee78a5fcf",
+        "size_in_bytes": 40960
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 58752,
+  "subdir": "win-64",
+  "timestamp": 1557859184272,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/wheel-0.33.4-py37_0.tar.bz2",
+  "version": "0.33.4"
+}

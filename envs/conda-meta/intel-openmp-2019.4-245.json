@@ -1,0 +1,57 @@
+{
+  "build": "245",
+  "build_number": 245,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\intel-openmp-2019.4-245",
+  "features": "",
+  "files": [
+    "Library/bin/libiomp5md.dll",
+    "Library/bin/libiomp5md.pdb",
+    "Library/bin/libiompstubs5md.dll"
+  ],
+  "fn": "intel-openmp-2019.4-245.tar.bz2",
+  "license": "proprietary - Intel",
+  "license_family": "Proprietary",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\intel-openmp-2019.4-245",
+    "type": 1
+  },
+  "md5": "cd40f1846d3ada9ad3cfa61ef5fa7502",
+  "name": "intel-openmp",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\intel-openmp-2019.4-245.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/bin/libiomp5md.dll",
+        "path_type": "hardlink",
+        "sha256": "723d03a29d1e0ad629a5e6e3bcee49ddb455434778cd5799aab6d727cbd98275",
+        "sha256_in_prefix": "723d03a29d1e0ad629a5e6e3bcee49ddb455434778cd5799aab6d727cbd98275",
+        "size_in_bytes": 1717584
+      },
+      {
+        "_path": "Library/bin/libiomp5md.pdb",
+        "path_type": "hardlink",
+        "sha256": "63f5edbb18c0171330e53973a7af9e72be5cc9e90217ce0ae2a9754f77ed481c",
+        "sha256_in_prefix": "63f5edbb18c0171330e53973a7af9e72be5cc9e90217ce0ae2a9754f77ed481c",
+        "size_in_bytes": 4582400
+      },
+      {
+        "_path": "Library/bin/libiompstubs5md.dll",
+        "path_type": "hardlink",
+        "sha256": "36f57b23374ab1f83ce36954e65651d3bc67232095330dedc98bc7bd4ee62d11",
+        "sha256_in_prefix": "36f57b23374ab1f83ce36954e65651d3bc67232095330dedc98bc7bd4ee62d11",
+        "size_in_bytes": 111952
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 1791126,
+  "subdir": "win-64",
+  "timestamp": 1559526604085,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/intel-openmp-2019.4-245.tar.bz2",
+  "version": "2019.4"
+}

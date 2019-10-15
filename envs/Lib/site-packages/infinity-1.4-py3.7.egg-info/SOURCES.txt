@@ -1,0 +1,14 @@
+CHANGES.rst
+LICENSE
+MANIFEST.in
+README.rst
+infinity.py
+setup.cfg
+setup.py
+test_infinity.py
+infinity.egg-info/PKG-INFO
+infinity.egg-info/SOURCES.txt
+infinity.egg-info/dependency_links.txt
+infinity.egg-info/not-zip-safe
+infinity.egg-info/requires.txt
+infinity.egg-info/top_level.txt

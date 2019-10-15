@@ -1,0 +1,12 @@
+prefix=C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs/Library
+exec_prefix=C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs/Library
+libdir=C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs/Library/lib
+includedir=C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs/Library/include/libpng16
+
+Name: libpng
+Description: Loads and saves PNG files
+Version: 1.6.37
+Requires: zlib
+Libs: -L${libdir} -lpng16
+Libs.private: -lz -lm
+Cflags: -I${includedir}

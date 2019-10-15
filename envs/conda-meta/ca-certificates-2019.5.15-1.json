@@ -1,0 +1,48 @@
+{
+  "build": "1",
+  "build_number": 1,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\ca-certificates-2019.5.15-1",
+  "features": "",
+  "files": [
+    "Library/ssl/cacert.pem",
+    "Library/ssl/cert.pem"
+  ],
+  "fn": "ca-certificates-2019.5.15-1.tar.bz2",
+  "license": "MPL 2.0",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\ca-certificates-2019.5.15-1",
+    "type": 1
+  },
+  "md5": "6623284afd2199552cd1a19465490e17",
+  "name": "ca-certificates",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\ca-certificates-2019.5.15-1.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/ssl/cacert.pem",
+        "path_type": "hardlink",
+        "sha256": "cb2eca3fbfa232c9e3874e3852d43b33589f27face98eef10242a853d83a437a",
+        "sha256_in_prefix": "cb2eca3fbfa232c9e3874e3852d43b33589f27face98eef10242a853d83a437a",
+        "size_in_bytes": 226116
+      },
+      {
+        "_path": "Library/ssl/cert.pem",
+        "path_type": "hardlink",
+        "sha256": "cb2eca3fbfa232c9e3874e3852d43b33589f27face98eef10242a853d83a437a",
+        "sha256_in_prefix": "cb2eca3fbfa232c9e3874e3852d43b33589f27face98eef10242a853d83a437a",
+        "size_in_bytes": 226116
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 170362,
+  "subdir": "win-64",
+  "timestamp": 1565374292969,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/ca-certificates-2019.5.15-1.tar.bz2",
+  "version": "2019.5.15"
+}

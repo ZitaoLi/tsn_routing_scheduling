@@ -1,0 +1,99 @@
+{
+  "build": "py37_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.7,<3.8.0a0"
+  ],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\infinity-1.4-py37_0",
+  "features": "",
+  "files": [
+    "Lib/site-packages/__pycache__/infinity.cpython-37.pyc",
+    "Lib/site-packages/infinity-1.4-py3.7.egg-info/PKG-INFO",
+    "Lib/site-packages/infinity-1.4-py3.7.egg-info/SOURCES.txt",
+    "Lib/site-packages/infinity-1.4-py3.7.egg-info/dependency_links.txt",
+    "Lib/site-packages/infinity-1.4-py3.7.egg-info/not-zip-safe",
+    "Lib/site-packages/infinity-1.4-py3.7.egg-info/requires.txt",
+    "Lib/site-packages/infinity-1.4-py3.7.egg-info/top_level.txt",
+    "Lib/site-packages/infinity.py"
+  ],
+  "fn": "infinity-1.4-py37_0.tar.bz2",
+  "license": "BSD 3-Clause",
+  "license_family": "BSD",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\infinity-1.4-py37_0",
+    "type": 1
+  },
+  "md5": "340b56b8b00ba58ac8fc128ded463d9c",
+  "name": "infinity",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\infinity-1.4-py37_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Lib/site-packages/__pycache__/infinity.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "b452e7b0442406a8409937a928860b81129be84ef2f9f6a12ebfb4cc616737c3",
+        "sha256_in_prefix": "b452e7b0442406a8409937a928860b81129be84ef2f9f6a12ebfb4cc616737c3",
+        "size_in_bytes": 3979
+      },
+      {
+        "_path": "Lib/site-packages/infinity-1.4-py3.7.egg-info/PKG-INFO",
+        "path_type": "hardlink",
+        "sha256": "99f4dde066e0fe5f65b951df06ce8ebea64ff3341b402fc3cf2efbf6061f7696",
+        "sha256_in_prefix": "99f4dde066e0fe5f65b951df06ce8ebea64ff3341b402fc3cf2efbf6061f7696",
+        "size_in_bytes": 1355
+      },
+      {
+        "_path": "Lib/site-packages/infinity-1.4-py3.7.egg-info/SOURCES.txt",
+        "path_type": "hardlink",
+        "sha256": "7e3d037df19c697a8de458dba8de5bb5cb2251e0f79362f3b5d13cac22c8b4c1",
+        "sha256_in_prefix": "7e3d037df19c697a8de458dba8de5bb5cb2251e0f79362f3b5d13cac22c8b4c1",
+        "size_in_bytes": 280
+      },
+      {
+        "_path": "Lib/site-packages/infinity-1.4-py3.7.egg-info/dependency_links.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/infinity-1.4-py3.7.egg-info/not-zip-safe",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/infinity-1.4-py3.7.egg-info/requires.txt",
+        "path_type": "hardlink",
+        "sha256": "ab70b4b4b9787f3955522bdeb08de76686f30167d15f166895f3787fa5bc2202",
+        "sha256_in_prefix": "ab70b4b4b9787f3955522bdeb08de76686f30167d15f166895f3787fa5bc2202",
+        "size_in_bytes": 74
+      },
+      {
+        "_path": "Lib/site-packages/infinity-1.4-py3.7.egg-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "2395210680ab38e5da24dff11971a803bde7a5227e2118aa61d44bf0d61fe556",
+        "sha256_in_prefix": "2395210680ab38e5da24dff11971a803bde7a5227e2118aa61d44bf0d61fe556",
+        "size_in_bytes": 9
+      },
+      {
+        "_path": "Lib/site-packages/infinity.py",
+        "path_type": "hardlink",
+        "sha256": "68a80fa0d9b31449b6171752f4ff33f6cd0a9f481b33b289834943a438fd2b7d",
+        "sha256_in_prefix": "68a80fa0d9b31449b6171752f4ff33f6cd0a9f481b33b289834943a438fd2b7d",
+        "size_in_bytes": 2803
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 7302,
+  "subdir": "win-64",
+  "timestamp": 1533372373439,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/infinity-1.4-py37_0.tar.bz2",
+  "version": "1.4"
+}

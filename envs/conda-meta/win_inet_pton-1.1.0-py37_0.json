@@ -1,0 +1,90 @@
+{
+  "build": "py37_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.7,<3.8.0a0"
+  ],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\win_inet_pton-1.1.0-py37_0",
+  "features": "",
+  "files": [
+    "Lib/site-packages/__pycache__/win_inet_pton.cpython-37.pyc",
+    "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/PKG-INFO",
+    "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/SOURCES.txt",
+    "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/dependency_links.txt",
+    "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/installed-files.txt",
+    "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/top_level.txt",
+    "Lib/site-packages/win_inet_pton.py"
+  ],
+  "fn": "win_inet_pton-1.1.0-py37_0.tar.bz2",
+  "license": "PUBLIC-DOMAIN",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\win_inet_pton-1.1.0-py37_0",
+    "type": 1
+  },
+  "md5": "4ec69295c06d6bb5d7735b98ecb393e6",
+  "name": "win_inet_pton",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\win_inet_pton-1.1.0-py37_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Lib/site-packages/__pycache__/win_inet_pton.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "ee2902b04802edb5ac7f3139b455bc69cdbdd4cf638fd21b7f5483a6d5eccaac",
+        "sha256_in_prefix": "ee2902b04802edb5ac7f3139b455bc69cdbdd4cf638fd21b7f5483a6d5eccaac",
+        "size_in_bytes": 2831
+      },
+      {
+        "_path": "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/PKG-INFO",
+        "path_type": "hardlink",
+        "sha256": "b2e71400c266b750142674e34db46b959a68d572766d466b99f7bc8d06226baf",
+        "sha256_in_prefix": "b2e71400c266b750142674e34db46b959a68d572766d466b99f7bc8d06226baf",
+        "size_in_bytes": 2590
+      },
+      {
+        "_path": "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/SOURCES.txt",
+        "path_type": "hardlink",
+        "sha256": "496b3b5dfa760b3bc50df708aab03ea04cfe1724dd96f5b767097a71ce570a69",
+        "sha256_in_prefix": "496b3b5dfa760b3bc50df708aab03ea04cfe1724dd96f5b767097a71ce570a69",
+        "size_in_bytes": 214
+      },
+      {
+        "_path": "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/dependency_links.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/installed-files.txt",
+        "path_type": "hardlink",
+        "sha256": "e19b65b6c550b36a2ca9fd45c4be97da34cdc7464a15e7e285da5b727d2c9053",
+        "sha256_in_prefix": "e19b65b6c550b36a2ca9fd45c4be97da34cdc7464a15e7e285da5b727d2c9053",
+        "size_in_bytes": 126
+      },
+      {
+        "_path": "Lib/site-packages/win_inet_pton-1.1.0-py3.7.egg-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "58d1c102021ada107662a5239f18afa35d94f4c0769f07045b050833f8344226",
+        "sha256_in_prefix": "58d1c102021ada107662a5239f18afa35d94f4c0769f07045b050833f8344226",
+        "size_in_bytes": 14
+      },
+      {
+        "_path": "Lib/site-packages/win_inet_pton.py",
+        "path_type": "hardlink",
+        "sha256": "097bbf572cb0df4dbf44139239175c0335770a0eee056112a175b22efab034f8",
+        "sha256_in_prefix": "097bbf572cb0df4dbf44139239175c0335770a0eee056112a175b22efab034f8",
+        "size_in_bytes": 4035
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 9300,
+  "subdir": "win-64",
+  "timestamp": 1551195764254,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/win_inet_pton-1.1.0-py37_0.tar.bz2",
+  "version": "1.1.0"
+}

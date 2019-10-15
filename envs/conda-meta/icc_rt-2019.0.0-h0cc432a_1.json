@@ -1,0 +1,144 @@
+{
+  "build": "h0cc432a_1",
+  "build_number": 1,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\icc_rt-2019.0.0-h0cc432a_1",
+  "features": "",
+  "files": [
+    "Library/bin/1033/ifcore_msg.dll",
+    "Library/bin/1033/irc_msg.dll",
+    "Library/bin/1033/libmUI.dll",
+    "Library/bin/cilkrts20.dll",
+    "Library/bin/ifdlg100.dll",
+    "Library/bin/libchkp.dll",
+    "Library/bin/libicaf.dll",
+    "Library/bin/libifcoremd.dll",
+    "Library/bin/libifcorert.dll",
+    "Library/bin/libifportmd.dll",
+    "Library/bin/libirngmd.dll",
+    "Library/bin/libmmd.dll",
+    "Library/bin/libmpx.dll",
+    "Library/bin/svml_dispmd.dll"
+  ],
+  "fn": "icc_rt-2019.0.0-h0cc432a_1.tar.bz2",
+  "license": "Intel proprietary",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\icc_rt-2019.0.0-h0cc432a_1",
+    "type": 1
+  },
+  "md5": "ce2949c239b5cd45848a0a7865d30520",
+  "name": "icc_rt",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\icc_rt-2019.0.0-h0cc432a_1.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/bin/1033/ifcore_msg.dll",
+        "path_type": "hardlink",
+        "sha256": "20d2cb95e529c1b48dd27cb9a8b167b1329ba40874d4c7b348242e111a6302bf",
+        "sha256_in_prefix": "20d2cb95e529c1b48dd27cb9a8b167b1329ba40874d4c7b348242e111a6302bf",
+        "size_in_bytes": 61144
+      },
+      {
+        "_path": "Library/bin/1033/irc_msg.dll",
+        "path_type": "hardlink",
+        "sha256": "7e83672a016fd83e108a763b7f543d7a074f00306bda3b0909d3d91bee2599fe",
+        "sha256_in_prefix": "7e83672a016fd83e108a763b7f543d7a074f00306bda3b0909d3d91bee2599fe",
+        "size_in_bytes": 17624
+      },
+      {
+        "_path": "Library/bin/1033/libmUI.dll",
+        "path_type": "hardlink",
+        "sha256": "a12d9a6e945cdd79fcdaa746c67504c6153a0f4c19f8e3b3c67cb1f25978a5f1",
+        "sha256_in_prefix": "a12d9a6e945cdd79fcdaa746c67504c6153a0f4c19f8e3b3c67cb1f25978a5f1",
+        "size_in_bytes": 11480
+      },
+      {
+        "_path": "Library/bin/cilkrts20.dll",
+        "path_type": "hardlink",
+        "sha256": "d9365c1a83c21801aab3001ac47850b2677ce72e722a9109ab176ad1a60f3890",
+        "sha256_in_prefix": "d9365c1a83c21801aab3001ac47850b2677ce72e722a9109ab176ad1a60f3890",
+        "size_in_bytes": 313560
+      },
+      {
+        "_path": "Library/bin/ifdlg100.dll",
+        "path_type": "hardlink",
+        "sha256": "dbcc26c5c57cde1ee927fa4ccd132db35619bca6d622f5af433bbdb99535f0d6",
+        "sha256_in_prefix": "dbcc26c5c57cde1ee927fa4ccd132db35619bca6d622f5af433bbdb99535f0d6",
+        "size_in_bytes": 447192
+      },
+      {
+        "_path": "Library/bin/libchkp.dll",
+        "path_type": "hardlink",
+        "sha256": "d10329cf354af8e4207ece5e5c6b15a3c199e59376896abb5651e422d53cb137",
+        "sha256_in_prefix": "d10329cf354af8e4207ece5e5c6b15a3c199e59376896abb5651e422d53cb137",
+        "size_in_bytes": 103128
+      },
+      {
+        "_path": "Library/bin/libicaf.dll",
+        "path_type": "hardlink",
+        "sha256": "e937b89502f5791cf46749430ef5f22652d0a2c6b231a601de19a0a4659a0942",
+        "sha256_in_prefix": "e937b89502f5791cf46749430ef5f22652d0a2c6b231a601de19a0a4659a0942",
+        "size_in_bytes": 234712
+      },
+      {
+        "_path": "Library/bin/libifcoremd.dll",
+        "path_type": "hardlink",
+        "sha256": "04b9669e0be65777db84dc50fd162c04c4e50db67f3690d9c5f36360abc8b985",
+        "sha256_in_prefix": "04b9669e0be65777db84dc50fd162c04c4e50db67f3690d9c5f36360abc8b985",
+        "size_in_bytes": 1720536
+      },
+      {
+        "_path": "Library/bin/libifcorert.dll",
+        "path_type": "hardlink",
+        "sha256": "8fb48d90701c1e958535cf4645995efa847c332772708d50876301460ff387ee",
+        "sha256_in_prefix": "8fb48d90701c1e958535cf4645995efa847c332772708d50876301460ff387ee",
+        "size_in_bytes": 1709272
+      },
+      {
+        "_path": "Library/bin/libifportmd.dll",
+        "path_type": "hardlink",
+        "sha256": "cc4da9551cfa7549f2ccc933e1602c5143af18f041fbf3f299b9240a78c97554",
+        "sha256_in_prefix": "cc4da9551cfa7549f2ccc933e1602c5143af18f041fbf3f299b9240a78c97554",
+        "size_in_bytes": 354520
+      },
+      {
+        "_path": "Library/bin/libirngmd.dll",
+        "path_type": "hardlink",
+        "sha256": "007ade76015c255ac6a0c2f2fd644e4aead5350d1b1b9a1b98bd459e3a6c0594",
+        "sha256_in_prefix": "007ade76015c255ac6a0c2f2fd644e4aead5350d1b1b9a1b98bd459e3a6c0594",
+        "size_in_bytes": 1534168
+      },
+      {
+        "_path": "Library/bin/libmmd.dll",
+        "path_type": "hardlink",
+        "sha256": "61e4f7fe36a7636823baa7051c80568db450ef1a037c05d16b0186d3de95ded6",
+        "sha256_in_prefix": "61e4f7fe36a7636823baa7051c80568db450ef1a037c05d16b0186d3de95ded6",
+        "size_in_bytes": 4271832
+      },
+      {
+        "_path": "Library/bin/libmpx.dll",
+        "path_type": "hardlink",
+        "sha256": "9c5cc4d1483e51d37f5ef24933bd50f3150da7030af60932f345074058a47df1",
+        "sha256_in_prefix": "9c5cc4d1483e51d37f5ef24933bd50f3150da7030af60932f345074058a47df1",
+        "size_in_bytes": 101080
+      },
+      {
+        "_path": "Library/bin/svml_dispmd.dll",
+        "path_type": "hardlink",
+        "sha256": "0a079ac66f095ac5a3d672ecd36c68b7f5265813c0dd923bc805529ac0289698",
+        "sha256_in_prefix": "0a079ac66f095ac5a3d672ecd36c68b7f5265813c0dd923bc805529ac0289698",
+        "size_in_bytes": 18838744
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 9900198,
+  "subdir": "win-64",
+  "timestamp": 1545006766605,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/icc_rt-2019.0.0-h0cc432a_1.tar.bz2",
+  "version": "2019.0.0"
+}

@@ -1,0 +1,11 @@
+LICENSE
+MANIFEST.in
+README.md
+mypy_extensions.py
+setup.cfg
+setup.py
+mypy_extensions.egg-info/PKG-INFO
+mypy_extensions.egg-info/SOURCES.txt
+mypy_extensions.egg-info/dependency_links.txt
+mypy_extensions.egg-info/requires.txt
+mypy_extensions.egg-info/top_level.txt

@@ -1,0 +1,138 @@
+{
+  "build": "py37_1",
+  "build_number": 1,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.7,<3.8.0a0"
+  ],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\certifi-2019.6.16-py37_1",
+  "features": "",
+  "files": [
+    "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/PKG-INFO",
+    "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/SOURCES.txt",
+    "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/dependency_links.txt",
+    "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/installed-files.txt",
+    "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/not-zip-safe",
+    "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/top_level.txt",
+    "Lib/site-packages/certifi/__init__.py",
+    "Lib/site-packages/certifi/__main__.py",
+    "Lib/site-packages/certifi/__pycache__/__init__.cpython-37.pyc",
+    "Lib/site-packages/certifi/__pycache__/__main__.cpython-37.pyc",
+    "Lib/site-packages/certifi/__pycache__/core.cpython-37.pyc",
+    "Lib/site-packages/certifi/cacert.pem",
+    "Lib/site-packages/certifi/core.py"
+  ],
+  "fn": "certifi-2019.6.16-py37_1.tar.bz2",
+  "license": "ISC",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\certifi-2019.6.16-py37_1",
+    "type": 1
+  },
+  "md5": "88452bd09ea3830ec8160ef9677da9a9",
+  "name": "certifi",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\certifi-2019.6.16-py37_1.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/PKG-INFO",
+        "path_type": "hardlink",
+        "sha256": "3b08b0e740c51bb387de90bd2a7299441829db31fabf8efa40b3090589e64165",
+        "sha256_in_prefix": "3b08b0e740c51bb387de90bd2a7299441829db31fabf8efa40b3090589e64165",
+        "size_in_bytes": 2989
+      },
+      {
+        "_path": "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/SOURCES.txt",
+        "path_type": "hardlink",
+        "sha256": "c114f069d008d26b348202e02bfe15105bad6ff7bf233a1a3f874d4889c584b0",
+        "sha256_in_prefix": "c114f069d008d26b348202e02bfe15105bad6ff7bf233a1a3f874d4889c584b0",
+        "size_in_bytes": 278
+      },
+      {
+        "_path": "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/dependency_links.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/installed-files.txt",
+        "path_type": "hardlink",
+        "sha256": "2273dbc09e1f55bee490b5f1cd4944376791c89fe3b0e5d568f7c790fc944990",
+        "sha256_in_prefix": "2273dbc09e1f55bee490b5f1cd4944376791c89fe3b0e5d568f7c790fc944990",
+        "size_in_bytes": 305
+      },
+      {
+        "_path": "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/not-zip-safe",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/certifi-2019.6.16-py3.7.egg-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "28cbb8bd409fb232eb90f6d235d81d7a44bea552730402453bffe723c345ebe5",
+        "sha256_in_prefix": "28cbb8bd409fb232eb90f6d235d81d7a44bea552730402453bffe723c345ebe5",
+        "size_in_bytes": 8
+      },
+      {
+        "_path": "Lib/site-packages/certifi/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "a61b0cc8a4d03fb30c7b5c001df8573db415c4bdf05e2c4ea26c73361e42c1ae",
+        "sha256_in_prefix": "a61b0cc8a4d03fb30c7b5c001df8573db415c4bdf05e2c4ea26c73361e42c1ae",
+        "size_in_bytes": 52
+      },
+      {
+        "_path": "Lib/site-packages/certifi/__main__.py",
+        "path_type": "hardlink",
+        "sha256": "162398b75165b6cb7bc24f4345ae860a806bf2a054c65350bbf30a25fd3813ab",
+        "sha256_in_prefix": "162398b75165b6cb7bc24f4345ae860a806bf2a054c65350bbf30a25fd3813ab",
+        "size_in_bytes": 41
+      },
+      {
+        "_path": "Lib/site-packages/certifi/__pycache__/__init__.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "e54dedf27b5c5ae139c1c219bd65eb08c18d9d5ebaf3c82ca06fbc9c134b78b5",
+        "sha256_in_prefix": "e54dedf27b5c5ae139c1c219bd65eb08c18d9d5ebaf3c82ca06fbc9c134b78b5",
+        "size_in_bytes": 189
+      },
+      {
+        "_path": "Lib/site-packages/certifi/__pycache__/__main__.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "734cd4b8bb4ba6708721fcd340fbac3637a12de5a4ab872a3ee0e354b0ef409e",
+        "sha256_in_prefix": "734cd4b8bb4ba6708721fcd340fbac3637a12de5a4ab872a3ee0e354b0ef409e",
+        "size_in_bytes": 180
+      },
+      {
+        "_path": "Lib/site-packages/certifi/__pycache__/core.cpython-37.pyc",
+        "path_type": "hardlink",
+        "sha256": "71cb1466df7347dec042b8ec3a597d76d64e4b2832c53fa36d2cc2325b94d9fb",
+        "sha256_in_prefix": "71cb1466df7347dec042b8ec3a597d76d64e4b2832c53fa36d2cc2325b94d9fb",
+        "size_in_bytes": 401
+      },
+      {
+        "_path": "Lib/site-packages/certifi/cacert.pem",
+        "path_type": "hardlink",
+        "sha256": "0dd74ebfba50c8c07cccd36089749216b3d59fb10df2a6deecfea1fc8632b9e9",
+        "sha256_in_prefix": "0dd74ebfba50c8c07cccd36089749216b3d59fb10df2a6deecfea1fc8632b9e9",
+        "size_in_bytes": 282085
+      },
+      {
+        "_path": "Lib/site-packages/certifi/core.py",
+        "path_type": "hardlink",
+        "sha256": "12e15cd81b13a06e4ed7eaacc780528d0d6bd7eed646d1fcedbd567e564e5a12",
+        "sha256_in_prefix": "12e15cd81b13a06e4ed7eaacc780528d0d6bd7eed646d1fcedbd567e564e5a12",
+        "size_in_bytes": 218
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 159777,
+  "subdir": "win-64",
+  "timestamp": 1564158779285,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/certifi-2019.6.16-py37_1.tar.bz2",
+  "version": "2019.6.16"
+}

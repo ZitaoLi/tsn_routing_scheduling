@@ -1,0 +1,66 @@
+{
+  "build": "he774522_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/win-64",
+  "constrains": [],
+  "depends": [
+    "vc >=14.1,<15.0a0"
+  ],
+  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\sqlite-3.29.0-he774522_0",
+  "features": "",
+  "files": [
+    "Library/bin/sqlite3.dll",
+    "Library/bin/sqlite3.exe",
+    "Library/include/sqlite3.h",
+    "Library/lib/sqlite3.lib"
+  ],
+  "fn": "sqlite-3.29.0-he774522_0.tar.bz2",
+  "license": "Public-Domain (http://www.sqlite.org/copyright.html)",
+  "link": {
+    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\sqlite-3.29.0-he774522_0",
+    "type": 1
+  },
+  "md5": "aa1f14ecb00c376fbb1d2c0b2700acf8",
+  "name": "sqlite",
+  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\sqlite-3.29.0-he774522_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/bin/sqlite3.dll",
+        "path_type": "hardlink",
+        "sha256": "52aaa1c3df3166c945fb0de28f09f8e2b5ef3c5d231de0f7eecdf45519dac0e2",
+        "sha256_in_prefix": "52aaa1c3df3166c945fb0de28f09f8e2b5ef3c5d231de0f7eecdf45519dac0e2",
+        "size_in_bytes": 1033728
+      },
+      {
+        "_path": "Library/bin/sqlite3.exe",
+        "path_type": "hardlink",
+        "sha256": "095a55f1d28737a46629d60dbda9e6dee4fdaf049c3ef1fc2af92bb44490d3fb",
+        "sha256_in_prefix": "095a55f1d28737a46629d60dbda9e6dee4fdaf049c3ef1fc2af92bb44490d3fb",
+        "size_in_bytes": 1313792
+      },
+      {
+        "_path": "Library/include/sqlite3.h",
+        "path_type": "hardlink",
+        "sha256": "6a57435f62f9253ac041513bd5c14a12e683e7ecf4e3d7be17cbfe92266c2dbc",
+        "sha256_in_prefix": "6a57435f62f9253ac041513bd5c14a12e683e7ecf4e3d7be17cbfe92266c2dbc",
+        "size_in_bytes": 561712
+      },
+      {
+        "_path": "Library/lib/sqlite3.lib",
+        "path_type": "hardlink",
+        "sha256": "8a27d62d64db03a79923b6c3c1583fddc691fa8e215d000722d4666bf4ad0b70",
+        "sha256_in_prefix": "8a27d62d64db03a79923b6c3c1583fddc691fa8e215d000722d4666bf4ad0b70",
+        "size_in_bytes": 59384
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 985030,
+  "subdir": "win-64",
+  "timestamp": 1563287062546,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/win-64/sqlite-3.29.0-he774522_0.tar.bz2",
+  "version": "3.29.0"
+}
