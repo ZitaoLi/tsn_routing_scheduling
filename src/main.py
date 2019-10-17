@@ -2,13 +2,14 @@ import sys
 import logging
 import os
 import copy
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from src.graph.Graph import Graph
 from src.graph.Flow import Flow
 from src.utils.Visualizer import Visualizer
 from src.graph.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver
+from src.utils import MacAddressGenerator as mag
 from src import config
 
 '''
@@ -20,9 +21,10 @@ IDEAL_BANDWIDTH = int(1e0)  # 1Gbps = 1bit/ns, [unit: bpns]
 
 
 def main():
-    # test()
-    test_2()
-    # test_v()
+    # test()  # fixed flows
+    # test_2()  # random flows
+    # test_v()  # visualizer
+    test_mac_address_generator()
 
 
 def test():
@@ -49,7 +51,8 @@ def test():
     fs.append(f4)
 
     Solver.generate_init_solution(nodes, edges, fs)
-    Solver.optimize(config.OPTIMIZATION['max_iterations'], config.OPTIMIZATION['max_no_improve'], config.OPTIMIZATION['k'])
+    Solver.optimize(config.OPTIMIZATION['max_iterations'], config.OPTIMIZATION['max_no_improve'],
+                    config.OPTIMIZATION['k'])
 
     f_json = FlowGenerator.flows2json(fs)
     path = os.path.join(os.path.abspath('.'), 'json')
@@ -87,11 +90,25 @@ def test_2():
         _fs = FlowGenerator.json2flows(_json)
 
     Solver.generate_init_solution(nodes, edges, _fs)
-    Solver.optimize(config.OPTIMIZATION['max_iterations'], config.OPTIMIZATION['max_no_improve'], config.OPTIMIZATION['k'])
+    Solver.optimize(config.OPTIMIZATION['max_iterations'], config.OPTIMIZATION['max_no_improve'],
+                    config.OPTIMIZATION['k'])
 
 
 def test_v():
     Visualizer.test_2()
+
+
+def test_mac_address_generator():
+    nodes: List[int] = [1, 2, 3, 4, 5, 6, 7]
+    edges: List[Tuple[int]] = [(1, 2), (2, 1), (2, 3), (3, 2), (2, 4), (4, 2), (3, 4), (4, 3), (3, 5), (5, 3), (4, 5),
+                               (5, 4), (5, 6), (6, 5), (5, 7), (7, 5)]
+    g: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
+    # g.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
+
+    mac_list: List[str] = mag.MacAddressGenerator.generate_all_multicast_mac_address(g)
+    [print(mac) for mac in mac_list]
+    edge_mac_dict: Dict[int, mag.EdgeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_edge(mac_list, g)
+    [print(str(edge_mac.edge_id) + ': ' + edge_mac.mac_pair[0] + ',' + edge_mac.mac_pair[1]) for edge_mac in edge_mac_dict.values()]
 
 
 if __name__ == "__main__":

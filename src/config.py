@@ -12,3 +12,10 @@ OPTIMIZATION = {
     'max_no_improve': 5,  # maximum local search width
     'k': 0.3,  # ratio of removed flows
 }
+
+XML_CONFIG = {
+    'tsn_host_pre_name': 'Host',  # prefix of tsn termination host
+    'tsn_switch_pre_name': 'Switch',  # prefix of tsn
+    'one-flow-one-host': False,  # whether one flow corresponds one host or not
+    'multicast-mode': True,  # whether all flow follow multicast transmission mode or not
+}

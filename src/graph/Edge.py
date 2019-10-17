@@ -11,7 +11,7 @@ EdgeType = Enum('EdgeType', ('HOST_TO_SWITCH', 'SWITCH_TO_SWITCH'))
 
 class Edge:
     edge_id: int  # id
-    int_node: Node  # inbound port
+    in_node: Node  # inbound port
     out_node: Node  # outbound port
     edge: tuple  # edge tuple
     bandwidth: int  # bandwidth or speed

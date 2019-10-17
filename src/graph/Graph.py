@@ -42,6 +42,12 @@ class Graph:
         self.init_edges()
         self.print_nodes()
 
+    def get_node_num(self):
+        return self.nodes.__len__()
+
+    def get_edge_num(self):
+        return self.edges.__len__()
+
     def print_nodes(self):
         for _nid in self.nodes:
             self.node_mapper[_nid].to_string()
