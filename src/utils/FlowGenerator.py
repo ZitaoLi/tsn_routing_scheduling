@@ -80,7 +80,7 @@ class FlowGenerator:
 
     @classmethod
     def flows2json(cls, flows: List[Flow]) -> str:
-        _F: str = dict()
+        _F: Dict[str] = dict()
         for _i, flow in enumerate(flows):
             _F['f' + str(_i)] = json.dumps(flow.__dict__, default=cls._obj2json_helper)
         return json.dumps(_F)

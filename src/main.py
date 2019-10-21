@@ -7,7 +7,7 @@ from typing import List, Tuple, Dict
 from src.graph.Graph import Graph
 from src.graph.Flow import Flow
 from src.utils.Visualizer import Visualizer
-from src.graph.FlowGenerator import FlowGenerator
+from src.utils.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver
 from src.utils import MacAddressGenerator as mag
 from src import config
@@ -108,7 +108,8 @@ def test_mac_address_generator():
     mac_list: List[str] = mag.MacAddressGenerator.generate_all_multicast_mac_address(g)
     [print(mac) for mac in mac_list]
     edge_mac_dict: Dict[int, mag.EdgeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_edge(mac_list, g)
-    [print(str(edge_mac.edge_id) + ': ' + edge_mac.mac_pair[0] + ',' + edge_mac.mac_pair[1]) for edge_mac in edge_mac_dict.values()]
+    [print(str(edge_mac.edge_id) + ': ' + edge_mac.mac_pair[0] + ',' + edge_mac.mac_pair[1]) for edge_mac in
+     edge_mac_dict.values()]
 
 
 if __name__ == "__main__":
