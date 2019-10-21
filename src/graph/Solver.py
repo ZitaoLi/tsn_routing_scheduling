@@ -40,7 +40,7 @@ class Solver:
         return _m + _max_ts_used / _ts_num
 
     @classmethod
-    def generate_init_solution(cls, nodes: List[int], edges: List[Tuple[int]], flows: List[Flow]):
+    def generate_init_solution(cls, nodes: List[int], edges: List[Tuple[int]], flows: List[Flow], visual: bool = True):
         _g: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
         _g.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
         _g.flow_router.set_overlapped(config.GRAPH_CONFIG['overlapped-routing'])
@@ -50,11 +50,13 @@ class Solver:
         _F = [_fid for _fid in _F if _fid not in _g.flow_router.failure_queue]
         _g.flow_scheduler.schedule_flows(_F)  # scheduling
         _g.combine_failure_queue()
-        _g.draw_gantt()
+        if visual is True:
+            _g.draw_gantt()
         cls.final_solution = Solution(_g, flows)
+        return _g
 
     @classmethod
-    def optimize(cls, max_iterations: int, max_no_improve: int, k: int):
+    def optimize(cls, max_iterations: int, max_no_improve: int, k: int, visual: bool = True):
         _o: float = cls.objective_function(cls.final_solution)
         for i in range(max_iterations):
             _s: Solution = cls.perturbate(k)  # perturbation to generate a new solution
@@ -63,7 +65,8 @@ class Solver:
             cls.apply_acceptance_criterion(_s_hat)
         logger.info('initial objective function value = ' + str(_o))
         logger.info('final objective function value = ' + str(cls.objective_function(cls.final_solution)))
-        cls.final_solution.graph.draw_gantt()
+        if visual is True:
+            cls.final_solution.graph.draw_gantt()
 
     @classmethod
     def local_search(cls, _s: Solution, max_no_improve: int) -> Solution:

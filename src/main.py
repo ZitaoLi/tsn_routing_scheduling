@@ -10,6 +10,7 @@ from src.utils.Visualizer import Visualizer
 from src.utils.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver
 from src.utils import MacAddressGenerator as mag
+from src.utils import RoutesGenerator as rg
 from src import config
 
 '''
@@ -102,14 +103,29 @@ def test_mac_address_generator():
     nodes: List[int] = [1, 2, 3, 4, 5, 6, 7]
     edges: List[Tuple[int]] = [(1, 2), (2, 1), (2, 3), (3, 2), (2, 4), (4, 2), (3, 4), (4, 3), (3, 5), (5, 3), (4, 5),
                                (5, 4), (5, 6), (6, 5), (5, 7), (7, 5)]
-    g: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
-    # g.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
+    f1: Flow = Flow(1, int(8e3), int(3e5), 1, [6, 7], 0.0, int(1e6))
+    f2: Flow = Flow(2, int(2e4), int(1.5e5), 1, [6], 0.0, int(1e6))
+    f3: Flow = Flow(3, int(3e4), int(3e5), 1, [6, 7], 0.0, int(1e6))
+    f4: Flow = Flow(4, int(2e3), int(3e5), 1, [7], 0.0, int(1e6))
+    flow_list: List[Flow] = list()
+    flow_list.append(f1)
+    flow_list.append(f2)
+    flow_list.append(f3)
+    flow_list.append(f4)
+
+    g: Graph = Solver.generate_init_solution(nodes, edges, flow_list, visual=False)
+    # Solver.optimize(config.OPTIMIZATION['max_iterations'], config.OPTIMIZATION['max_no_improve'],
+    #                 config.OPTIMIZATION['k'], visual=False)
 
     mac_list: List[str] = mag.MacAddressGenerator.generate_all_multicast_mac_address(g)
     [print(mac) for mac in mac_list]
     edge_mac_dict: Dict[int, mag.EdgeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_edge(mac_list, g)
     [print(str(edge_mac.edge_id) + ': ' + edge_mac.mac_pair[0] + ',' + edge_mac.mac_pair[1]) for edge_mac in
      edge_mac_dict.values()]
+    route_immediate_entity: rg.RouteImmediateEntity = \
+        rg.RoutesGenerator.generate_routes_immediate_entity(g, flow_list, edge_mac_dict)
+    json_str: str = rg.RoutesGenerator.serialize_to_json(route_immediate_entity)
+    print(json_str)
 
 
 if __name__ == "__main__":

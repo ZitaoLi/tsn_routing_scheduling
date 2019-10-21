@@ -1,4 +1,7 @@
+import os
 from typing import List, Dict
+
+import jsonpickle
 
 from src.graph.Flow import Flow
 from src.graph.Graph import Graph
@@ -60,19 +63,41 @@ class FlowRoutes:
     dest_node: List[int]
     flow_routes: Dict[int, OneToOneRedundantRoutes]
 
-    def __init__(self, flow_id: int, src_node: int, dest_nodes: List[int], flow_routes: Dict[int, OneToOneRedundantRoutes]):
+    def __init__(self, flow_id: int, src_node: int, dest_nodes: List[int],
+                 flow_routes: Dict[int, OneToOneRedundantRoutes]):
         self.flow_id = flow_id
         self.src_node = src_node
         self.dest_node = dest_nodes
         self.flow_routes = flow_routes
 
 
+class RouteImmediateEntity:
+    flow_routes_dict: Dict[int, FlowRoutes]
+    flow_id_list: List[int]
+    edge_mac_dict: Dict[int, EdgeMacMapper]
+
+    def __init__(self, flow_routes_dict: Dict[int, FlowRoutes], flow_id_list: List[int],
+                 edge_mac_dict: Dict[int, EdgeMacMapper]):
+        self.flow_routes_dict = flow_routes_dict
+        self.flow_id_list = flow_id_list
+        self.edge_mac_dict = edge_mac_dict
+
+
 class RoutesGenerator:
     @staticmethod
-    def generate_routes_immediate_entity(graph: Graph, flow_list: List[Flow], edge_mac_dict: Dict[int, EdgeMacMapper]):
-        flow_routes_list: List[FlowRoutes] = []
+    def generate_routes_immediate_entity(
+            graph: Graph, flow_list: List[Flow], edge_mac_dict: Dict[int, EdgeMacMapper]) -> RouteImmediateEntity:
+        '''
+        :param graph:
+        :param flow_list:
+        :param edge_mac_dict:
+        :return:
+        '''
+        flow_routes_dict: Dict[int, FlowRoutes] = {}
+        flow_id_list: List[int] = []
         for flow in flow_list:
             flow_id: int = flow.flow_id
+            flow_id_list.append(flow_id)
             src_node_id: int = flow.source
             dest_node_id_list: List[int] = flow.destinations
             one_to_many_redundant_routes: List[List[List[int]]] = flow.routes
@@ -102,12 +127,26 @@ class RoutesGenerator:
                     OneToOneRedundantRoutes(src_node_id, dest_node_id, redundant_routes)
                 flow_routes[dest_node_id] = redundant_route_instance
             flow_routes_instance: FlowRoutes = FlowRoutes(flow_id, src_node_id, dest_node_id_list, flow_routes)
-            flow_routes_list.append(flow_routes_instance)
-        return flow_routes_list
+            flow_routes_dict[flow_id] = flow_routes_instance
+        route_immediate_entity: RouteImmediateEntity = \
+            RouteImmediateEntity(flow_routes_dict, flow_id_list, edge_mac_dict)
+        return route_immediate_entity
 
     @staticmethod
-    def serialize_to_json():
-        pass
+    def serialize_to_json(route_immediate_entity: RouteImmediateEntity) -> str:
+        json_str: str = jsonpickle.encode(route_immediate_entity)
+        path: str = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'routes.json')
+        with open(path, "w") as f:
+            f.write(json_str)
+        return json_str
+
+    @staticmethod
+    def deserialize_to_obj(json_str: str) -> RouteImmediateEntity:
+        if json_str is None or json_str == '':
+            path: str = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'routes.json')
+            with open(path, "r") as f:
+                json_str: str = f.read()
+        return jsonpickle.decode(json_str)
 
     @staticmethod
     def serialize_to_xml():

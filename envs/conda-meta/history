@@ -92,3 +92,34 @@
 # conda version: 4.6.11
 -defaults::plotly-4.0.0-py_0
 # remove specs: ['plotly']
+==> 2019-10-21 15:21:28 <==
+# cmd: C:\Users\homet\Anaconda3\Scripts\conda-script.py install -p D:/workspace/pycharm_workspace/tsn_routing_scheduling/envs jsonpickle -y
+# conda version: 4.6.14
+-defaults::ca-certificates-2019.5.15-1
+-defaults::certifi-2019.6.16-py37_1
+-defaults::openssl-1.1.1c-he774522_1
+-defaults::vs2015_runtime-14.15.26706-h3a45250_4
++defaults::ca-certificates-2019.8.28-0
++defaults::certifi-2019.9.11-py37_0
++defaults::jsonpickle-1.2-py_0
++defaults::openssl-1.1.1d-he774522_3
++defaults::vs2015_runtime-14.16.27012-hf0eaf9b_0
+# update specs: ['jsonpickle']
+==> 2019-10-21 16:29:28 <==
+# cmd: C:\Users\homet\Anaconda3\Scripts\conda-script.py install -p D:/workspace/pycharm_workspace/tsn_routing_scheduling/envs lxml -y
+# conda version: 4.6.14
++defaults::libiconv-1.15-h1df5818_7
++defaults::libxml2-2.9.9-h464c3ec_0
++defaults::libxslt-1.1.33-h579f668_0
++defaults::lxml-4.4.1-py37h1350720_0
+# update specs: ['lxml']
+==> 2019-10-21 17:00:38 <==
+# cmd: C:\Users\homet\Anaconda3\Scripts\conda-script.py remove -p D:/workspace/pycharm_workspace/tsn_routing_scheduling/envs lxml -y
+# conda version: 4.6.14
+-defaults::lxml-4.4.1-py37h1350720_0
+# remove specs: ['lxml']
+==> 2019-10-21 17:16:12 <==
+# cmd: C:\Users\homet\Anaconda3\Scripts\conda-script.py install lxml
+# conda version: 4.6.14
++defaults::lxml-4.4.1-py37h1350720_0
+# update specs: ['lxml']
