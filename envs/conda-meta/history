@@ -123,3 +123,10 @@
 # conda version: 4.6.14
 +defaults::lxml-4.4.1-py37h1350720_0
 # update specs: ['lxml']
+==> 2019-10-22 15:43:27 <==
+# cmd: C:\Users\homet\Anaconda3\Scripts\conda-script.py install -p D:/workspace/pycharm_workspace/tsn_routing_scheduling/envs bitarray -y
+# conda version: 4.6.14
+-defaults::ca-certificates-2019.8.28-0
++defaults::bitarray-1.0.1-py37he774522_0
++defaults::ca-certificates-2019.10.16-0
+# update specs: ['bitarray']

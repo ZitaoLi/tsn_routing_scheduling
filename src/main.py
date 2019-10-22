@@ -28,6 +28,7 @@ def main():
     # test_2()  # random flows
     # test_v()  # visualizer
     test_mac_address_generator()
+    # test_import_module()
 
 
 def test():
@@ -132,6 +133,13 @@ def test_mac_address_generator():
     logger.info('Routes Json: ' + str(json_str))
     node_mac_dict: Dict[int, mag.NodeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_node(edge_mac_dict)
     logger.info('Node Mac Dict: ' + str(node_mac_dict))
+
+
+def test_import_module():
+    m = __import__('src.net_elem.NetworkDevice', fromlist=['NetworkDevice'])
+    _C = getattr(m, 'NetworkDevice')
+    print(_C)
+    _C(1, '')
 
 
 if __name__ == "__main__":

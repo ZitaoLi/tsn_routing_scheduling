@@ -1,9 +1,15 @@
+from enum import Enum
+
+TIME_GRANULARITY = Enum('TIME_GRANULARITY', ('NS, US, MS, S'))
+
+
 GRAPH_CONFIG = {
     'min-flow-size': 64 * 8,  # minimum frame size = 64B, [unit: Byte]
     'hyper-period': int(3e5),  # 300us = 3e5ns, [unit: ns],
     'all-bandwidth': int(1e0),  # 1Gbps = 1bit/ns, [unit: bpns]
     'max-bandwidth': int(1e0),  # maximum bandwidth of all edges
     'overlapped-routing': True,  # whether routing with overlapping or not
+    'time-granularity': TIME_GRANULARITY.NS,  # time granularity, default is ns
 }
 
 OPTIMIZATION = {
