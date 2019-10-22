@@ -13,6 +13,8 @@ from src.utils import MacAddressGenerator as mag
 from src.utils import RoutesGenerator as rg
 from src import config
 
+logger = logging.getLogger(__name__)
+
 '''
 time unit: s/ms/us/ns, 1s = 1e3ms = 1e6us = 1e9ns
 length unit: Gb/Mb/Kb/b, 1Gb = 1e3Mb = 1e6Kb = 1e9b
@@ -119,13 +121,17 @@ def test_mac_address_generator():
 
     mac_list: List[str] = mag.MacAddressGenerator.generate_all_multicast_mac_address(g)
     [print(mac) for mac in mac_list]
+    logger.info('Mac List:' + str(mac_list))
     edge_mac_dict: Dict[int, mag.EdgeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_edge(mac_list, g)
     [print(str(edge_mac.edge_id) + ': ' + edge_mac.mac_pair[0] + ',' + edge_mac.mac_pair[1]) for edge_mac in
      edge_mac_dict.values()]
+    logger.info('Edge Mac Dict: ' + str(edge_mac_dict))
     route_immediate_entity: rg.RouteImmediateEntity = \
         rg.RoutesGenerator.generate_routes_immediate_entity(g, flow_list, edge_mac_dict)
     json_str: str = rg.RoutesGenerator.serialize_to_json(route_immediate_entity)
-    print(json_str)
+    logger.info('Routes Json: ' + str(json_str))
+    node_mac_dict: Dict[int, mag.NodeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_node(edge_mac_dict)
+    logger.info('Node Mac Dict: ' + str(node_mac_dict))
 
 
 if __name__ == "__main__":

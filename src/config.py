@@ -18,4 +18,5 @@ XML_CONFIG = {
     'tsn_switch_pre_name': 'Switch',  # prefix of tsn
     'one-flow-one-host': False,  # whether one flow corresponds one host or not
     'multicast-mode': True,  # whether all flow follow multicast transmission mode or not
+    'static': True,  # whether static forwarding or not
 }
