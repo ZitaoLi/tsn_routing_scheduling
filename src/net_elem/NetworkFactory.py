@@ -95,7 +95,7 @@ class EthernetNetworkFactory(NetworkFactory):
             switch_list.append(switch)
         ethernet_network.add_switches(switch_list)
 
-        # TODO configure filtering database
+        # TODO configure nodes, such as port addition or filtering datebase addition
 
         return ethernet_network
 
@@ -111,7 +111,7 @@ class TSNNetworkFactory(EthernetNetworkFactory):
         tsn_network: TSNNetwork = ethernet_network
 
         # parse node-edge-mac-info
-        node_edge_mac_info: NodeEdgeMacInfo = NetworkFactory.parse_node_edge_mac_info(graph)
+        node_edge_mac_info: MAG.NodeEdgeMacInfo = NetworkFactory.parse_node_edge_mac_info(graph)
 
         # the network device which only has one NIC is host, otherwise switch
         host_id_list: List[NodeId] = [node_id for node_id, node_mac_mapper in node_edge_mac_info.node_mac_dict.items()
