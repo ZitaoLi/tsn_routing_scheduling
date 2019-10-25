@@ -1,6 +1,10 @@
+import os
 from enum import Enum
 
 TIME_GRANULARITY = Enum('TIME_GRANULARITY', ('NS, US, MS, S'))
+
+src_dir: str = os.path.dirname(os.path.abspath(__file__))
+pro_dir: str = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
 
 
 GRAPH_CONFIG = {
@@ -17,12 +21,14 @@ OPTIMIZATION = {
     'max_iterations': 5,  # maximum iteration times
     'max_no_improve': 5,  # maximum local search width
     'k': 0.3,  # ratio of removed flows
+    'results-root-path': '/src/json/'  # root path of results
 }
 
 XML_CONFIG = {
     'tsn_host_pre_name': 'Host',  # prefix of tsn termination host
     'tsn_switch_pre_name': 'Switch',  # prefix of tsn
     'one-flow-one-host': False,  # whether one flow corresponds one host or not
-    'multicast-mode': True,  # whether all flow follow multicast transmission mode or not
+    'multicast-model': True,  # whether all flow follow multicast transmission mode or not
     'static': True,  # whether static forwarding or not
+    'enhancement-tsn-switch-enable': True,  # whether enable enhancement function of tsn switch or not
 }

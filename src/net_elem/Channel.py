@@ -9,11 +9,12 @@ class Channel(object):
 
     # TODO Error Model
 
-    def __init__(self, vertexes: Tuple[int]):
+    def __init__(self,
+                 vertexes: Tuple[int], data_rate: float = 0.0, error_rate: float = 0.0, propagation_delay: float = 0.0):
         self.vertexes = vertexes
-        self.data_rate = 0.0
-        self.error_rate = 0.0
-        self.propagation_delay = 0.0
+        self.data_rate = data_rate
+        self.error_rate = error_rate
+        self.propagation_delay = propagation_delay
 
     def reset(self, data_rate: float = 0.0, error_rate: float = 0.0, propagation_delay: float = 0.0):
         self.data_rate = data_rate

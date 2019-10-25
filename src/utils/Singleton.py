@@ -27,6 +27,8 @@ class SingletonDecorator(object):
 class SingletonNewMethod(object):
     _instance = None
 
+    # __new()__ is the real constructor function
+    # __init()__ only use to initialize variables
     def __new__(cls, *args, **kw):
         if not cls._instance:
             cls._instance = super(SingletonNewMethod, cls).__new__(cls, *args, **kw)

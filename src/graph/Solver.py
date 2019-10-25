@@ -1,5 +1,7 @@
 import copy
 import logging
+import os
+import pickle
 import random
 from typing import List, Tuple, Set
 
@@ -53,6 +55,10 @@ class Solver:
         if visual is True:
             _g.draw_gantt()
         cls.final_solution = Solution(_g, flows)
+        # TODO save solution
+        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')
+        with open(file, 'wb') as f:
+            pickle.dump(cls.final_solution, f)
         return _g
 
     @classmethod
@@ -67,6 +73,10 @@ class Solver:
         logger.info('final objective function value = ' + str(cls.objective_function(cls.final_solution)))
         if visual is True:
             cls.final_solution.graph.draw_gantt()
+        # TODO save solution
+        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')
+        with open(file, 'wb') as f:
+            pickle.dump(cls.final_solution, f)
 
     @classmethod
     def local_search(cls, _s: Solution, max_no_improve: int) -> Solution:

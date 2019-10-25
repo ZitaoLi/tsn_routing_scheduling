@@ -5,6 +5,7 @@ import jsonpickle
 
 from src.graph.Flow import Flow
 from src.graph.Graph import Graph
+from src.type import FlowId, NodeId, MacAddress, EdgeId
 from src.utils.MacAddressGenerator import EdgeMacMapper
 
 
@@ -22,15 +23,15 @@ class GenTuple:
 
 
 class OneToOneRoute:
-    src_node: int
-    src_edge: int
-    src_mac: str
-    dest_node: int
-    dest_edge: int
-    dest_mac: str
-    node_route: List[int]  # [n1, n2, ...]
-    edge_route: List[int]  # [e1, e2, ...]
-    mac_route: List[str]  # [mac1, mac2, ...]
+    src_node: NodeId
+    src_edge: EdgeId
+    src_mac: MacAddress
+    dest_node: NodeId
+    dest_edge: EdgeId
+    dest_mac: MacAddress
+    node_route: List[NodeId]  # [n1, n2, ...]
+    edge_route: List[EdgeId]  # [e1, e2, ...]
+    mac_route: List[MacAddress]  # [mac1, mac2, ...]
 
     def __init__(self, src_triple: GenTriple, dest_triple: GenTriple, route_triple: GenTriple):
         self.src_node = src_triple.a
@@ -45,12 +46,12 @@ class OneToOneRoute:
 
 
 class OneToOneRedundantRoutes:
-    src_node: int
-    dest_node: int
+    src_node: NodeId
+    dest_node: NodeId
     redundant_degree: int
     redundant_routes: List[OneToOneRoute]
 
-    def __init__(self, src_node: int, dest_node: int, redundant_routes: List[OneToOneRoute]):
+    def __init__(self, src_node: NodeId, dest_node: NodeId, redundant_routes: List[OneToOneRoute]):
         self.src_node = src_node
         self.dest_node = dest_node
         self.redundant_routes = redundant_routes
@@ -58,13 +59,13 @@ class OneToOneRedundantRoutes:
 
 
 class FlowRoutes:
-    flow_id: int
-    src_node: int
-    dest_node: List[int]
-    flow_routes: Dict[int, OneToOneRedundantRoutes]
+    flow_id: FlowId
+    src_node: NodeId
+    dest_node: List[NodeId]
+    flow_routes: Dict[NodeId, OneToOneRedundantRoutes]
 
-    def __init__(self, flow_id: int, src_node: int, dest_nodes: List[int],
-                 flow_routes: Dict[int, OneToOneRedundantRoutes]):
+    def __init__(self, flow_id: FlowId, src_node: NodeId, dest_nodes: List[NodeId],
+                 flow_routes: Dict[NodeId, OneToOneRedundantRoutes]):
         self.flow_id = flow_id
         self.src_node = src_node
         self.dest_node = dest_nodes
@@ -72,12 +73,12 @@ class FlowRoutes:
 
 
 class RouteImmediateEntity:
-    flow_routes_dict: Dict[int, FlowRoutes]
-    flow_id_list: List[int]
-    edge_mac_dict: Dict[int, EdgeMacMapper]
+    flow_routes_dict: Dict[FlowId, FlowRoutes]
+    flow_id_list: List[FlowId]
+    edge_mac_dict: Dict[EdgeId, EdgeMacMapper]
 
-    def __init__(self, flow_routes_dict: Dict[int, FlowRoutes], flow_id_list: List[int],
-                 edge_mac_dict: Dict[int, EdgeMacMapper]):
+    def __init__(self, flow_routes_dict: Dict[FlowId, FlowRoutes], flow_id_list: List[FlowId],
+                 edge_mac_dict: Dict[EdgeId, EdgeMacMapper]):
         self.flow_routes_dict = flow_routes_dict
         self.flow_id_list = flow_id_list
         self.edge_mac_dict = edge_mac_dict
@@ -86,39 +87,39 @@ class RouteImmediateEntity:
 class RoutesGenerator:
     @staticmethod
     def generate_routes_immediate_entity(
-            graph: Graph, flow_list: List[Flow], edge_mac_dict: Dict[int, EdgeMacMapper]) -> RouteImmediateEntity:
+            graph: Graph, flow_list: List[Flow], edge_mac_dict: Dict[EdgeId, EdgeMacMapper]) -> RouteImmediateEntity:
         '''
         :param graph:
         :param flow_list:
         :param edge_mac_dict:
         :return:
         '''
-        flow_routes_dict: Dict[int, FlowRoutes] = {}
-        flow_id_list: List[int] = []
+        flow_routes_dict: Dict[FlowId, FlowRoutes] = {}
+        flow_id_list: List[FlowId] = []
         for flow in flow_list:
-            flow_id: int = flow.flow_id
+            flow_id: FlowId = flow.flow_id
             flow_id_list.append(flow_id)
-            src_node_id: int = flow.source
-            dest_node_id_list: List[int] = flow.destinations
-            one_to_many_redundant_routes: List[List[List[int]]] = flow.routes
-            flow_routes: Dict[int, OneToOneRedundantRoutes] = {}
+            src_node_id: NodeId = flow.source
+            dest_node_id_list: List[NodeId] = flow.destinations
+            one_to_many_redundant_routes: List[List[List[NodeId]]] = flow.routes
+            flow_routes: Dict[NodeId, OneToOneRedundantRoutes] = {}
             for i, one_to_one_redundant_routes in enumerate(one_to_many_redundant_routes):
-                dest_node_id: int = dest_node_id_list[i]
+                dest_node_id: NodeId = dest_node_id_list[i]
                 redundant_routes: List[OneToOneRoute] = []
                 for j, one_to_one_route in enumerate(one_to_one_redundant_routes):
-                    src_edge_id: int = one_to_one_route[0]
-                    src_mac: str = edge_mac_dict[src_edge_id].mac_pair[0]
+                    src_edge_id: EdgeId = one_to_one_route[0]
+                    src_mac: MacAddress = edge_mac_dict[src_edge_id].mac_pair[0]
                     src_triple: GenTriple = GenTriple(src_node_id, src_edge_id, src_mac)
-                    dest_edge_id: int = one_to_one_route[-1]
-                    dest_mac: str = edge_mac_dict[dest_edge_id].mac_pair[1]
+                    dest_edge_id: EdgeId = one_to_one_route[-1]
+                    dest_mac: MacAddress = edge_mac_dict[dest_edge_id].mac_pair[1]
                     dest_triple: GenTriple = GenTriple(dest_node_id, dest_edge_id, dest_mac)
-                    node_routes: List[int] = [graph.edge_mapper[one_to_one_route[0]].in_node.node_id]
-                    edge_routes: List[int] = one_to_one_route
-                    mac_routes: List[int] = [edge_mac_dict[one_to_one_route[0]].mac_pair[0]]
+                    node_routes: List[NodeId] = [graph.edge_mapper[one_to_one_route[0]].in_node.node_id]
+                    edge_routes: List[EdgeId] = one_to_one_route
+                    mac_routes: List[MacAddress] = [edge_mac_dict[one_to_one_route[0]].mac_pair[0]]
                     for eid in one_to_one_route:
-                        node2_id: int = graph.edge_mapper[eid].out_node.node_id
+                        node2_id: NodeId = graph.edge_mapper[eid].out_node.node_id
                         node_routes.append(node2_id)
-                        mac2: str = edge_mac_dict[eid].mac_pair[1]
+                        mac2: MacAddress = edge_mac_dict[eid].mac_pair[1]
                         mac_routes.append(mac2)
                     route_triple: GenTriple = GenTriple(node_routes, edge_routes, mac_routes)
                     single_route_instance: OneToOneRoute = OneToOneRoute(src_triple, dest_triple, route_triple)

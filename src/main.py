@@ -6,6 +6,7 @@ from typing import List, Tuple, Dict
 
 from src.graph.Graph import Graph
 from src.graph.Flow import Flow
+from src.utils.SaveHelper import SaveHelper
 from src.utils.Visualizer import Visualizer
 from src.utils.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver
@@ -24,10 +25,10 @@ IDEAL_BANDWIDTH = int(1e0)  # 1Gbps = 1bit/ns, [unit: bpns]
 
 
 def main():
-    # test()  # fixed flows
+    test()  # fixed flows
     # test_2()  # random flows
     # test_v()  # visualizer
-    test_mac_address_generator()
+    # test_mac_address_generator()
     # test_import_module()
 
 

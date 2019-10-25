@@ -6,7 +6,7 @@ from src.utils.Singleton import SingletonDecorator
 
 @SingletonDecorator
 class NetworkDeviceFactory(object):
-    __metaclass__ = abc.ABCMeta  # use abstract class metaclass to control the creation behaviour of class
+    # __metaclass__ = abc.ABCMeta  # use abstract class metaclass to control the creation behaviour of class
 
     network_device_no: int
 
