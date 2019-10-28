@@ -11,14 +11,15 @@ from src.graph.Graph import Graph
 from src.graph.Solver import Solution
 from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
 from src.net_elem.Channel import Channel
-from src.net_elem.FilteringDatabase import FilteringDatabase, FilteringDatabaseItem
-from src.net_elem.GateControlList import EnhancementGateControlList, GateControlList, GateControlListItem
+from src.net_elem.FilteringDatabase import FilteringDatabase
+from src.net_elem.GateControlList import EnhancementGateControlList, GateControlList, GateControlListItem, \
+    EXCLUSIVE_TSN_GATE_STATES, EXCLUSIVE_NON_TSN_GATE_STATES, EnhancementGateControlListItem
 from src.net_elem.Host import Host
 from src.net_elem.Mac import MAC_TYPE
 from src.net_elem.NetworkDevice import NetworkDevice, Port
 import src.utils.MacAddressGenerator as MAG
 from src.net_elem.Switch import Switch, TSNSwitch
-from src.type import NodeId, PortNo, MacAddress, FlowId, EdgeId
+from src.type import NodeId, PortNo, MacAddress, FlowId, EdgeId, SimTime
 import src.utils.RoutesGenerator as RG
 
 
@@ -111,7 +112,7 @@ class FilteringDatabaseConfigurationInfo(ConfigurationInfo):
                             else:
                                 mac_ports_dict[outbound_mac] = [outbound_port]
         for mac, port_list in mac_ports_dict.items():
-            self.filtering_database.add_item(mac, port_list, MAG.MacAddressGenerator.parse_mac_type(mac))
+            self.filtering_database.product_and_add_item(mac, port_list, MAG.MacAddressGenerator.parse_mac_type(mac))
 
 
 # gate-control-list-configuration-information
@@ -125,6 +126,9 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
         self.switch_id = switch_id
         self.port_gate_control_list = []
         self.edge_port_pair_list = []
+        # if self.__class__ == GateControlListConfigurationInfo:
+        #     self.port_gate_control_list = []
+        #     self.edge_port_pair_list = []
         self.edge_port_pair_list = []
 
     @abc.abstractmethod
@@ -136,10 +140,66 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
         graph: Graph = kwargs['graph']
         node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
         route_immediate_entity: RG.RouteImmediateEntity = kwargs['route_immediate_entity']
-
         _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = \
             node_edge_mac_info.node_mac_dict[self.switch_id].port_mac_pair_list
         _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
+        self.edge_port_pair_list = \
+            GateControlListConfigurationInfo.generate_edge_port_pair_list(
+                self.switch_id, node_edge_mac_info, route_immediate_entity)
+        for edge_id, edge in graph.edge_mapper.items():
+            _time_slot_allocator: TimeSlotAllocator = edge.time_slot_allocator
+            _allocation_blocks_m: List[AllocationBlock] = _time_slot_allocator.allocation_blocks_m
+            gate_control_list: GateControlList = GateControlList()
+            port_no: PortNo = list(filter(lambda p: p[0] == edge_id, self.edge_port_pair_list))[0]
+            self.port_gate_control_list[port_no] = gate_control_list
+            self.edge_gate_control_list[edge_id] = gate_control_list
+            hyper_period: float = config.GRAPH_CONFIG['hyper-period']
+            time: SimTime = SimTime(hyper_period)  # initial time length
+            gate_control_list_item: GateControlListItem = GateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES)
+            if _allocation_blocks_m.__len__() != 0:  # no block has been allocated
+                self.port_gate_control_list[port_no].add_item(gate_control_list_item)
+                self.edge_gate_control_list[edge_id].add_item(gate_control_list_item)
+            else:
+                sorted_allocation_blocks_m: List[AllocationBlock] = \
+                    sorted(_allocation_blocks_m, key=lambda b: b.send_time_offset)
+                # note that the order of following code is very important
+                for i, block in enumerate(sorted_allocation_blocks_m):
+                    # the first one block
+                    if i == 0 and block.send_time_offset > 0:
+                        next_block: AllocationBlock = sorted_allocation_blocks_m[1]
+                        time = SimTime(next_block.send_time_offset)
+                        gate_control_list_item = GateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES)
+                        self.port_gate_control_list[port_no].add_item(gate_control_list_item)
+                        self.edge_gate_control_list[edge_id].add_item(gate_control_list_item)
+                    # the tsn block
+                    if block.flow_id != 0:
+                        # the block before tsn block
+                        if i >= 1 and sorted_allocation_blocks_m[i - 1].send_time_offset + \
+                                sorted_allocation_blocks_m[i - 1].interval < block.send_time_offset:
+                            time = block.send_time_offset - (sorted_allocation_blocks_m[i - 1].send_time_offset +
+                                                             sorted_allocation_blocks_m[i - 1].interval)
+                            gate_control_list_item = GateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES)
+                            self.port_gate_control_list[port_no].add_item(gate_control_list_item)
+                            self.edge_gate_control_list[edge_id].add_item(gate_control_list_item)
+                        time = block.interval
+                        gate_control_list_item = GateControlListItem(time, EXCLUSIVE_TSN_GATE_STATES)
+                        self.port_gate_control_list[port_no].add_item(gate_control_list_item)
+                        self.edge_gate_control_list[edge_id].add_item(gate_control_list_item)
+                    else:
+                        assert block.flow_id != 0
+                    # the last one block
+                    if i == sorted_allocation_blocks_m.__len__() - 1 and \
+                            sorted_allocation_blocks_m[i - 1].send_time_offset + \
+                            sorted_allocation_blocks_m[i - 1].interval < hyper_period:
+                        time = hyper_period - sorted_allocation_blocks_m[i - 1].send_time_offset + \
+                               sorted_allocation_blocks_m[i - 1].interval
+                        gate_control_list_item = GateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES)
+                        self.port_gate_control_list[port_no].add_item(gate_control_list_item)
+                        self.edge_gate_control_list[edge_id].add_item(gate_control_list_item)
+
+    @staticmethod
+    def generate_edge_port_pair_list(switch_id: NodeId, node_edge_mac_info: MAG.NodeEdgeMacInfo,
+                                     route_immediate_entity: RG.RouteImmediateEntity) -> List[Tuple[EdgeId, PortNo]]:
         edge_port_pair_list: List[Tuple[EdgeId, PortNo]] = []
         _flow_routes_dict: Dict[FlowId, RG.FlowRoutes] = route_immediate_entity.flow_routes_dict
         for flow_id, flow_routes in _flow_routes_dict.items():
@@ -150,10 +210,10 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
                     _dest_mac: MacAddress = one_to_one_route.dest_mac
                     _node_route: List[NodeId] = one_to_one_route.node_route
                     _edge_route: List[EdgeId] = one_to_one_route.edge_route
-                    if self.switch_id in _node_route:
+                    if switch_id in _node_route:
                         _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
                         _edge_id_list: List[EdgeId] = list(filter(
-                            lambda _eid: self.switch_id in _edge_mac_dict[_eid].node_pair[0], _edge_mac_dict))
+                            lambda _eid: switch_id in _edge_mac_dict[_eid].node_pair[0], _edge_mac_dict))
                         if _edge_id_list.__len__() != 0:
                             edge_id: EdgeId = _edge_id_list[0]
                             outbound_mac: MacAddress = _edge_mac_dict[edge_id].mac_pair[0]  # outbound mac
@@ -165,30 +225,91 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
                             for edge_port_pair in edge_port_pair_list:
                                 if edge_id in edge_port_pair[0]:
                                     edge_port_pair_list.append((edge_id, outbound_port))
-        self.edge_port_pair_list = edge_port_pair_list
-        for edge_id, edge in graph.edge_mapper.items():
-            _time_slot_allocator: TimeSlotAllocator = edge.time_slot_allocator
-            _allocation_blocks_m: List[AllocationBlock] = _time_slot_allocator.allocation_blocks_m
-            if _allocation_blocks_m.__len__() == 0:  # no block has been allocated
-                pass
-            else:
-                sorted_allocation_blocks_m: List[AllocationBlock] = \
-                    sorted(_allocation_blocks_m, key=lambda b: b.send_time_offset)
-                for block in sorted_allocation_blocks_m:
-                    if block.send_time_offset > 0:
-                        gate_control_list_item: GateControlListItem = GateControlListItem()
+        return edge_port_pair_list
 
 
 # enhancement-gate-control-list-configuration-information
 class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationInfo):
+    # port_enhancement_gate_control_list: Dict[PortNo, EnhancementGateControlList]
+    # edge_enhancement_gate_control_list: Dict[EdgeId, EnhancementGateControlList]
 
     def __init__(self, switch_id: NodeId):
         super().__init__(switch_id)
-        pass
+        # if self.__class__ == EnhancementGateControlListConfigurationInfo:
+        #     self.port_enhancement_gate_control_list = []
+        #     self.edge_enhancement_gate_control_list = []
 
     @abc.abstractmethod
+    # TODO 这又又是什么魔鬼代码
     def parse(self, **kwargs):
-        pass
+        assert kwargs['graph']
+        assert kwargs['node_edge_mac_info']
+        assert kwargs['route_immediate_entity']
+        graph: Graph = kwargs['graph']
+        node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
+        route_immediate_entity: RG.RouteImmediateEntity = kwargs['route_immediate_entity']
+        _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = \
+            node_edge_mac_info.node_mac_dict[self.switch_id].port_mac_pair_list
+        _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
+        self.edge_port_pair_list = \
+            GateControlListConfigurationInfo.generate_edge_port_pair_list(
+                self.switch_id, node_edge_mac_info, route_immediate_entity)
+        for edge_id, edge in graph.edge_mapper.items():
+            _time_slot_allocator: TimeSlotAllocator = edge.time_slot_allocator
+            _allocation_blocks_m: List[AllocationBlock] = _time_slot_allocator.allocation_blocks_m
+            enhancement_gate_control_list: EnhancementGateControlList = EnhancementGateControlList()
+            port_no: PortNo = list(filter(lambda p: p[0] == edge_id, self.edge_port_pair_list))[0]
+            self.port_gate_control_list[port_no] = enhancement_gate_control_list
+            self.edge_gate_control_list[edge_id] = enhancement_gate_control_list
+            hyper_period: float = config.GRAPH_CONFIG['hyper-period']
+            time: SimTime = SimTime(hyper_period)  # initial time length
+            enhancement_gate_control_list_item: EnhancementGateControlListItem = \
+                EnhancementGateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
+            if _allocation_blocks_m.__len__() != 0:  # no block has been allocated
+                self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
+                self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
+            else:
+                # sort the block list based on send time offset
+                sorted_allocation_blocks_m: List[AllocationBlock] = \
+                    sorted(_allocation_blocks_m, key=lambda b: b.send_time_offset)
+                # note that the order of following code is very important
+                for i, block in enumerate(sorted_allocation_blocks_m):
+                    # the first one block
+                    if i == 0 and block.send_time_offset > 0:
+                        next_block: AllocationBlock = sorted_allocation_blocks_m[1]
+                        time = SimTime(next_block.send_time_offset)
+                        enhancement_gate_control_list_item = \
+                            EnhancementGateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
+                        self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
+                        self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
+                    # the tsn block
+                    if block.flow_id != 0:
+                        # the block before tsn block
+                        if i >= 1 and sorted_allocation_blocks_m[i - 1].send_time_offset + \
+                                sorted_allocation_blocks_m[i - 1].interval < block.send_time_offset:
+                            time = block.send_time_offset - (sorted_allocation_blocks_m[i - 1].send_time_offset +
+                                                             sorted_allocation_blocks_m[i - 1].interval)
+                            enhancement_gate_control_list_item = \
+                                EnhancementGateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
+                            self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
+                            self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
+                        time = block.interval
+                        enhancement_gate_control_list_item = \
+                            EnhancementGateControlListItem(time, EXCLUSIVE_TSN_GATE_STATES, block.flow_id, block.phase)
+                        self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
+                        self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
+                    else:
+                        assert block.flow_id != 0
+                    # the last one block
+                    if i == sorted_allocation_blocks_m.__len__() - 1 and \
+                            sorted_allocation_blocks_m[i - 1].send_time_offset + \
+                            sorted_allocation_blocks_m[i - 1].interval < hyper_period:
+                        time = hyper_period - sorted_allocation_blocks_m[i - 1].send_time_offset + \
+                               sorted_allocation_blocks_m[i - 1].interval
+                        enhancement_gate_control_list_item = \
+                            EnhancementGateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
+                        self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
+                        self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
 
 
 # --------------------------------------- necessary configuration information above ------------------------------------
@@ -227,7 +348,9 @@ class SwitchConfigurator(NetworkDeviceConfigurator):
     # port_configuration_info: PortConfigurationInfo
     # filter_database_configuration_info: FilteringDatabaseConfigurationInfo
     graph: Graph
-    flows: List[Flow]
+    flow_list: List[Flow]
+    node_edge_mac_info: MAG.NodeEdgeMacInfo
+    route_immediate_entity: RG.RouteImmediateEntity
 
     # def __init__(self):
     #     self.port_configuration_info = None
@@ -246,13 +369,13 @@ class SwitchConfigurator(NetworkDeviceConfigurator):
         file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')  # TODO fix hard code
         with open(file, 'rb') as f:
             solution: Solution = pickle.load(f)
-        graph: Graph = solution.graph
-        flow_list: List[Flow] = solution.flows
+        self.graph = solution.graph
+        self.flow_list = solution.flows
 
         # get mac-list, edge-mac-dict and node-mac-dict
-        mac_list: List[MacAddress] = MAG.MacAddressGenerator.generate_all_multicast_mac_address(graph)
+        mac_list: List[MacAddress] = MAG.MacAddressGenerator.generate_all_multicast_mac_address(self.graph)
         edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = \
-            MAG.MacAddressGenerator.assign_mac_address_to_edge(mac_list, graph)
+            MAG.MacAddressGenerator.assign_mac_address_to_edge(mac_list, self.graph)
         node_mac_dict: Dict[NodeId, MAG.NodeMacMapper] = \
             MAG.MacAddressGenerator.assign_mac_address_to_node(edge_mac_dict)
 
@@ -261,15 +384,15 @@ class SwitchConfigurator(NetworkDeviceConfigurator):
         node_edge_mac_info_builder.add_mac_list(mac_list)
         node_edge_mac_info_builder.add_edge_mac_dict(edge_mac_dict)
         node_edge_mac_info_builder.add_node_mac_dict(node_mac_dict)
-        node_edge_mac_info: MAG.NodeEdgeMacInfo = node_edge_mac_info_builder.build()
+        self.node_edge_mac_info: MAG.NodeEdgeMacInfo = node_edge_mac_info_builder.build()
 
         # get route immediate entity
-        route_immediate_entity: RG.RouteImmediateEntity = \
-            RG.RoutesGenerator.generate_routes_immediate_entity(graph, flow_list, edge_mac_dict)
+        self.route_immediate_entity: RG.RouteImmediateEntity = \
+            RG.RoutesGenerator.generate_routes_immediate_entity(self.graph, self.flow_list, edge_mac_dict)
 
         # install NIC
         port_configuration_info: PortConfigurationInfo = PortConfigurationInfo(switch.device_id)
-        port_configuration_info.parse(node_edge_mac_info=node_edge_mac_info)
+        port_configuration_info.parse(node_edge_mac_info=self.node_edge_mac_info)
         # self.set_port_configuration_info(port_configuration_info)
         switch.add_ports(port_configuration_info.port_list)
 
@@ -277,7 +400,7 @@ class SwitchConfigurator(NetworkDeviceConfigurator):
         filtering_database_info: FilteringDatabaseConfigurationInfo = \
             FilteringDatabaseConfigurationInfo(switch.device_id)
         filtering_database_info.parse(
-            ode_edge_mac_info=node_edge_mac_info, route_immediate_entity=route_immediate_entity)
+            node_edge_mac_info=self.node_edge_mac_info, route_immediate_entity=self.route_immediate_entity)
         # self.set_filter_database_configuration_info(filtering_database_info)
         switch.set_filtering_database(filtering_database_info.filtering_database)
 
@@ -288,7 +411,7 @@ class TSNSwitchConfigurator(SwitchConfigurator):
 
     def __init__(self):
         super().__init__()
-        self.gate_control_list_configuration_info = GateControlListConfigurationInfo()
+        # self.gate_control_list_configuration_info = GateControlListConfigurationInfo()
 
     def set_gate_control_list_configuration_info(
             self, gate_control_list_configuration_info: EnhancementGateControlListConfigurationInfo):
@@ -297,13 +420,30 @@ class TSNSwitchConfigurator(SwitchConfigurator):
     @abc.abstractmethod
     def configure(self, tsn_switch: TSNSwitch):
         super().configure(tsn_switch)
-        # TODO identify switch type
         if config.XML_CONFIG['enhancement-tsn-switch-enable'] is False:
-            # TODO configure gate control list
-            pass
+            gate_control_list_configuration_info: GateControlListConfigurationInfo = \
+                GateControlListConfigurationInfo(tsn_switch.device_id)
+            gate_control_list_configuration_info.parse(
+                graph=self.graph,
+                node_edge_mac_info=self.node_edge_mac_info,
+                route_immediate_entity=self.route_immediate_entity)
+            for port in tsn_switch.ports:
+                port_no: PortNo = port.port_id
+                gate_control_list: GateControlList = \
+                    gate_control_list_configuration_info.port_gate_control_list[port_no]
+                tsn_switch.set_gate_control_list(gate_control_list)
         else:
-            # TODO configure enhancement control list
-            pass
+            enhancement_gate_control_list_configuration_info: EnhancementGateControlListConfigurationInfo = \
+                EnhancementGateControlListConfigurationInfo(tsn_switch.device_id)
+            enhancement_gate_control_list_configuration_info.parse(
+                graph=self.graph,
+                node_edge_mac_info=self.node_edge_mac_info,
+                route_immediate_entity=self.route_immediate_entity)
+            for port in tsn_switch.ports:
+                port_no: PortNo = port.port_id
+                gate_control_list: GateControlList = \
+                    enhancement_gate_control_list_configuration_info.port_gate_control_list[port_no]
+                tsn_switch.set_gate_control_list(gate_control_list)
 
 
 # use decorator model to implement enhancement-tsn-switch-configurator,

@@ -23,6 +23,9 @@ class FilteringDatabase:
         self.static = static
         self.items = items
 
-    def add_item(self, mac: MacAddress, ports: List[PortNo], mac_type: MAC_TYPE):
+    def add_item(self, item: FilteringDatabaseItem):
+        self.items.append(item)
+
+    def product_and_add_item(self, mac: MacAddress, ports: List[PortNo], mac_type: MAC_TYPE):
         item: FilteringDatabaseItem = FilteringDatabaseItem(mac, ports, mac_type)
         self.items.append(item)

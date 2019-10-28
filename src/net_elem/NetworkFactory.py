@@ -8,7 +8,7 @@ from src.graph.Solver import Solution
 from src.net_elem.Host import Host
 from src.net_elem.HostFactory import HostFactory
 from src.net_elem.Network import Network, TSNNetwork, EthernetNetwork
-from src.net_elem.NetworkConfigurator import SwitchConfigurator
+from src.net_elem.NetworkConfigurator import SwitchConfigurator, TSNSwitchConfigurator
 from src.net_elem.NetworkDevice import NetworkDevice
 from src.net_elem.NetworkDeviceFactory import NetworkDeviceFactory
 from src.net_elem.Switch import Switch
@@ -105,7 +105,7 @@ class EthernetNetworkFactory(NetworkFactory):
             switch_list.append(switch)
         ethernet_network.add_switches(switch_list)
 
-        # TODO configure nodes, such as port addition or filtering datebase addition
+        # configure nodes, such as port addition or filtering database addition
         switch_configurator: SwitchConfigurator = SwitchConfigurator()
         for switch in switch_list:
             switch.accept_configurator(switch_configurator)
@@ -117,7 +117,7 @@ class EthernetNetworkFactory(NetworkFactory):
 class TSNNetworkFactory(EthernetNetworkFactory):
 
     @abc.abstractmethod
-    def product(self, graph: Graph) -> TSNNetwork:
+    def product(self, graph: Graph, configurator=TSNSwitchConfigurator()) -> TSNNetwork:
         # initialize empty network
         ethernet_network: EthernetNetwork = super().product(graph)
         ethernet_network.__class__ = TSNNetwork  # force into EthernetNetwork
@@ -149,5 +149,8 @@ class TSNNetworkFactory(EthernetNetworkFactory):
         ethernet_network.add_switches(switch_list)
 
         # TODO configure "enhancement" gate control list
+        switch_configurator: TSNSwitchConfigurator = configurator
+        for switch in switch_list:
+            switch.accept_configurator(switch_configurator)
 
         return tsn_network

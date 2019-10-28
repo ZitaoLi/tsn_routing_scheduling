@@ -42,3 +42,9 @@ class TSNSwitch(Switch):
     @abc.abstractmethod
     def forward(self):
         super().forward()
+
+    def set_gate_control_list(self, gate_control_list: GateControlList):
+        if not hasattr(self, 'gate_control_list'):
+            self.gate_control_list = gate_control_list
+        elif self.filtering_database is None:
+            self.gate_control_list = gate_control_list
