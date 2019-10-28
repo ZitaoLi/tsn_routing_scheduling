@@ -43,10 +43,10 @@ class NodeMacMapper(ToString):
         self.mac_list = []
         self.port_mac_pair_list = []
 
-    def add_port(self, port_id: PortNo, mac: MacAddress):
-        self.port_list.append(port_id)
+    def add_port(self, port_no: PortNo, mac: MacAddress):
+        self.port_list.append(port_no)
         self.mac_list.append(mac)
-        self.port_mac_pair_list.append((port_id, mac))
+        self.port_mac_pair_list.append((port_no, mac))
 
 
 class NodeEdgeMacInfoBuilder(object):

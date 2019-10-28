@@ -12,6 +12,7 @@ from src.graph.Flow import Flow
 from src.graph.Graph import Graph
 from src import config
 from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
+from src.utils.Singleton import SingletonDecorator
 
 logger = logging.getLogger(__name__)
 
@@ -19,16 +20,25 @@ logger = logging.getLogger(__name__)
 class Solution:
     graph: Graph
     flows: List[Flow]
-    failure_flow: List[Flow]
+    failure_flows: List[Flow]
 
-    def __init__(self, graph: Graph, flows: List[Flow]):
+    def __init__(self):
+        self.graph = Graph()
+        self.flows = []
+        self.failure_flows = []
+
+    def set_graph(self, graph):
         self.graph = graph
+
+    def set_flows(self, flows: List[Flow]):
         self.flows = flows
+
+    def set_failure_flows(self, failure_flows: List[Flow]):
+        self.failure_flows = failure_flows
 
 
 class Solver:
     final_solution: Solution
-    solution_copy: Solution
 
     @staticmethod
     def objective_function(s: Solution) -> float:
@@ -54,12 +64,16 @@ class Solver:
         _g.combine_failure_queue()
         if visual is True:
             _g.draw_gantt()
-        cls.final_solution = Solution(_g, flows)
+        # cls.final_solution = Solution(_g, flows)
+        cls.final_solution = Solution()
+        cls.final_solution.set_graph(_g)
+        cls.final_solution.set_flows(flows)
+
         # TODO save solution
         file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')
         with open(file, 'wb') as f:
             pickle.dump(cls.final_solution, f)
-        return _g
+        return cls.final_solution
 
     @classmethod
     def optimize(cls, max_iterations: int, max_no_improve: int, k: int, visual: bool = True):

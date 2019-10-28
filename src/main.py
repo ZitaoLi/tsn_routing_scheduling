@@ -6,10 +6,11 @@ from typing import List, Tuple, Dict
 
 from src.graph.Graph import Graph
 from src.graph.Flow import Flow
+from src.type import MacAddress, EdgeId
 from src.utils.SaveHelper import SaveHelper
 from src.utils.Visualizer import Visualizer
 from src.utils.FlowGenerator import FlowGenerator
-from src.graph.Solver import Solver
+from src.graph.Solver import Solver, Solution
 from src.utils import MacAddressGenerator as mag
 from src.utils import RoutesGenerator as rg
 from src import config
@@ -25,10 +26,10 @@ IDEAL_BANDWIDTH = int(1e0)  # 1Gbps = 1bit/ns, [unit: bpns]
 
 
 def main():
-    test()  # fixed flows
+    # test()  # fixed flows
     # test_2()  # random flows
     # test_v()  # visualizer
-    # test_mac_address_generator()
+    test_mac_address_generator()
     # test_import_module()
 
 
@@ -117,19 +118,20 @@ def test_mac_address_generator():
     flow_list.append(f3)
     flow_list.append(f4)
 
-    g: Graph = Solver.generate_init_solution(nodes, edges, flow_list, visual=False)
+    s: Solution = Solver.generate_init_solution(nodes, edges, flow_list, visual=False)
     # Solver.optimize(config.OPTIMIZATION['max_iterations'], config.OPTIMIZATION['max_no_improve'],
     #                 config.OPTIMIZATION['k'], visual=False)
 
-    mac_list: List[str] = mag.MacAddressGenerator.generate_all_multicast_mac_address(g)
+    mac_list: List[MacAddress] = mag.MacAddressGenerator.generate_all_multicast_mac_address(s.graph)
     [print(mac) for mac in mac_list]
     logger.info('Mac List:' + str(mac_list))
-    edge_mac_dict: Dict[int, mag.EdgeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_edge(mac_list, g)
+    edge_mac_dict: Dict[EdgeId, mag.EdgeMacMapper] = \
+        mag.MacAddressGenerator.assign_mac_address_to_edge(mac_list, s.graph)
     [print(str(edge_mac.edge_id) + ': ' + edge_mac.mac_pair[0] + ',' + edge_mac.mac_pair[1]) for edge_mac in
      edge_mac_dict.values()]
     logger.info('Edge Mac Dict: ' + str(edge_mac_dict))
     route_immediate_entity: rg.RouteImmediateEntity = \
-        rg.RoutesGenerator.generate_routes_immediate_entity(g, flow_list, edge_mac_dict)
+        rg.RoutesGenerator.generate_routes_immediate_entity(s.graph, flow_list, edge_mac_dict)
     json_str: str = rg.RoutesGenerator.serialize_to_json(route_immediate_entity)
     logger.info('Routes Json: ' + str(json_str))
     node_mac_dict: Dict[int, mag.NodeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_node(edge_mac_dict)

@@ -30,7 +30,7 @@ def parse(source, handler, errorHandler=ErrorHandler()):
     parser = make_parser()
     parser.setContentHandler(handler)
     parser.setErrorHandler(errorHandler)
-    parser.parse(source)
+    parser.parse()
 
 def parseString(string, handler, errorHandler=ErrorHandler()):
     import io
@@ -45,7 +45,7 @@ def parseString(string, handler, errorHandler=ErrorHandler()):
         inpsrc.setCharacterStream(io.StringIO(string))
     else:
         inpsrc.setByteStream(io.BytesIO(string))
-    parser.parse(inpsrc)
+    parser.parse()
 
 # this is the parser list used by the make_parser function if no
 # alternatives are given as parameters to the function

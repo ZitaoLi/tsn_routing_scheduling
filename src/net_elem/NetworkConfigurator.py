@@ -9,9 +9,10 @@ from src import config
 from src.graph.Flow import Flow
 from src.graph.Graph import Graph
 from src.graph.Solver import Solution
+from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
 from src.net_elem.Channel import Channel
 from src.net_elem.FilteringDatabase import FilteringDatabase, FilteringDatabaseItem
-from src.net_elem.GateControlList import EnhancementGateControlList
+from src.net_elem.GateControlList import EnhancementGateControlList, GateControlList, GateControlListItem
 from src.net_elem.Host import Host
 from src.net_elem.Mac import MAC_TYPE
 from src.net_elem.NetworkDevice import NetworkDevice, Port
@@ -24,7 +25,7 @@ import src.utils.RoutesGenerator as RG
 class ConfigurationInfo(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def parse(self):
+    def parse(self, **kwargs):
         pass
 
 
@@ -38,8 +39,11 @@ class PortConfigurationInfo(ConfigurationInfo):
         self.port_list = []
 
     @abc.abstractmethod
-    def parse(self, node_edge_mac_info: MAG.NodeEdgeMacInfo = None):
-        assert node_edge_mac_info is not None
+    # def parse(self, node_edge_mac_info: MAG.NodeEdgeMacInfo = None):
+    def parse(self, **kwargs):
+        # assert node_edge_mac_info is not None
+        assert kwargs['node_edge_mac_info']
+        node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
         port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = \
             node_edge_mac_info.node_mac_dict[self.node_id].port_mac_pair_list
         for port_mac_pair in port_mac_pair_list:
@@ -60,11 +64,17 @@ class FilteringDatabaseConfigurationInfo(ConfigurationInfo):
         self.filtering_database = FilteringDatabase()
 
     @abc.abstractmethod
-    def parse(self,
-              node_edge_mac_info: MAG.NodeEdgeMacInfo = None,
-              route_immediate_entity: RG.RouteImmediateEntity = None):
-        assert node_edge_mac_info is not None
-        assert route_immediate_entity is not None
+    # def parse(self,
+    #           node_edge_mac_info: MAG.NodeEdgeMacInfo = None,
+    #           route_immediate_entity: RG.RouteImmediateEntity = None):
+    # TODO 这是什么魔鬼代码
+    def parse(self, **kwargs):
+        # assert node_edge_mac_info is not None
+        # assert route_immediate_entity is not None
+        assert kwargs['node_edge_mac_info']
+        assert kwargs['route_immediate_entity']
+        node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
+        route_immediate_entity: RG.RouteImmediateEntity = kwargs['route_immediate_entity']
         port_macs_dict: Dict[PortNo, List[MacAddress]] = {}  # {port1: [mac1, mac2, ...], ...}
         mac_ports_dict: Dict[MacAddress, List[PortNo]] = {}  # {mac1: [port1, port2, ...], ...}
         _flow_routes_dict: Dict[FlowId, RG.FlowRoutes] = route_immediate_entity.flow_routes_dict
@@ -106,21 +116,78 @@ class FilteringDatabaseConfigurationInfo(ConfigurationInfo):
 
 # gate-control-list-configuration-information
 class GateControlListConfigurationInfo(ConfigurationInfo):
+    switch_id: NodeId
+    port_gate_control_list: Dict[PortNo, GateControlList]
+    edge_gate_control_list: Dict[EdgeId, GateControlList]
+    edge_port_pair_list: List[Tuple[EdgeId, PortNo]]
+
+    def __init__(self, switch_id: NodeId):
+        self.switch_id = switch_id
+        self.port_gate_control_list = []
+        self.edge_port_pair_list = []
+        self.edge_port_pair_list = []
 
     @abc.abstractmethod
-    def parse(self):
-        pass
+    # TODO 这又是什么魔鬼代码
+    def parse(self, **kwargs):
+        assert kwargs['graph']
+        assert kwargs['node_edge_mac_info']
+        assert kwargs['route_immediate_entity']
+        graph: Graph = kwargs['graph']
+        node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
+        route_immediate_entity: RG.RouteImmediateEntity = kwargs['route_immediate_entity']
+
+        _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = \
+            node_edge_mac_info.node_mac_dict[self.switch_id].port_mac_pair_list
+        _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
+        edge_port_pair_list: List[Tuple[EdgeId, PortNo]] = []
+        _flow_routes_dict: Dict[FlowId, RG.FlowRoutes] = route_immediate_entity.flow_routes_dict
+        for flow_id, flow_routes in _flow_routes_dict.items():
+            _flow_routes: Dict[NodeId, RG.OneToOneRedundantRoutes] = flow_routes.flow_routes
+            for dest_node_id, one_to_one_redundant_routes in flow_routes.items():
+                _one_to_one_redundant_routes: List[RG.OneToOneRoute] = one_to_one_redundant_routes.redundant_routes
+                for one_to_one_route in _one_to_one_redundant_routes:
+                    _dest_mac: MacAddress = one_to_one_route.dest_mac
+                    _node_route: List[NodeId] = one_to_one_route.node_route
+                    _edge_route: List[EdgeId] = one_to_one_route.edge_route
+                    if self.switch_id in _node_route:
+                        _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
+                        _edge_id_list: List[EdgeId] = list(filter(
+                            lambda _eid: self.switch_id in _edge_mac_dict[_eid].node_pair[0], _edge_mac_dict))
+                        if _edge_id_list.__len__() != 0:
+                            edge_id: EdgeId = _edge_id_list[0]
+                            outbound_mac: MacAddress = _edge_mac_dict[edge_id].mac_pair[0]  # outbound mac
+                            _node_mac_mapper: MAG.NodeMacMapper = node_edge_mac_info.node_mac_dict[self.switch_id]
+                            _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = _node_mac_mapper.port_mac_pair_list
+                            outbound_port: PortNo = [_port_mac_pair[0] for _port_mac_pair in _port_mac_pair_list if
+                                                     outbound_mac == _port_mac_pair[1]]  # outbound port
+                            # add edge-port-mapper
+                            for edge_port_pair in edge_port_pair_list:
+                                if edge_id in edge_port_pair[0]:
+                                    edge_port_pair_list.append((edge_id, outbound_port))
+        self.edge_port_pair_list = edge_port_pair_list
+        for edge_id, edge in graph.edge_mapper.items():
+            _time_slot_allocator: TimeSlotAllocator = edge.time_slot_allocator
+            _allocation_blocks_m: List[AllocationBlock] = _time_slot_allocator.allocation_blocks_m
+            if _allocation_blocks_m.__len__() == 0:  # no block has been allocated
+                pass
+            else:
+                sorted_allocation_blocks_m: List[AllocationBlock] = \
+                    sorted(_allocation_blocks_m, key=lambda b: b.send_time_offset)
+                for block in sorted_allocation_blocks_m:
+                    if block.send_time_offset > 0:
+                        gate_control_list_item: GateControlListItem = GateControlListItem()
 
 
 # enhancement-gate-control-list-configuration-information
 class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationInfo):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, switch_id: NodeId):
+        super().__init__(switch_id)
         pass
 
     @abc.abstractmethod
-    def parse(self):
+    def parse(self, **kwargs):
         pass
 
 
@@ -157,24 +224,26 @@ class ChannelConfigurator(NetworkConfigurator):
 
 # switch-configurator, derived class of network-device-configurator
 class SwitchConfigurator(NetworkDeviceConfigurator):
-    port_configuration_info: PortConfigurationInfo
-    filter_database_configuration_info: FilteringDatabaseConfigurationInfo
+    # port_configuration_info: PortConfigurationInfo
+    # filter_database_configuration_info: FilteringDatabaseConfigurationInfo
+    graph: Graph
+    flows: List[Flow]
 
     # def __init__(self):
     #     self.port_configuration_info = None
     #     self.filter_database_configuration_info = None
 
-    def set_port_configuration_info(self, port_configuration_info: PortConfigurationInfo):
-        self.port_configuration_info = port_configuration_info
-
-    def set_filter_database_configuration_info(
-            self, filter_database_configuration_info: FilteringDatabaseConfigurationInfo):
-        self.filter_database_configuration_info = filter_database_configuration_info
+    # def set_port_configuration_info(self, port_configuration_info: PortConfigurationInfo):
+    #     self.port_configuration_info = port_configuration_info
+    #
+    # def set_filter_database_configuration_info(
+    #         self, filter_database_configuration_info: FilteringDatabaseConfigurationInfo):
+    #     self.filter_database_configuration_info = filter_database_configuration_info
 
     @abc.abstractmethod
     def configure(self, switch: Switch):
-        # TODO get solution
-        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')
+        # get solution which contains graph and flows
+        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')  # TODO fix hard code
         with open(file, 'rb') as f:
             solution: Solution = pickle.load(f)
         graph: Graph = solution.graph
@@ -198,14 +267,19 @@ class SwitchConfigurator(NetworkDeviceConfigurator):
         route_immediate_entity: RG.RouteImmediateEntity = \
             RG.RoutesGenerator.generate_routes_immediate_entity(graph, flow_list, edge_mac_dict)
 
-        # TODO install NIC
+        # install NIC
         port_configuration_info: PortConfigurationInfo = PortConfigurationInfo(switch.device_id)
-        port_configuration_info.parse(node_edge_mac_info)
-        self.set_port_configuration_info(port_configuration_info)
+        port_configuration_info.parse(node_edge_mac_info=node_edge_mac_info)
+        # self.set_port_configuration_info(port_configuration_info)
+        switch.add_ports(port_configuration_info.port_list)
 
-        # TODO configure filtering database
-
-        pass
+        # configure filtering database
+        filtering_database_info: FilteringDatabaseConfigurationInfo = \
+            FilteringDatabaseConfigurationInfo(switch.device_id)
+        filtering_database_info.parse(
+            ode_edge_mac_info=node_edge_mac_info, route_immediate_entity=route_immediate_entity)
+        # self.set_filter_database_configuration_info(filtering_database_info)
+        switch.set_filtering_database(filtering_database_info.filtering_database)
 
 
 # use inheritance to implement tsn-switch-configurator

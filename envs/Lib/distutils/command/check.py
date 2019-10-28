@@ -137,7 +137,7 @@ class check(Command):
         document = nodes.document(settings, reporter, source=source_path)
         document.note_source(source_path, -1)
         try:
-            parser.parse(data, document)
+            parser.parse()
         except AttributeError as e:
             reporter.messages.append(
                 (-1, 'Could not finish the parsing: %s.' % e, '', {}))

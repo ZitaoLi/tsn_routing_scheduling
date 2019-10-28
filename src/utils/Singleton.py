@@ -12,6 +12,7 @@ def singleton_decorator(cls):
 
 
 # use decorator class
+# TODO this decorator cannot be inherited
 class SingletonDecorator(object):
     def __init__(self, cls):
         self._cls = cls

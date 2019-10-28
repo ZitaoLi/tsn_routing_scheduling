@@ -25,7 +25,7 @@ class Graph:
     flow_scheduler: FlowScheduler
     failure_queue: Set[int]
 
-    def __init__(self, nodes: List[int], edges: List[int], hp: int = 0):
+    def __init__(self, nodes: List[int] = None, edges: List[int] = None, hp: int = 0):
         self.nodes = nodes
         self.edges = edges
         self.flows = []
@@ -40,7 +40,7 @@ class Graph:
             FlowScheduler(self.nodes, self.edges, self.flows, self.node_mapper, self.edge_mapper, self.flow_mapper)
         self.init_nodes()
         self.init_edges()
-        self.print_nodes()
+        # self.print_nodes()
 
     def get_node_num(self):
         return self.nodes.__len__()

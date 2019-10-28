@@ -1,10 +1,14 @@
 import abc
+import os
+import pickle
 from typing import List, Dict
 
 from src.graph.Graph import Graph
+from src.graph.Solver import Solution
 from src.net_elem.Host import Host
 from src.net_elem.HostFactory import HostFactory
 from src.net_elem.Network import Network, TSNNetwork, EthernetNetwork
+from src.net_elem.NetworkConfigurator import SwitchConfigurator
 from src.net_elem.NetworkDevice import NetworkDevice
 from src.net_elem.NetworkDeviceFactory import NetworkDeviceFactory
 from src.net_elem.Switch import Switch
@@ -39,6 +43,12 @@ class NetworkFactory(object, metaclass=abc.ABCMeta):
     def product(self, graph: Graph) -> Network:
         # initialize empty network
         network: Network = Network()
+
+        # get solution which contains graph and flows
+        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')  # TODO fix hard code
+        with open(file, 'rb') as f:
+            solution: Solution = pickle.load(f)
+        graph: Graph = solution.graph
 
         # parse node-edge-mac-info
         node_edge_mac_info: MAG.NodeEdgeMacInfo = NetworkFactory.parse_node_edge_mac_info(graph)
@@ -96,6 +106,9 @@ class EthernetNetworkFactory(NetworkFactory):
         ethernet_network.add_switches(switch_list)
 
         # TODO configure nodes, such as port addition or filtering datebase addition
+        switch_configurator: SwitchConfigurator = SwitchConfigurator()
+        for switch in switch_list:
+            switch.accept_configurator(switch_configurator)
 
         return ethernet_network
 

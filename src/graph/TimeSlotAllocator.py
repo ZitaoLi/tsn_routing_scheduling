@@ -38,9 +38,9 @@ class TimeSlotAllocator:
     flow_times_mapper: Dict[int, List[AllocationBlock]]
     flow_times_mapper_c: Dict[int, List[AllocationBlock]]
     # flow_times_mapper: dict[int, list[AllocationBlock]]
-    allocation_blocks: List[AllocationBlock]
+    allocation_blocks: List[AllocationBlock]  # time windows without merging operation
     allocation_blocks_c: List[AllocationBlock]
-    allocation_blocks_m: List[AllocationBlock]
+    allocation_blocks_m: List[AllocationBlock]  # time windows with merging operation
     allocation_blocks_m_c: List[AllocationBlock]
     time_slot_len: int  # time slot length, [unit: us]
     time_slot_num: int  # number of time slots

@@ -27,9 +27,15 @@ class NetworkDevice(object):
         self.device_name = device_name
         self.ports = []
 
-    def add_port(self, mac: MacAddress, mac_type: MAC_TYPE):
+    def product_and_add_port(self, mac: MacAddress, mac_type: MAC_TYPE):
         port: Port = Port(PortNo(self.ports.__len__() + 1), mac, mac_type)
         self.ports.append(port)
+
+    def add_port(self, port: Port):
+        self.ports.append(port)
+
+    def add_ports(self, ports: List[Port]):
+        [self.ports.append(port) for port in ports]
 
     def accept_configurator(self, configurator: NetworkConfigurator):
         configurator.configure(self)  # inject network configurator
