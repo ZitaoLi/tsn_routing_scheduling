@@ -1,6 +1,6 @@
 from typing import List
 
-from src.net_elem.Mac import MAC_TYPE
+from src.net_envs.network_component.Mac import MAC_TYPE
 from src.type import PortNo, MacAddress
 
 

@@ -1,25 +1,16 @@
-# design model: Visitor Model
-# use to configure network elements
 import abc
-import os
-import pickle
 from typing import List, Tuple, Dict
 
 from src import config
-from src.graph.Flow import Flow
 from src.graph.Graph import Graph
-from src.graph.Solver import Solution
 from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
-from src.net_elem.Channel import Channel
-from src.net_elem.FilteringDatabase import FilteringDatabase
-from src.net_elem.GateControlList import EnhancementGateControlList, GateControlList, GateControlListItem, \
-    EXCLUSIVE_TSN_GATE_STATES, EXCLUSIVE_NON_TSN_GATE_STATES, EnhancementGateControlListItem
-from src.net_elem.Host import Host
-from src.net_elem.Mac import MAC_TYPE
-from src.net_elem.NetworkDevice import NetworkDevice, Port
-import src.utils.MacAddressGenerator as MAG
-from src.net_elem.Switch import Switch, TSNSwitch
+from src.net_envs.network_component.FilteringDatabase import FilteringDatabase
+from src.net_envs.network_component.GateControlList import GateControlList, GateControlListItem, \
+    EXCLUSIVE_NON_TSN_GATE_STATES, EXCLUSIVE_TSN_GATE_STATES, EnhancementGateControlList, EnhancementGateControlListItem
+from src.net_envs.network_component.Mac import MAC_TYPE
+from src.net_envs.network_element.NetworkDevice import Port
 from src.type import NodeId, PortNo, MacAddress, FlowId, EdgeId, SimTime
+import src.utils.MacAddressGenerator as MAG
 import src.utils.RoutesGenerator as RG
 
 
@@ -217,7 +208,7 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
                         if _edge_id_list.__len__() != 0:
                             edge_id: EdgeId = _edge_id_list[0]
                             outbound_mac: MacAddress = _edge_mac_dict[edge_id].mac_pair[0]  # outbound mac
-                            _node_mac_mapper: MAG.NodeMacMapper = node_edge_mac_info.node_mac_dict[self.switch_id]
+                            _node_mac_mapper: MAG.NodeMacMapper = node_edge_mac_info.node_mac_dict[switch_id]
                             _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = _node_mac_mapper.port_mac_pair_list
                             outbound_port: PortNo = [_port_mac_pair[0] for _port_mac_pair in _port_mac_pair_list if
                                                      outbound_mac == _port_mac_pair[1]]  # outbound port
@@ -263,8 +254,8 @@ class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationIn
             self.edge_gate_control_list[edge_id] = enhancement_gate_control_list
             hyper_period: float = config.GRAPH_CONFIG['hyper-period']
             time: SimTime = SimTime(hyper_period)  # initial time length
-            enhancement_gate_control_list_item: EnhancementGateControlListItem = \
-                EnhancementGateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
+            enhancement_gate_control_list_item: EnhancementGateControlListItem = EnhancementGateControlListItem(
+                time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
             if _allocation_blocks_m.__len__() != 0:  # no block has been allocated
                 self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
                 self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
@@ -310,162 +301,3 @@ class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationIn
                             EnhancementGateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
                         self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
                         self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
-
-
-# --------------------------------------- necessary configuration information above ------------------------------------
-
-
-# network-configurator, base class
-class NetworkConfigurator(object, metaclass=abc.ABCMeta):
-    node_edge_mac_info: MAG.NodeEdgeMacInfoBuilder
-
-    @abc.abstractmethod
-    def configure(self, obj: object):
-        pass
-
-
-# network-device-configurator, derived class of network-configurator
-class NetworkDeviceConfigurator(NetworkConfigurator):
-
-    @abc.abstractmethod
-    def configure(self, network_device: NetworkDevice):
-        pass
-
-    def add_node_edge_mac_info(self, node_edge_mac_info: MAG.NodeEdgeMacInfoBuilder):
-        self.node_edge_mac_info = node_edge_mac_info
-
-
-# channel-configurator, derived class of network-configurator
-class ChannelConfigurator(NetworkConfigurator):
-
-    @abc.abstractmethod
-    def configure(self, channel: Channel):
-        pass
-
-
-# switch-configurator, derived class of network-device-configurator
-class SwitchConfigurator(NetworkDeviceConfigurator):
-    # port_configuration_info: PortConfigurationInfo
-    # filter_database_configuration_info: FilteringDatabaseConfigurationInfo
-    graph: Graph
-    flow_list: List[Flow]
-    node_edge_mac_info: MAG.NodeEdgeMacInfo
-    route_immediate_entity: RG.RouteImmediateEntity
-
-    # def __init__(self):
-    #     self.port_configuration_info = None
-    #     self.filter_database_configuration_info = None
-
-    # def set_port_configuration_info(self, port_configuration_info: PortConfigurationInfo):
-    #     self.port_configuration_info = port_configuration_info
-    #
-    # def set_filter_database_configuration_info(
-    #         self, filter_database_configuration_info: FilteringDatabaseConfigurationInfo):
-    #     self.filter_database_configuration_info = filter_database_configuration_info
-
-    @abc.abstractmethod
-    def configure(self, switch: Switch):
-        # get solution which contains graph and flows
-        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')  # TODO fix hard code
-        with open(file, 'rb') as f:
-            solution: Solution = pickle.load(f)
-        self.graph = solution.graph
-        self.flow_list = solution.flows
-
-        # get mac-list, edge-mac-dict and node-mac-dict
-        mac_list: List[MacAddress] = MAG.MacAddressGenerator.generate_all_multicast_mac_address(self.graph)
-        edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = \
-            MAG.MacAddressGenerator.assign_mac_address_to_edge(mac_list, self.graph)
-        node_mac_dict: Dict[NodeId, MAG.NodeMacMapper] = \
-            MAG.MacAddressGenerator.assign_mac_address_to_node(edge_mac_dict)
-
-        # use node-edge-mac-info builder to build node-edge-mac-info
-        node_edge_mac_info_builder: MAG.NodeEdgeMacInfoBuilder = MAG.NodeEdgeMacInfoBuilder()
-        node_edge_mac_info_builder.add_mac_list(mac_list)
-        node_edge_mac_info_builder.add_edge_mac_dict(edge_mac_dict)
-        node_edge_mac_info_builder.add_node_mac_dict(node_mac_dict)
-        self.node_edge_mac_info: MAG.NodeEdgeMacInfo = node_edge_mac_info_builder.build()
-
-        # get route immediate entity
-        self.route_immediate_entity: RG.RouteImmediateEntity = \
-            RG.RoutesGenerator.generate_routes_immediate_entity(self.graph, self.flow_list, edge_mac_dict)
-
-        # install NIC
-        port_configuration_info: PortConfigurationInfo = PortConfigurationInfo(switch.device_id)
-        port_configuration_info.parse(node_edge_mac_info=self.node_edge_mac_info)
-        # self.set_port_configuration_info(port_configuration_info)
-        switch.add_ports(port_configuration_info.port_list)
-
-        # configure filtering database
-        filtering_database_info: FilteringDatabaseConfigurationInfo = \
-            FilteringDatabaseConfigurationInfo(switch.device_id)
-        filtering_database_info.parse(
-            node_edge_mac_info=self.node_edge_mac_info, route_immediate_entity=self.route_immediate_entity)
-        # self.set_filter_database_configuration_info(filtering_database_info)
-        switch.set_filtering_database(filtering_database_info.filtering_database)
-
-
-# use inheritance to implement tsn-switch-configurator
-class TSNSwitchConfigurator(SwitchConfigurator):
-    gate_control_list_configuration_info: GateControlListConfigurationInfo
-
-    def __init__(self):
-        super().__init__()
-        # self.gate_control_list_configuration_info = GateControlListConfigurationInfo()
-
-    def set_gate_control_list_configuration_info(
-            self, gate_control_list_configuration_info: EnhancementGateControlListConfigurationInfo):
-        self.gate_control_list_configuration_info = gate_control_list_configuration_info
-
-    @abc.abstractmethod
-    def configure(self, tsn_switch: TSNSwitch):
-        super().configure(tsn_switch)
-        if config.XML_CONFIG['enhancement-tsn-switch-enable'] is False:
-            gate_control_list_configuration_info: GateControlListConfigurationInfo = \
-                GateControlListConfigurationInfo(tsn_switch.device_id)
-            gate_control_list_configuration_info.parse(
-                graph=self.graph,
-                node_edge_mac_info=self.node_edge_mac_info,
-                route_immediate_entity=self.route_immediate_entity)
-            for port in tsn_switch.ports:
-                port_no: PortNo = port.port_id
-                gate_control_list: GateControlList = \
-                    gate_control_list_configuration_info.port_gate_control_list[port_no]
-                tsn_switch.set_gate_control_list(gate_control_list)
-        else:
-            enhancement_gate_control_list_configuration_info: EnhancementGateControlListConfigurationInfo = \
-                EnhancementGateControlListConfigurationInfo(tsn_switch.device_id)
-            enhancement_gate_control_list_configuration_info.parse(
-                graph=self.graph,
-                node_edge_mac_info=self.node_edge_mac_info,
-                route_immediate_entity=self.route_immediate_entity)
-            for port in tsn_switch.ports:
-                port_no: PortNo = port.port_id
-                gate_control_list: GateControlList = \
-                    enhancement_gate_control_list_configuration_info.port_gate_control_list[port_no]
-                tsn_switch.set_gate_control_list(gate_control_list)
-
-
-# use decorator model to implement enhancement-tsn-switch-configurator,
-# note that decorator model is not equal to python decorator
-class EnhancementGateControlListDecorator(object):
-    switch_configurator: SwitchConfigurator
-
-    def __init__(self, switch_configurator: SwitchConfigurator):
-        self.switch_configurator = switch_configurator
-
-    def configure(self, tsn_switch: TSNSwitch):
-        pass
-
-    def add_enhancement_gate_control_list(self):
-        # TODO dynamically add variables and methods
-        # dynamically add enhancement-gate-control-list
-        self.switch_configurator.enhancement_gate_control_list = EnhancementGateControlList()
-
-
-# host-configurator
-class HostConfigurator(NetworkDeviceConfigurator):
-
-    @abc.abstractmethod
-    def configure(self, host: Host):
-        pass

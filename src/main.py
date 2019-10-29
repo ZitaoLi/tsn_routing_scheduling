@@ -6,8 +6,10 @@ from typing import List, Tuple, Dict
 
 from src.graph.Graph import Graph
 from src.graph.Flow import Flow
+from src.net_envs.network.EthernetNetworkFactory import EthernetNetworkFactory
+from src.net_envs.network.Network import Network
+from src.net_envs.network.NetworkFactory import NetworkFactory
 from src.type import MacAddress, EdgeId
-from src.utils.SaveHelper import SaveHelper
 from src.utils.Visualizer import Visualizer
 from src.utils.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver, Solution
@@ -29,8 +31,9 @@ def main():
     # test()  # fixed flows
     # test_2()  # random flows
     # test_v()  # visualizer
-    test_mac_address_generator()
+    # test_mac_address_generator()
     # test_import_module()
+    test_create_network()
 
 
 def test():
@@ -139,10 +142,18 @@ def test_mac_address_generator():
 
 
 def test_import_module():
-    m = __import__('src.net_elem.NetworkDevice', fromlist=['NetworkDevice'])
+    m = __import__('src.net_envs.network_element.NetworkDevice', fromlist=['NetworkDevice'])
     _C = getattr(m, 'NetworkDevice')
     print(_C)
     _C(1, '')
+
+
+def test_create_network():
+    network_factory: NetworkFactory = NetworkFactory()
+    # ethernet_network_factory: EthernetNetworkFactory = EthernetNetworkFactory()
+    network: Network = network_factory.product()
+    print('test')
+    pass
 
 
 if __name__ == "__main__":

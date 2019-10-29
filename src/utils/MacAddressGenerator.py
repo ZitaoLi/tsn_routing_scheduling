@@ -1,10 +1,7 @@
 from typing import List, Tuple, Dict
-
-import jsonpickle
-
 from src import config
 from src.graph.Graph import Graph
-from src.net_elem.Mac import MAC_TYPE
+from src.net_envs.network_component.Mac import MAC_TYPE
 from src.type import EdgeId, NodeId, MacAddress, PortNo
 from src.utils.ToString import ToString
 

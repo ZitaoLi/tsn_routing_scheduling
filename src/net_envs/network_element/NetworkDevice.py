@@ -1,8 +1,6 @@
-from enum import Enum
 from typing import List
 
-from src.net_elem.Mac import MAC_TYPE
-from src.net_elem.NetworkConfigurator import NetworkConfigurator
+from src.net_envs.network_component.Mac import MAC_TYPE
 from src.type import MacAddress, PortNo, NodeId, NodeName
 
 
@@ -37,5 +35,6 @@ class NetworkDevice(object):
     def add_ports(self, ports: List[Port]):
         [self.ports.append(port) for port in ports]
 
-    def accept_configurator(self, configurator: NetworkConfigurator):
+    # def accept_configurator(self, configurator: NetworkConfiguratorModule.NetworkConfigurator):
+    def accept_configurator(self, configurator):
         configurator.configure(self)  # inject network configurator
