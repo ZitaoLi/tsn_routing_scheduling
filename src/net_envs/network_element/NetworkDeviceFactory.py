@@ -2,6 +2,7 @@ import abc
 
 from src.net_envs.network_element.NetworkDevice import NetworkDevice
 from src.net_envs.network_element.NetworkDeviceFactoryInterface import NetworkDeviceFactoryInterface
+from src.type import NodeId
 from src.utils.Singleton import SingletonABC
 
 
@@ -22,6 +23,6 @@ class NetworkDeviceFactory(NetworkDeviceFactoryInterface, metaclass=SingletonABC
         self.network_device_no += 1
         assert 'unique_id' in kwargs.keys(), "parameter 'unique_id' is required"  # unique_id is required
         if 'prefix_name' in kwargs.keys():
-            return _C(self.network_device_no, kwargs['prefix_name'] + str(self.network_device_no))
+            return _C(kwargs['unique_id'], kwargs['prefix_name'] + str(self.network_device_no))
         else:
-            return _C(self.network_device_no, 'NetworkDevice' + str(self.network_device_no))
+            return _C(kwargs['unique_id'], 'NetworkDevice' + str(self.network_device_no))

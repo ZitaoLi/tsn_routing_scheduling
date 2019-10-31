@@ -1,13 +1,13 @@
-import abc
 from typing import List
 
 from src.net_envs.network_element.Channel import Channel
 from src.net_envs.network_element.NetworkDevice import NetworkDevice
+from src.utils.ToString import ToString
 
 
-class Network(object, metaclass=abc.ABCMeta):
-    network_device_list: List[NetworkDevice] = []
-    channel_list: List[Channel] = []
+class Network(ToString):
+    network_device_list: List[NetworkDevice]
+    channel_list: List[Channel]
 
     def __init__(self):
         self.network_device_list = []

@@ -4,7 +4,7 @@ import abc
 
 
 # network-configurator, base class
-class NetworkConfigurator(object, metaclass=abc.ABCMeta):
+class NetworkConfigurator(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def configure(self, obj: object):

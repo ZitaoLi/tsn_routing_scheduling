@@ -83,6 +83,18 @@ class RouteImmediateEntity:
         self.flow_id_list = flow_id_list
         self.edge_mac_dict = edge_mac_dict
 
+    # helper function
+    def get_flow_node_route(self, flow_id: FlowId) -> List[List[NodeId]]:
+        assert flow_id in self.flow_routes_dict.keys(), "flow id '" + flow_id + "' is not existing"
+        _R: List[List[NodeId]] = []
+        flow_routes: FlowRoutes = self.flow_routes_dict[flow_id]
+        for one_to_one_redundant_routes in flow_routes.flow_routes.values():
+            redundant_routes: List[OneToOneRoute] = one_to_one_redundant_routes.redundant_routes
+            for one_to_one_route in redundant_routes:
+                node_route: List[NodeId] = one_to_one_route.node_route
+                _R.append(node_route)
+        return _R
+
 
 class RoutesGenerator:
     @staticmethod
@@ -117,7 +129,7 @@ class RoutesGenerator:
                     edge_routes: List[EdgeId] = one_to_one_route
                     mac_routes: List[MacAddress] = [edge_mac_dict[one_to_one_route[0]].mac_pair[0]]
                     for eid in one_to_one_route:
-                        node2_id: NodeId = graph.edge_mapper[eid].out_node.node_id
+                        node2_id: NodeId = NodeId(graph.edge_mapper[eid].out_node.node_id)
                         node_routes.append(node2_id)
                         mac2: MacAddress = edge_mac_dict[eid].mac_pair[1]
                         mac_routes.append(mac2)

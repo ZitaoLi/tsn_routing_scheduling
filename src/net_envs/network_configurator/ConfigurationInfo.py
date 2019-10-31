@@ -1,5 +1,5 @@
 import abc
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Set
 
 from src import config
 from src.graph.Graph import Graph
@@ -30,11 +30,10 @@ class PortConfigurationInfo(ConfigurationInfo):
         self.node_id = node_id
         self.port_list = []
 
-    @abc.abstractmethod
     # def parse(self, node_edge_mac_info: MAG.NodeEdgeMacInfo = None):
     def parse(self, **kwargs):
         # assert node_edge_mac_info is not None
-        assert kwargs['node_edge_mac_info']
+        assert kwargs['node_edge_mac_info'], "parameter 'node_edge_mac_info' is required"
         node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
         port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = \
             node_edge_mac_info.node_mac_dict[self.node_id].port_mac_pair_list
@@ -55,14 +54,8 @@ class FilteringDatabaseConfigurationInfo(ConfigurationInfo):
         self.switch_id = switch_id
         self.filtering_database = FilteringDatabase()
 
-    @abc.abstractmethod
-    # def parse(self,
-    #           node_edge_mac_info: MAG.NodeEdgeMacInfo = None,
-    #           route_immediate_entity: RG.RouteImmediateEntity = None):
     # TODO 这是什么魔鬼代码
     def parse(self, **kwargs):
-        # assert node_edge_mac_info is not None
-        # assert route_immediate_entity is not None
         assert kwargs['node_edge_mac_info']
         assert kwargs['route_immediate_entity']
         node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
@@ -72,36 +65,40 @@ class FilteringDatabaseConfigurationInfo(ConfigurationInfo):
         _flow_routes_dict: Dict[FlowId, RG.FlowRoutes] = route_immediate_entity.flow_routes_dict
         for flow_id, flow_routes in _flow_routes_dict.items():
             _flow_routes: Dict[NodeId, RG.OneToOneRedundantRoutes] = flow_routes.flow_routes
-            for dest_node_id, one_to_one_redundant_routes in flow_routes.items():
+            for dest_node_id, one_to_one_redundant_routes in _flow_routes.items():
                 _one_to_one_redundant_routes: List[RG.OneToOneRoute] = one_to_one_redundant_routes.redundant_routes
                 for one_to_one_route in _one_to_one_redundant_routes:
                     _dest_mac: MacAddress = one_to_one_route.dest_mac
                     _node_route: List[NodeId] = one_to_one_route.node_route
                     _edge_route: List[EdgeId] = one_to_one_route.edge_route
+                    # TODO debug here
                     if self.switch_id in _node_route:
                         _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
                         _edge_id_list: List[EdgeId] = list(filter(
-                            lambda _eid: self.switch_id in _edge_mac_dict[_eid].node_pair[0], _edge_mac_dict))
-                        if _edge_id_list.__len__() != 0:
-                            outbound_mac: MacAddress = _edge_mac_dict[_edge_id_list[0]].mac_pair[0]  # outbound mac
-                            _node_mac_mapper: MAG.NodeMacMapper = node_edge_mac_info.node_mac_dict[self.switch_id]
-                            _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = _node_mac_mapper.port_mac_pair_list
-                            outbound_port: PortNo = [_port_mac_pair[0] for _port_mac_pair in _port_mac_pair_list if
-                                                     outbound_mac == _port_mac_pair[1]]  # outbound port
-                            # add port-macs-dict
-                            if outbound_port in port_macs_dict.keys():
-                                _mac_list: List[MacAddress] = port_macs_dict[outbound_port]
-                                if outbound_mac not in _mac_list:
-                                    _mac_list.append(outbound_mac)
-                            else:
-                                port_macs_dict[outbound_port] = [outbound_mac]
-                            # add mac-ports-dict
-                            if outbound_mac in mac_ports_dict.keys():
-                                _port_list: List[PortNo] = mac_ports_dict[outbound_mac]
-                                if outbound_port not in _port_list:
-                                    _port_list.append(outbound_port)
-                            else:
-                                mac_ports_dict[outbound_mac] = [outbound_port]
+                            lambda _eid: self.switch_id == _edge_mac_dict[_eid].node_pair[0], _edge_mac_dict))
+                        assert _edge_id_list.__len__() != 0
+                        outbound_edge_list: List[EdgeId] = list(set(_edge_route).intersection(set(_edge_id_list)))
+                        assert outbound_edge_list.__len__() != 0
+                        outbound_edge: EdgeId = outbound_edge_list[0]
+                        outbound_mac: MacAddress = _edge_mac_dict[outbound_edge].mac_pair[0]  # outbound mac
+                        _node_mac_mapper: MAG.NodeMacMapper = node_edge_mac_info.node_mac_dict[self.switch_id]
+                        _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = _node_mac_mapper.port_mac_pair_list
+                        outbound_port: PortNo = [_port_mac_pair[0] for _port_mac_pair in _port_mac_pair_list if
+                                                 outbound_mac == _port_mac_pair[1]][0]  # outbound port
+                        # add port-macs-dict
+                        if outbound_port in port_macs_dict.keys():
+                            _mac_list: List[MacAddress] = port_macs_dict[outbound_port]
+                            if _dest_mac not in _mac_list:
+                                _mac_list.append(_dest_mac)
+                        else:
+                            port_macs_dict[outbound_port] = [_dest_mac]
+                        # add mac-ports-dict
+                        if _dest_mac in mac_ports_dict.keys():
+                            _port_list: List[PortNo] = mac_ports_dict[_dest_mac]
+                            if outbound_port not in _port_list:
+                                _port_list.append(outbound_port)
+                        else:
+                            mac_ports_dict[_dest_mac] = [outbound_port]
         for mac, port_list in mac_ports_dict.items():
             self.filtering_database.product_and_add_item(mac, port_list, MAG.MacAddressGenerator.parse_mac_type(mac))
 
@@ -115,14 +112,13 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
 
     def __init__(self, switch_id: NodeId):
         self.switch_id = switch_id
-        self.port_gate_control_list = []
-        self.edge_port_pair_list = []
+        self.port_gate_control_list = {}
+        self.edge_gate_control_list = {}
         # if self.__class__ == GateControlListConfigurationInfo:
         #     self.port_gate_control_list = []
         #     self.edge_port_pair_list = []
         self.edge_port_pair_list = []
 
-    @abc.abstractmethod
     # TODO 这又是什么魔鬼代码
     def parse(self, **kwargs):
         assert kwargs['graph']
@@ -189,33 +185,40 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
                         self.edge_gate_control_list[edge_id].add_item(gate_control_list_item)
 
     @staticmethod
-    def generate_edge_port_pair_list(switch_id: NodeId, node_edge_mac_info: MAG.NodeEdgeMacInfo,
+    def generate_edge_port_pair_list(node_id: NodeId, node_edge_mac_info: MAG.NodeEdgeMacInfo,
                                      route_immediate_entity: RG.RouteImmediateEntity) -> List[Tuple[EdgeId, PortNo]]:
         edge_port_pair_list: List[Tuple[EdgeId, PortNo]] = []
+        edge_port_pair_set: Set[Tuple[EdgeId, PortNo]] = set()
         _flow_routes_dict: Dict[FlowId, RG.FlowRoutes] = route_immediate_entity.flow_routes_dict
         for flow_id, flow_routes in _flow_routes_dict.items():
             _flow_routes: Dict[NodeId, RG.OneToOneRedundantRoutes] = flow_routes.flow_routes
-            for dest_node_id, one_to_one_redundant_routes in flow_routes.items():
+            for dest_node_id, one_to_one_redundant_routes in _flow_routes.items():
                 _one_to_one_redundant_routes: List[RG.OneToOneRoute] = one_to_one_redundant_routes.redundant_routes
                 for one_to_one_route in _one_to_one_redundant_routes:
                     _dest_mac: MacAddress = one_to_one_route.dest_mac
                     _node_route: List[NodeId] = one_to_one_route.node_route
                     _edge_route: List[EdgeId] = one_to_one_route.edge_route
-                    if switch_id in _node_route:
+                    if node_id in _node_route:
                         _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
                         _edge_id_list: List[EdgeId] = list(filter(
-                            lambda _eid: switch_id in _edge_mac_dict[_eid].node_pair[0], _edge_mac_dict))
-                        if _edge_id_list.__len__() != 0:
-                            edge_id: EdgeId = _edge_id_list[0]
-                            outbound_mac: MacAddress = _edge_mac_dict[edge_id].mac_pair[0]  # outbound mac
-                            _node_mac_mapper: MAG.NodeMacMapper = node_edge_mac_info.node_mac_dict[switch_id]
+                            lambda _eid: node_id == _edge_mac_dict[_eid].node_pair[0], _edge_mac_dict))
+                        assert _edge_id_list.__len__() != 0
+                        for _edge_id in _edge_id_list:
+                            # edge_id: EdgeId = _edge_id_list[0]
+                            outbound_mac: MacAddress = _edge_mac_dict[_edge_id].mac_pair[0]  # outbound mac
+                            _node_mac_mapper: MAG.NodeMacMapper = node_edge_mac_info.node_mac_dict[node_id]
                             _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = _node_mac_mapper.port_mac_pair_list
                             outbound_port: PortNo = [_port_mac_pair[0] for _port_mac_pair in _port_mac_pair_list if
-                                                     outbound_mac == _port_mac_pair[1]]  # outbound port
+                                                     outbound_mac == _port_mac_pair[1]][0]  # outbound port
                             # add edge-port-mapper
-                            for edge_port_pair in edge_port_pair_list:
-                                if edge_id in edge_port_pair[0]:
-                                    edge_port_pair_list.append((edge_id, outbound_port))
+                            # if edge_port_pair_list.__len__() == 0:
+                            #     edge_port_pair_list.append((edge_id, outbound_port))
+                            # else:
+                            #     for edge_port_pair in edge_port_pair_list:
+                            #         if edge_id == edge_port_pair[0]:
+                            #             edge_port_pair_list.append((edge_id, outbound_port))
+                            edge_port_pair_set.add((_edge_id, outbound_port))
+        edge_port_pair_list = list(edge_port_pair_set)
         return edge_port_pair_list
 
 
@@ -230,7 +233,6 @@ class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationIn
         #     self.port_enhancement_gate_control_list = []
         #     self.edge_enhancement_gate_control_list = []
 
-    @abc.abstractmethod
     # TODO 这又又是什么魔鬼代码
     def parse(self, **kwargs):
         assert kwargs['graph']
@@ -242,14 +244,15 @@ class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationIn
         _port_mac_pair_list: List[Tuple[PortNo, MacAddress]] = \
             node_edge_mac_info.node_mac_dict[self.switch_id].port_mac_pair_list
         _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
-        self.edge_port_pair_list = \
-            GateControlListConfigurationInfo.generate_edge_port_pair_list(
-                self.switch_id, node_edge_mac_info, route_immediate_entity)
+        self.edge_port_pair_list = GateControlListConfigurationInfo.generate_edge_port_pair_list(
+            self.switch_id, node_edge_mac_info, route_immediate_entity)
         for edge_id, edge in graph.edge_mapper.items():
+            if edge.in_node.node_id != self.switch_id:
+                break
             _time_slot_allocator: TimeSlotAllocator = edge.time_slot_allocator
             _allocation_blocks_m: List[AllocationBlock] = _time_slot_allocator.allocation_blocks_m
             enhancement_gate_control_list: EnhancementGateControlList = EnhancementGateControlList()
-            port_no: PortNo = list(filter(lambda p: p[0] == edge_id, self.edge_port_pair_list))[0]
+            port_no: PortNo = list(filter(lambda p: p[0] == edge_id, self.edge_port_pair_list))[0][1]  # find port no
             self.port_gate_control_list[port_no] = enhancement_gate_control_list
             self.edge_gate_control_list[edge_id] = enhancement_gate_control_list
             hyper_period: float = config.GRAPH_CONFIG['hyper-period']

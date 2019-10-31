@@ -4,6 +4,7 @@ from typing import List
 from src.net_envs.network.EthernetNetwork import EthernetNetwork
 from src.net_envs.network.EthernetNetworkFactory import EthernetNetworkFactory
 from src.net_envs.network.TSNNetwork import TSNNetwork
+from src.net_envs.network_configurator.TSNHostConfigurator import TSNHostConfigurator
 from src.net_envs.network_configurator.TSNSwitchConfigurator import TSNSwitchConfigurator
 from src.net_envs.network_element.Host import Host
 from src.net_envs.network_element.HostFactory import HostFactory
@@ -40,25 +41,34 @@ class TSNNetworkFactory(EthernetNetworkFactory):
             host.__class__ = TSNHost
             tsn_host: TSNHost = host
             tsn_host_list.append(tsn_host)
-        ethernet_network.add_hosts(tsn_host_list)
+        tsn_network.add_tsn_hosts(tsn_host_list)
 
         # product switches and add them into network
         tsn_switch_list: List[TSNSwitch] = []
         switch_factory: SwitchFactory = SwitchFactory()  # factory singleton
-        for switch_id in tsn_switch_list:
+        for switch_id in tsn_switch_id_list:
             switch: Switch = switch_factory.product(switch_id)
             switch.__class__ = TSNSwitch
             tsn_switch: TSNSwitch = switch
             tsn_switch_list.append(tsn_switch)
-        ethernet_network.add_switches(tsn_switch_list)
+        tsn_network.add_tsn_switches(tsn_switch_list)
 
-        #  configure gate control list or enhancement gate control list
-        switch_configurator: TSNSwitchConfigurator = TSNSwitchConfigurator(
+        # configure tsn host
+        tsn_host_configurator: TSNHostConfigurator = TSNHostConfigurator(
             self.node_edge_mac_info,
             self.route_immediate_entity,
             self.solution.graph,
             enhancement_enable=enhancement_enable)
-        for switch in tsn_switch_list:
-            switch.accept_configurator(switch_configurator)
+        for tsn_host in tsn_host_list:
+            tsn_host.accept_configurator(tsn_host_configurator)
+
+        #  configure tsn switch
+        tsn_switch_configurator: TSNSwitchConfigurator = TSNSwitchConfigurator(
+            self.node_edge_mac_info,
+            self.route_immediate_entity,
+            self.solution.graph,
+            enhancement_enable=enhancement_enable)
+        for tsn_switch in tsn_switch_list:
+            tsn_switch.accept_configurator(tsn_switch_configurator)
 
         return tsn_network

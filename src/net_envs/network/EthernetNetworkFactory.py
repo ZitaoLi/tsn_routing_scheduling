@@ -4,6 +4,7 @@ from typing import List
 from src.net_envs.network.EthernetNetwork import EthernetNetwork
 from src.net_envs.network.Network import Network
 from src.net_envs.network.NetworkFactory import NetworkFactory
+from src.net_envs.network_configurator.HostConfigurator import HostConfigurator
 from src.net_envs.network_configurator.SwitchConfigurator import SwitchConfigurator
 from src.net_envs.network_element.Host import Host
 from src.net_envs.network_element.HostFactory import HostFactory
@@ -50,7 +51,12 @@ class EthernetNetworkFactory(NetworkFactory):
             switch_list.append(switch)
         ethernet_network.add_switches(switch_list)
 
-        # configure nodes, such as port addition or filtering database addition
+        # configure hosts
+        host_configurator: HostConfigurator = HostConfigurator(self.node_edge_mac_info)
+        for host in host_list:
+            host.accept_configurator(host_configurator)
+
+        # configure switches
         switch_configurator: SwitchConfigurator = \
             SwitchConfigurator(self.node_edge_mac_info, self.route_immediate_entity)
         for switch in switch_list:

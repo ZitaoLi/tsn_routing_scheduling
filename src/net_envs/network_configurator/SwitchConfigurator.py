@@ -17,7 +17,6 @@ class SwitchConfigurator(NetworkDeviceConfigurator):
         # install NIC
         port_configuration_info: PortConfigurationInfo = PortConfigurationInfo(switch.device_id)
         port_configuration_info.parse(node_edge_mac_info=self.node_edge_mac_info)
-        # self.set_port_configuration_info(port_configuration_info)
         switch.add_ports(port_configuration_info.port_list)
 
         # configure filtering database
@@ -25,5 +24,4 @@ class SwitchConfigurator(NetworkDeviceConfigurator):
             FilteringDatabaseConfigurationInfo(switch.device_id)
         filtering_database_info.parse(
             node_edge_mac_info=self.node_edge_mac_info, route_immediate_entity=self.route_immediate_entity)
-        # self.set_filter_database_configuration_info(filtering_database_info)
         switch.set_filtering_database(filtering_database_info.filtering_database)

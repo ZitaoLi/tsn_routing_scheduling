@@ -31,11 +31,12 @@ class TSNSwitchConfigurator(SwitchConfigurator):
                 graph=self.graph,
                 node_edge_mac_info=self.node_edge_mac_info,
                 route_immediate_entity=self.route_immediate_entity)
-            for port in tsn_switch.ports:
-                port_no: PortNo = port.port_id
-                gate_control_list: GateControlList = \
-                    gate_control_list_configuration_info.port_gate_control_list[port_no]
-                tsn_switch.set_gate_control_list(gate_control_list)
+            tsn_switch.port_gate_control_list = gate_control_list_configuration_info.port_gate_control_list
+            # for port in tsn_switch.ports:
+            #     port_no: PortNo = port.port_id
+            #     gate_control_list: GateControlList = \
+            #         gate_control_list_configuration_info.port_gate_control_list[port_no]
+            #     tsn_switch.set_gate_control_list(gate_control_list)
         else:
             enhancement_gate_control_list_configuration_info: EnhancementGateControlListConfigurationInfo = \
                 EnhancementGateControlListConfigurationInfo(tsn_switch.device_id)
@@ -43,11 +44,12 @@ class TSNSwitchConfigurator(SwitchConfigurator):
                 graph=self.graph,
                 node_edge_mac_info=self.node_edge_mac_info,
                 route_immediate_entity=self.route_immediate_entity)
-            for port in tsn_switch.ports:
-                port_no: PortNo = port.port_id
-                gate_control_list: GateControlList = \
-                    enhancement_gate_control_list_configuration_info.port_gate_control_list[port_no]
-                tsn_switch.set_gate_control_list(gate_control_list)
+            tsn_switch.port_gate_control_list = enhancement_gate_control_list_configuration_info.port_gate_control_list
+            # for port in tsn_switch.ports:
+            #     port_no: PortNo = port.port_id
+            #     gate_control_list: GateControlList = \
+            #         enhancement_gate_control_list_configuration_info.port_gate_control_list[port_no]
+            #     # tsn_switch.set_gate_control_list(gate_control_list)
 
 
 # use decorator model to implement enhancement-tsn-switch-configurator,

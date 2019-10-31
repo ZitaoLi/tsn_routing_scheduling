@@ -15,7 +15,11 @@ class TSNNetwork(EthernetNetwork):
         self.tsn_host_list = []
 
     def add_tsn_hosts(self, tsn_host_list: List[TSNHost]):
+        if hasattr(self, 'tsn_host_list') is False:
+            self.tsn_host_list = []
         [self.tsn_host_list.append(tsn_host) for tsn_host in tsn_host_list]
 
     def add_tsn_switches(self, tsn_switch_list: List[TSNSwitch]):
+        if hasattr(self, 'tsn_switch_list') is False:
+            self.tsn_switch_list = []
         [self.tsn_switch_list.append(tsn_switch) for tsn_switch in tsn_switch_list]

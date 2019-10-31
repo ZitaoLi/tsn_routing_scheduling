@@ -6,9 +6,12 @@ from typing import List, Tuple, Dict
 
 from src.graph.Graph import Graph
 from src.graph.Flow import Flow
+from src.net_envs.network.EthernetNetwork import EthernetNetwork
 from src.net_envs.network.EthernetNetworkFactory import EthernetNetworkFactory
 from src.net_envs.network.Network import Network
 from src.net_envs.network.NetworkFactory import NetworkFactory
+from src.net_envs.network.TSNNetwork import TSNNetwork
+from src.net_envs.network.TSNNetworkFactory import TSNNetworkFactory
 from src.type import MacAddress, EdgeId
 from src.utils.Visualizer import Visualizer
 from src.utils.FlowGenerator import FlowGenerator
@@ -139,6 +142,9 @@ def test_mac_address_generator():
     logger.info('Routes Json: ' + str(json_str))
     node_mac_dict: Dict[int, mag.NodeMacMapper] = mag.MacAddressGenerator.assign_mac_address_to_node(edge_mac_dict)
     logger.info('Node Mac Dict: ' + str(node_mac_dict))
+    for flow in flow_list:
+        _R: List[List[int]] = route_immediate_entity.get_flow_node_route(flow.flow_id)
+        logger.info('Flow ' + str(flow.flow_id) + ': ' + str(_R))
 
 
 def test_import_module():
@@ -149,9 +155,16 @@ def test_import_module():
 
 
 def test_create_network():
-    network_factory: NetworkFactory = NetworkFactory()
+    # network_factory: NetworkFactory = NetworkFactory()
+    # network: Network = network_factory.product()
+    # logger.info(str(network.__class__) + ': ' + str(network))
     # ethernet_network_factory: EthernetNetworkFactory = EthernetNetworkFactory()
-    network: Network = network_factory.product()
+    # ethernet_network: EthernetNetwork = ethernet_network_factory.product()
+    # logger.info(str(ethernet_network.__class__) + ': ' + str(ethernet_network))
+    tsn_network_factory: TSNNetworkFactory = TSNNetworkFactory()
+    tsn_network: TSNNetwork = tsn_network_factory.product(
+        enhancement_enable=config.XML_CONFIG['enhancement-tsn-switch-enable'])
+    logger.info(str(tsn_network.__class__) + ': ' + str(tsn_network))
     print('test')
     pass
 

@@ -2,10 +2,11 @@ import abc
 
 from src.net_envs.network_component.FilteringDatabase import FilteringDatabase
 from src.net_envs.network_element.NetworkDevice import NetworkDevice
+from src.net_envs.network_element.SwitchInterface import SwitchInterface
 from src.type import NodeId, NodeName
 
 
-class Switch(NetworkDevice):
+class Switch(NetworkDevice, SwitchInterface):
     filtering_database: FilteringDatabase  # interface
 
     def __init__(self, switch_id: NodeId, switch_name: NodeName):

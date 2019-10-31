@@ -150,7 +150,7 @@ class MacAddressGenerator:
             for _p in _pairs:
                 if _p[0] not in _node_mac_dict.keys():
                     _node_mac_mapper: NodeMacMapper = NodeMacMapper(_p[0])
-                    _node_mac_mapper.add_port(1, _p[1])
+                    _node_mac_mapper.add_port(PortNo(1), _p[1])
                     _node_mac_dict[_p[0]] = _node_mac_mapper
                 elif _p[1] not in _node_mac_dict[_p[0]].mac_list:
                     _node_mac_mapper: NodeMacMapper = _node_mac_dict[_p[0]]

@@ -21,7 +21,7 @@ class FilteringDatabase:
 
     def __init__(self, items: List[FilteringDatabaseItem] = None, static: bool = True):
         self.static = static
-        self.items = items
+        self.items = items or []
 
     def add_item(self, item: FilteringDatabaseItem):
         self.items.append(item)
