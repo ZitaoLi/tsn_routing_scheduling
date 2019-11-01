@@ -13,6 +13,7 @@ from src.net_envs.network.NetworkFactory import NetworkFactory
 from src.net_envs.network.TSNNetwork import TSNNetwork
 from src.net_envs.network.TSNNetworkFactory import TSNNetworkFactory
 from src.type import MacAddress, EdgeId
+from src.utils.ConfigFileGenerator import ConfigFileGenerator
 from src.utils.Visualizer import Visualizer
 from src.utils.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver, Solution
@@ -165,7 +166,7 @@ def test_create_network():
     tsn_network: TSNNetwork = tsn_network_factory.product(
         enhancement_enable=config.XML_CONFIG['enhancement-tsn-switch-enable'])
     logger.info(str(tsn_network.__class__) + ': ' + str(tsn_network))
-    print('test')
+    ConfigFileGenerator.generate_routes_xml(tsn_network)
     pass
 
 

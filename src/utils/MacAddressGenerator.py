@@ -1,8 +1,9 @@
 from typing import List, Tuple, Dict
 from src import config
+from src.graph.Flow import Flow
 from src.graph.Graph import Graph
 from src.net_envs.network_component.Mac import MAC_TYPE
-from src.type import EdgeId, NodeId, MacAddress, PortNo
+from src.type import EdgeId, NodeId, MacAddress, PortNo, FlowId
 from src.utils.ToString import ToString
 
 
@@ -46,18 +47,34 @@ class NodeMacMapper(ToString):
         self.port_mac_pair_list.append((port_no, mac))
 
 
+class FlowMacMapper(ToString):
+    flow_id: FlowId
+    group_mac: MacAddress
+
+    def __init__(self, flow_id: FlowId, group_mac: MacAddress):
+        self.flow_id = flow_id
+        self.group_mac = group_mac
+
+
 class NodeEdgeMacInfoBuilder(object):
     mac_list: List[MacAddress]  # [mac1, ...]
+    group_mac_list: List[MacAddress]  # [mac1, ...]
     edge_mac_dict: Dict[EdgeId, EdgeMacMapper]  # {e1: EdgeMacMapper, ...}
     node_mac_dict: Dict[NodeId, NodeMacMapper]  # {n1: NodeMacMapper, ...}
+    flow_mac_dict: Dict[FlowId, FlowMacMapper]  # {f1: FlowMacMapper, ...}
 
     def __init__(self):
         self.mac_list = list()
+        self.group_mac_list = list()
         self.edge_mac_dict = dict()
         self.node_mac_dict = dict()
+        self.flow_mac_dict = dict()
 
     def add_mac_list(self, mac_list: List[MacAddress]):
         [self.mac_list.append(mac) for mac in mac_list]
+
+    def add_group_mac_list(self, group_mac_list: List[MacAddress]):
+        [self.group_mac_list.append(group_mac) for group_mac in group_mac_list]
 
     def add_edge_mac_dict(self, edge_mac_dict: Dict[EdgeId, EdgeMacMapper]):
         # TODO list comprehension implementation
@@ -67,26 +84,45 @@ class NodeEdgeMacInfoBuilder(object):
         # TODO list comprehension implementation
         self.node_mac_dict = node_mac_dict
 
+    def add_flow_mac_dict(self, flow_mac_dict: Dict[FlowId, FlowMacMapper]):
+        self.flow_mac_dict = flow_mac_dict
+
     def build(self):
         return NodeEdgeMacInfo(self)
 
 
 class NodeEdgeMacInfo(object):
     mac_list: List[MacAddress]  # [mac1, ...]
+    group_mac_list: List[MacAddress]  # [mac1, ...]
     edge_mac_dict: Dict[EdgeId, EdgeMacMapper]  # {e1: EdgeMacMapper, ...}
     node_mac_dict: Dict[NodeId, NodeMacMapper]  # {n1: NodeMacMapper, ...}
+    flow_mac_dict: Dict[FlowId, FlowMacMapper]  # {f1: FlowMacMapper, ...}
 
     def __init__(self, builder: NodeEdgeMacInfoBuilder):
         self.mac_list = builder.mac_list
+        self.group_mac_list = builder.group_mac_list
         self.edge_mac_dict = builder.edge_mac_dict
         self.node_mac_dict = builder.node_mac_dict
+        self.flow_mac_dict = builder.flow_mac_dict
 
 
 class MacAddressGenerator:
 
     @staticmethod
+    def generate_all_unicast_mac_address(g: Graph):
+        _mac_addr_list: List[MacAddress] = list()
+        _edge_num: int = g.get_edge_num()
+        _mac_num: int = _edge_num * 2
+        if _mac_num > 1099511627775 - 2:
+            # TODO overflow error
+            return
+        for i in range(1, _mac_num + 1):
+            _mac_addr_list.append(MacAddressGenerator.generate_unicast_mac_address(i))
+        return _mac_addr_list
+
+    @staticmethod
     def generate_all_multicast_mac_address(g: Graph):
-        _mac_addr_list: List[str] = list()
+        _mac_addr_list: List[MacAddress] = list()
         _edge_num: int = g.get_edge_num()
         _mac_num: int = _edge_num * 2
         if _mac_num > 1099511627775 - 2:
@@ -97,19 +133,38 @@ class MacAddressGenerator:
         return _mac_addr_list
 
     @staticmethod
-    def generate_multicast_mac_address(n: int):
-        _s: str = hex(n)[2:].upper()  # get hex
-        _s: str = _s.zfill(len(_s) + 1 if (len(_s) % 2 == 1) else len(_s))  # fill up 0
-        _p: List[str] = list([_s[i:i + 2] for i in range(0, len(_s), 2)])
-        if len(_p) > 5:
-            # TODO overflow error
-            return
-        _mac: str = ''
+    def generate_flow_group_mac_address(flows: List[Flow]):
+        _group_mac_list: List[MacAddress] = list()
+        for i in range(1, flows.__len__() + 1):
+            _group_mac_list.append(MacAddressGenerator.generate_multicast_mac_address(i))
+        return _group_mac_list
+
+    @staticmethod
+    def generate_unicast_mac_address(n: int):
+        _s: MacAddress = MacAddress(hex(n)[2:].upper())  # get hex
+        _s: MacAddress = MacAddress(_s.zfill(len(_s) + 1 if (len(_s) % 2 == 1) else len(_s)))  # fill up 0
+        _p: List[MacAddress] = list([_s[i:i + 2] for i in range(0, len(_s), 2)])  # [XX, XX, ...]
+        assert _p.__len__() <= 5, 'mac address out of range'
+        _mac: MacAddress = MacAddress('')
         for i in range(len(_p)):
-            _mac = '-' + _p[-1 - i]
+            _mac = MacAddress('-' + _p[-1 - i])
         for i in range(5 - len(_p)):
-            _mac = '-00' + _mac
-        _mac = '01' + _mac  # multicast prefix
+            _mac = MacAddress('-00' + _mac)
+        _mac = MacAddress('00' + _mac)  # unicast prefix
+        return _mac
+
+    @staticmethod
+    def generate_multicast_mac_address(n: int) -> MacAddress:
+        _s: MacAddress = MacAddress(hex(n)[2:].upper())  # get hex
+        _s: MacAddress = MacAddress(_s.zfill(len(_s) + 1 if (len(_s) % 2 == 1) else len(_s)))  # fill up 0
+        _p: List[MacAddress] = list([_s[i:i + 2] for i in range(0, len(_s), 2)])  # [XX, XX, ...]
+        assert _p.__len__() <= 5, 'mac address out of range'
+        _mac: MacAddress = MacAddress('')
+        for i in range(len(_p)):
+            _mac = MacAddress('-' + _p[-1 - i])
+        for i in range(5 - len(_p)):
+            _mac = MacAddress('-00' + _mac)
+        _mac = MacAddress('01' + _mac)  # multicast prefix
         return _mac
 
     @staticmethod
@@ -156,6 +211,13 @@ class MacAddressGenerator:
                     _node_mac_mapper: NodeMacMapper = _node_mac_dict[_p[0]]
                     _node_mac_mapper.add_port(PortNo(_node_mac_mapper.port_list.__len__() + 1), _p[1])
         return _node_mac_dict
+
+    @staticmethod
+    def assign_mac_address_to_flow(group_macs: List[MacAddress], flows: List[Flow]):
+        _flow_mac_dict: Dict[FlowId, FlowMacMapper] = dict()
+        for i, flow in enumerate(flows):
+            _flow_mac_dict[flow.flow_id] = FlowMacMapper(flow.flow_id, group_macs[i])
+        return _flow_mac_dict
 
     @staticmethod
     def assign_mac_address_to_link(edge_mac_dict: Dict[EdgeId, EdgeMacMapper]) -> List[LinkMacMapper]:

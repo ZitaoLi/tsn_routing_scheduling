@@ -1,16 +1,34 @@
-from typing import Dict
+from typing import Dict, List
 
 from src.net_envs.network_component.GateControlList import GateControlList
 from src.net_envs.network_element.Host import Host
-from src.type import NodeId, NodeName, PortNo
+from src.type import NodeId, NodeName, PortNo, FlowId, SimTime, QueueId, MacAddress
+
+
+class TSNFlowInfo(object):
+    flow_id: FlowId
+    start_time: SimTime
+    queue: QueueId
+    dest_mac: MacAddress
+    group_mac: MacAddress
+
+    def __init__(self,
+                 flow_id: FlowId, start_time: SimTime, queue: QueueId, dest_mac: MacAddress, group_mac: MacAddress):
+        self.flow_id = flow_id
+        self.start_time = start_time
+        self.queue = queue
+        self.dest_mac = dest_mac
+        self.group_mac = group_mac
 
 
 class TSNHost(Host):
     port_gate_control_list: Dict[PortNo, GateControlList]
+    tsn_flow_info_list: List[TSNFlowInfo]
 
     def __init__(self, switch_id: NodeId, switch_name: NodeName):
         super().__init__(switch_id, switch_name)
-        self.port_gate_control_list = []
+        self.port_gate_control_list = {}
+        self.tsn_flow_info_list = []
 
     def send(self):
         pass

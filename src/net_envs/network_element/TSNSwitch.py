@@ -10,7 +10,7 @@ class TSNSwitch(Switch):
 
     def __init__(self, switch_id: NodeId, switch_name: NodeName):
         super().__init__(switch_id, switch_name)
-        self.port_gate_control_list = []
+        self.port_gate_control_list = {}
 
     def forward(self):
         super().forward()

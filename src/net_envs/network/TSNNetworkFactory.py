@@ -58,6 +58,7 @@ class TSNNetworkFactory(EthernetNetworkFactory):
             self.node_edge_mac_info,
             self.route_immediate_entity,
             self.solution.graph,
+            self.solution.flows,
             enhancement_enable=enhancement_enable)
         for tsn_host in tsn_host_list:
             tsn_host.accept_configurator(tsn_host_configurator)

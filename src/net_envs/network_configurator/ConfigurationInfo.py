@@ -2,6 +2,7 @@ import abc
 from typing import List, Tuple, Dict, Set
 
 from src import config
+from src.graph.Flow import Flow
 from src.graph.Graph import Graph
 from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
 from src.net_envs.network_component.FilteringDatabase import FilteringDatabase
@@ -9,7 +10,8 @@ from src.net_envs.network_component.GateControlList import GateControlList, Gate
     EXCLUSIVE_NON_TSN_GATE_STATES, EXCLUSIVE_TSN_GATE_STATES, EnhancementGateControlList, EnhancementGateControlListItem
 from src.net_envs.network_component.Mac import MAC_TYPE
 from src.net_envs.network_element.NetworkDevice import Port
-from src.type import NodeId, PortNo, MacAddress, FlowId, EdgeId, SimTime
+from src.net_envs.network_element.TSNHost import TSNFlowInfo
+from src.type import NodeId, PortNo, MacAddress, FlowId, EdgeId, SimTime, QueueId
 import src.utils.MacAddressGenerator as MAG
 import src.utils.RoutesGenerator as RG
 
@@ -71,7 +73,6 @@ class FilteringDatabaseConfigurationInfo(ConfigurationInfo):
                     _dest_mac: MacAddress = one_to_one_route.dest_mac
                     _node_route: List[NodeId] = one_to_one_route.node_route
                     _edge_route: List[EdgeId] = one_to_one_route.edge_route
-                    # TODO debug here
                     if self.switch_id in _node_route:
                         _edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = node_edge_mac_info.edge_mac_dict
                         _edge_id_list: List[EdgeId] = list(filter(
@@ -222,7 +223,7 @@ class GateControlListConfigurationInfo(ConfigurationInfo):
         return edge_port_pair_list
 
 
-# enhancement-gate-control-list-configuration-information
+# enhancement-gate-control-list-configuration-information, used to configure tsn switch
 class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationInfo):
     # port_enhancement_gate_control_list: Dict[PortNo, EnhancementGateControlList]
     # edge_enhancement_gate_control_list: Dict[EdgeId, EnhancementGateControlList]
@@ -304,3 +305,32 @@ class EnhancementGateControlListConfigurationInfo(GateControlListConfigurationIn
                             EnhancementGateControlListItem(time, EXCLUSIVE_NON_TSN_GATE_STATES, FlowId(0), 0)
                         self.port_gate_control_list[port_no].add_item(enhancement_gate_control_list_item)
                         self.edge_gate_control_list[edge_id].add_item(enhancement_gate_control_list_item)
+
+
+# used to configure tsn host
+class TSNHostConfigurationInfo(ConfigurationInfo):
+    tsn_host_id: NodeId
+    tsn_flow_info_list: List[TSNFlowInfo]
+
+    def __init__(self, tsn_host_id: NodeId):
+        self.tsn_host_id = tsn_host_id
+        self.tsn_flow_info_list = []
+
+    def parse(self, **kwargs):
+        assert kwargs['graph']
+        assert kwargs['flows']
+        assert kwargs['node_edge_mac_info']
+        assert kwargs['route_immediate_entity']
+        graph: Graph = kwargs['graph']
+        flows: List[Flow] = kwargs['flows']
+        node_edge_mac_info: MAG.NodeEdgeMacInfo = kwargs['node_edge_mac_info']
+        route_immediate_entity: RG.RouteImmediateEntity = kwargs['route_immediate_entity']
+        m_flows: List[Flow] = list(filter(lambda f: f.source == self.tsn_host_id, flows))
+        for m_flow in m_flows:
+            flow_id: FlowId = m_flow.flow_id
+            start_time: SimTime = SimTime(0)  # TODO
+            queue: QueueId = QueueId(7)
+            dest_mac: MacAddress = ''  # TODO
+            group_mac: MacAddress = node_edge_mac_info.flow_mac_dict[flow_id].group_mac
+            tsn_flow_info: TSNFlowInfo = TSNFlowInfo(flow_id, start_time, queue, dest_mac)
+            self.tsn_flow_info_list.append(tsn_flow_info)

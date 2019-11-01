@@ -3,7 +3,6 @@ from enum import Enum
 from .Node import Node
 from .TimeSlotArray import TimeSlotArray
 from .TimeSlotAllocator import TimeSlotAllocator
-from .Flow import Flow
 
 EdgeColor = Enum('EdgeColor', ('RED', 'WHITE'))
 EdgeType = Enum('EdgeType', ('HOST_TO_SWITCH', 'SWITCH_TO_SWITCH'))
