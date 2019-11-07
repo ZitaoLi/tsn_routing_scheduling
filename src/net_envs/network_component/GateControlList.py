@@ -6,7 +6,8 @@ from src.type import SimTime, FlowId
 
 ALL_CLOSED_GATE_STATES: bitarray = bitarray([0, 0, 0, 0, 0, 0, 0, 0])  # all closed
 ALL_OPEN_GATE_STATES: bitarray = bitarray([1, 1, 1, 1, 1, 1, 1, 1])  # all open
-EXCLUSIVE_TSN_GATE_STATES: bitarray = bitarray([1, 0, 0, 0, 0, 0, 0, 0])  # exclusive tsn open
+# EXCLUSIVE_TSN_GATE_STATES: bitarray = bitarray([1, 0, 0, 0, 0, 0, 0, 0])  # exclusive tsn open
+EXCLUSIVE_TSN_GATE_STATES: bitarray = bitarray([0, 0, 0, 0, 0, 0, 0, 1])  # exclusive tsn open
 EXCLUSIVE_NON_TSN_GATE_STATES: bitarray = bitarray([0, 1, 1, 1, 1, 1, 1, 1])  # exclusive non-tsn open
 
 

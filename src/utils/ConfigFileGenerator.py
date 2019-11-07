@@ -60,6 +60,7 @@ class ConfigFileGenerator:
         # TODO save to file
 
     @staticmethod
+    # TODO flat and hierarchical xml
     def generate_schedule_xml(tsn_network: TSNNetwork, flows: List[Flow]):
         tsn_host_list: List[TSNHost] = tsn_network.tsn_host_list
         tsn_switch_list: List[TSNSwitch] = tsn_network.tsn_switch_list
