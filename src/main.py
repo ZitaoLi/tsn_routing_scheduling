@@ -32,12 +32,12 @@ IDEAL_BANDWIDTH = int(1e0)  # 1Gbps = 1bit/ns, [unit: bpns]
 
 
 def main():
-    # test()  # fixed flows
+    test()  # fixed flows
     # test_2()  # random flows
     # test_v()  # visualizer
     # test_mac_address_generator()
     # test_import_module()
-    test_create_network()
+    # test_create_network()
 
 
 def test():
@@ -167,6 +167,10 @@ def test_create_network():
         enhancement_enable=config.XML_CONFIG['enhancement-tsn-switch-enable'])
     logger.info(str(tsn_network.__class__) + ': ' + str(tsn_network))
     ConfigFileGenerator.generate_routes_xml(tsn_network)
+    pass
+
+
+def test_networkx():
     pass
 
 

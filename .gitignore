@@ -441,3 +441,4 @@ src/__pycache__/
 src/graph/__pycache__/
 src/utils/__pycache__/
 .idea/
+/src/graph/.mypy_cache/

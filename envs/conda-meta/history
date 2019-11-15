@@ -130,3 +130,9 @@
 +defaults::bitarray-1.0.1-py37he774522_0
 +defaults::ca-certificates-2019.10.16-0
 # update specs: ['bitarray']
+==> 2019-11-13 19:03:11 <==
+# cmd: C:\Users\homet\Anaconda3\Scripts\conda-script.py install -p C:/Users/homet/workspace/pycharm_workspace/tsn_routing_scheduling/envs networkx -y
+# conda version: 4.6.14
+-defaults::networkx-2.3-py_0
++defaults::networkx-2.4-py_0
+# update specs: ['networkx']
