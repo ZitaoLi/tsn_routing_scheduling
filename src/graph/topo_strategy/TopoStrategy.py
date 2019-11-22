@@ -5,5 +5,5 @@ import networkx as nx
 class TopoStrategy(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def generate(self) -> nx.Graph:
+    def generate(self) -> nx.DiGraph:
         pass

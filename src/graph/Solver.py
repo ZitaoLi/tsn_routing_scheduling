@@ -12,6 +12,10 @@ from src.graph.Flow import Flow
 from src.graph.Graph import Graph
 from src import config
 from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
+from src.graph.allocating_strategy.AEAPAllocatingStrategy import AEAPAllocatingStrategy
+from src.graph.allocating_strategy.AllocatingStrategy import AllocatingStrategy
+from src.graph.scheduling_strategy.LRFRedundantScheduling import LRFRedundantSchedulingStrategy
+from src.graph.scheduling_strategy.SchedulingStrategy import SchedulingStrategy
 from src.utils.Singleton import SingletonDecorator
 
 logger = logging.getLogger(__name__)
@@ -60,7 +64,13 @@ class Solver:
         _F: List[int] = [_flow.flow_id for _flow in flows]
         _g.flow_router.route_flows(_F)  # routing
         _F = [_fid for _fid in _F if _fid not in _g.flow_router.failure_queue]
-        _g.flow_scheduler.schedule_flows(_F)  # scheduling
+        # _g.flow_scheduler.schedule_flows(_F)  # scheduling
+        _lrf_redundant_scheduling_strategy: SchedulingStrategy = \
+            LRFRedundantSchedulingStrategy(nodes, edges, _F, _g.node_mapper, _g.edge_mapper, _g.flow_mapper)
+        __aeap_allocating_strategy: AllocatingStrategy = AEAPAllocatingStrategy()
+        _g.flow_scheduler.scheduling_strategy = _lrf_redundant_scheduling_strategy
+        _g.flow_scheduler.allocating_strategy = __aeap_allocating_strategy
+        _g.flow_scheduler.schedule(_F)  # scheduling
         _g.combine_failure_queue()
         if visual is True:
             _g.draw_gantt()
@@ -110,7 +120,7 @@ class Solver:
             _sc.graph.flow_router.route_flows(_F)
             _F = [_fid for _fid in _F if _fid not in _s.graph.flow_router.failure_queue]
             # rescheduling
-            _sc.graph.flow_scheduler.schedule_flows(_F)
+            _sc.graph.flow_scheduler.schedule(_F)  # scheduling
             # recombination failure queue
             _sc.graph.combine_failure_queue()
             if _o == 0:

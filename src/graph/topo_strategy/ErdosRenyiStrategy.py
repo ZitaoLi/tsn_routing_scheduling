@@ -46,5 +46,10 @@ class ErdosRenyiStrategy(TopoStrategy):
     def p(self, p: float):
         self.__p = p
 
-    def generate(self) -> nx.Graph:
-        pass
+    def generate(self) -> nx.DiGraph:
+        if self.__type is ErdosRenyiStrategy.ER_TYPE.GNM and self.n != 0 and self.m != 0:
+            return nx.gnm_random_graph(self.n, self.m).to_directed()
+        elif self.__type is ErdosRenyiStrategy.ER_TYPE.GNP and self.n != 0 and self.p != 0:
+            return nx.gnp_random_graph(self.n, self.p).to_directed()
+        else:
+            raise RuntimeError('unknown type')
