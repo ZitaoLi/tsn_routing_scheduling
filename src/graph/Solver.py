@@ -14,8 +14,13 @@ from src import config
 from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
 from src.graph.allocating_strategy.AEAPAllocatingStrategy import AEAPAllocatingStrategy
 from src.graph.allocating_strategy.AllocatingStrategy import AllocatingStrategy
+from src.graph.allocating_strategy.AllocatingStrategyFactory import AllocatingStrategyFactory
+from src.graph.routing_strategy.BackTrackingRedundantRoutingStrategy import BackTrackingRedundantRoutingStrategy
+from src.graph.routing_strategy.RoutingStrategy import RoutingStrategy
+from src.graph.routing_strategy.RoutingStrategyFactory import RoutingStrategyFactory
 from src.graph.scheduling_strategy.LRFRedundantScheduling import LRFRedundantSchedulingStrategy
 from src.graph.scheduling_strategy.SchedulingStrategy import SchedulingStrategy
+from src.graph.scheduling_strategy.SchedulingStrategyFactory import SchedulingStrategyFactory
 from src.utils.Singleton import SingletonDecorator
 
 logger = logging.getLogger(__name__)
@@ -57,21 +62,31 @@ class Solver:
 
     @classmethod
     def generate_init_solution(cls, nodes: List[int], edges: List[Tuple[int]], flows: List[Flow], visual: bool = True):
+        # create graph
         _g: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
         _g.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
-        _g.flow_router.set_overlapped(config.GRAPH_CONFIG['overlapped-routing'])
         _g.add_flows(flows)
         _F: List[int] = [_flow.flow_id for _flow in flows]
-        _g.flow_router.route_flows(_F)  # routing
+        # _g.flow_router.route_flows(_F)  # routing
+        # set routing strategy and route flows
+        _routing_strategy: RoutingStrategy = \
+            RoutingStrategyFactory.get_instance(config.GRAPH_CONFIG['routing-strategy'], _g)
+        _g.flow_router.routing_strategy = _routing_strategy
+        _g.flow_router.overlapped = config.GRAPH_CONFIG['overlapped-routing']
+        _g.flow_router.route(_F)
+        # select successful flows after routing
         _F = [_fid for _fid in _F if _fid not in _g.flow_router.failure_queue]
         # _g.flow_scheduler.schedule_flows(_F)  # scheduling
-        _lrf_redundant_scheduling_strategy: SchedulingStrategy = \
-            LRFRedundantSchedulingStrategy(nodes, edges, _F, _g.node_mapper, _g.edge_mapper, _g.flow_mapper)
-        __aeap_allocating_strategy: AllocatingStrategy = AEAPAllocatingStrategy()
-        _g.flow_scheduler.scheduling_strategy = _lrf_redundant_scheduling_strategy
-        _g.flow_scheduler.allocating_strategy = __aeap_allocating_strategy
-        _g.flow_scheduler.schedule(_F)  # scheduling
+        # set scheduling and allocating strategy and schedule flows
+        _scheduling_strategy: SchedulingStrategy = \
+            SchedulingStrategyFactory.get_instance(config.GRAPH_CONFIG['scheduling-strategy'], _g)
+        _allocating_strategy: AllocatingStrategy = \
+            AllocatingStrategyFactory.get_instance(config.GRAPH_CONFIG['allocating-strategy'])
+        _g.flow_scheduler.scheduling_strategy = _scheduling_strategy
+        _g.flow_scheduler.allocating_strategy = _allocating_strategy
+        _g.flow_scheduler.schedule(_F)
         _g.combine_failure_queue()
+        # visualize Gannt chart
         if visual is True:
             _g.draw_gantt()
         # cls.final_solution = Solution(_g, flows)
@@ -80,7 +95,7 @@ class Solver:
         cls.final_solution.set_flows(flows)
 
         # TODO save solution
-        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')
+        file = os.path.join(os.path.join(config.src_dir, 'json'), 'solution')
         with open(file, 'wb') as f:
             pickle.dump(cls.final_solution, f)
         return cls.final_solution

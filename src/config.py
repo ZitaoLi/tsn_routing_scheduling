@@ -1,6 +1,8 @@
 import os
 from enum import Enum
 
+from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY
+
 TIME_GRANULARITY = Enum('TIME_GRANULARITY', ('NS, US, MS, S'))
 
 src_dir: str = os.path.dirname(os.path.abspath(__file__))
@@ -14,6 +16,19 @@ GRAPH_CONFIG = {
     'max-bandwidth': int(1e0),  # maximum bandwidth of all edges
     'overlapped-routing': True,  # whether routing with overlapping or not
     'time-granularity': TIME_GRANULARITY.NS,  # time granularity, default is ns
+    'routing-strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+    'scheduling-strategy': SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY,
+    'allocating-strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY,
+    'max-try-times': 50,  # max retry times if the graph is not connected
+}
+
+FLOW_CONFIG = {
+    'flow-num': 0,  # number of flow
+    'dest-num-set': [1, 2, 3],  # set of the number of destination nodes
+    'period-set': [int(1e5), int(2e5), int(5e5), int(1e6)],  # set of period, 周期能被最大周期整除
+    'size-set': [int(2e4), int(1e5), int(5e4)],
+    'reliability-set': [0.97, 0.98, 0.99],
+    'deadline-set': [int(1e8), int(5e7), int(2e7)]
 }
 
 OPTIMIZATION = {

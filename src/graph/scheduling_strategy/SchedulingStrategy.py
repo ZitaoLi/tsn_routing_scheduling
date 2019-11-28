@@ -36,8 +36,8 @@ class SchedulingStrategy(metaclass=abc.ABCMeta):
     def schedule(self, flow_id_list: List[FlowId], *args, **kwargs):
         pass
 
-    def allocate(self, flow: Flow, allocator: TimeSlotAllocator, arrival_time_offset: int):
-        self.__allocating_strategy.allocate(flow, allocator, arrival_time_offset)
+    def allocate(self, flow: Flow, allocator: TimeSlotAllocator, arrival_time_offset: int) -> int:
+        return self.__allocating_strategy.allocate(flow, allocator, arrival_time_offset)
 
     @staticmethod
     def sort_flows_id_list(flows: List[int]) -> List[int]:

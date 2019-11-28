@@ -3,6 +3,7 @@ from enum import Enum
 
 import networkx as nx
 
+from src import config
 from src.graph.topo_strategy.TopoStrategy import TopoStrategy
 
 logger = logging.getLogger(__name__)
@@ -47,9 +48,18 @@ class ErdosRenyiStrategy(TopoStrategy):
         self.__p = p
 
     def generate(self) -> nx.DiGraph:
+        g: nx.Graph = None
         if self.__type is ErdosRenyiStrategy.ER_TYPE.GNM and self.n != 0 and self.m != 0:
-            return nx.gnm_random_graph(self.n, self.m).to_directed()
+            for i in range(config.GRAPH_CONFIG['max-try-times']):
+                g = nx.gnm_random_graph(self.n, self.m)
+                if len(list(nx.connected_components(g))) == 1:
+                    return g.to_directed()
+            raise RuntimeError('fail to generate ErdosRenyi Graph')
         elif self.__type is ErdosRenyiStrategy.ER_TYPE.GNP and self.n != 0 and self.p != 0:
-            return nx.gnp_random_graph(self.n, self.p).to_directed()
+            for i in range(config.GRAPH_CONFIG['max-try-times']):
+                g = nx.gnp_random_graph(self.n, self.p)
+                if len(list(nx.connected_components(g))) == 1:
+                    return g.to_directed()
+            raise RuntimeError('fail to generate ErdosRenyi Graph')
         else:
             raise RuntimeError('unknown type')

@@ -1,94 +1,36 @@
+import logging
 from typing import List, Dict, Set
 
-from src.graph.Flow import Flow
 from src.graph.Edge import Edge
+from src.graph.Flow import Flow
 from src.graph.Node import Node
-import logging
-
-from src.graph.routing_strategy.BackTrackingRedundantRoutingStrategy import BackTrackingRedundantRoutingStrategy
+from src.graph.routing_strategy.RedundantRoutingStrategy import RedundantRoutingStrategy
 from src.graph.routing_strategy.RoutingStrategy import RoutingStrategy
 from src.type import FlowId
 
 logger = logging.getLogger(__name__)
 
 
-class FlowRouter:
-    nodes: List[int]
-    edges: List[int]
-    flows: List[int]
-    node_mapper: Dict[int, Node]
-    edge_mapper: Dict[int, Edge]
-    flow_mapper: Dict[int, Flow]
-    failure_queue: Set[int]
-    overlapped: bool
-    flow_walked_edges: Dict[int, Set[int]]
-    flow_walked_edges_c: Dict[int, Set[int]]
-    __routing_strategy: RoutingStrategy
+class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
+    __overlapped: bool
+    __flow_walked_edges: Dict[int, Set[int]]
 
     def __init__(self, nodes: List[int], edges: List[int], flows: List[int], node_mapper: Dict[int, Node],
                  edge_mapper: Dict[int, Edge], flow_mapper: Dict[int, Flow]):
-        self.nodes = nodes
-        self.edges = edges
-        self.flows = flows
-        self.node_mapper = node_mapper
-        self.edge_mapper = edge_mapper
-        self.flow_mapper = flow_mapper
-        self.failure_queue = set()
-        self.overlapped = False
-        self.init_flow_walked_edges()
-        # default routing strategy is Long-Routes-First Redundant Routing Strategy
-        self.__routing_strategy = \
-            BackTrackingRedundantRoutingStrategy(nodes, edges, flows, node_mapper, edge_mapper, flow_mapper)
-
-    @staticmethod
-    def sort_flows(flows: List[int]):
-        '''
-        sort flows list by priority from <reliability requirement> to <deadline requirement> [NOTED]
-        :param flows: flows list to sort
-        :return: sorted flows list
-        '''
-        #  TODO sort flows list
-        return flows
-
-    @property
-    def routing_strategy(self):
-        return self.routing_strategy
-
-    @routing_strategy.setter
-    def routing_strategy(self, routing_strategy: RoutingStrategy):
-        self.__routing_strategy = routing_strategy
-
-    def route(self, flow_is_list: List[FlowId]):
-        self.__routing_strategy.route(flow_is_list, sorting_enabled=True)
-
-########################################################################################################################
-
-    def set_overlapped(self, overlapped):
-        self.overlapped = overlapped
-
-    def init_flow_walked_edges(self):
+        super().__init__(nodes, edges, flows, node_mapper, edge_mapper, flow_mapper)
+        self.__overlapped = False
+        self.__flow_walked_edges = dict()
         for _fid in self.flows:
-            self.flow_walked_edges[_fid] = set()
-            self.flow_walked_edges_c[_fid] = set()
+            self.__flow_walked_edges[_fid] = set()
 
-    def save_flow_walked_edges(self):
-        self.flow_walked_edges_c = self.flow_walked_edges
-
-    def recover_flow_walked_edges(self):
-        self.flow_walked_edges = self.flow_walked_edges_c
-
-    def save_weight(self):
-        for _e in self.edge_mapper.values():
-            _e.weight_c = _e.weight
-
-    def recover_weight(self):
-        for _e in self.edge_mapper.values():
-            _e.weight = _e.weight_c
-
-    def route_flows(self, flows: List[int], is_sort: bool = True):
-        if is_sort is True:
-            flows = self.sort_flows(flows)
-        for fid in flows:
+    def route(self, flow_id_list: List[FlowId], *args, **kwargs):
+        sorting_enabled: bool = True
+        if 'sorting_enabled' in kwargs.keys():
+            sorting_enabled = kwargs['sorting_enabled']
+            assert type(sorting_enabled) is bool, 'parameter "sorting_enabled" type must be bool'
+        if sorting_enabled:
+            flow_id_list = RoutingStrategy.sort_flows_id_list(flow_id_list)
+        for fid in flow_id_list:
             self.save_weight()
             if not self.route_single_flow(self.flow_mapper[fid]):
                 self.recover_weight()
@@ -98,11 +40,21 @@ class FlowRouter:
                 logger.info(self.flow_mapper[fid].to_string())
         logger.info('FAILURE QUEUE:' + str(self.failure_queue))
 
-    def route_flows_incrementally(self, flows: List[int]):
-        self.route_flows(flows)
+    @property
+    def overlapped(self):
+        return self.__overlapped
 
-    def route_all_flows(self):
-        self.route_flows(self.flows)
+    @overlapped.setter
+    def overlapped(self, overlapped: bool):
+        self.__overlapped = overlapped
+
+    def save_weight(self):
+        for _e in self.edge_mapper.values():
+            _e.weight_c = _e.weight
+
+    def recover_weight(self):
+        for _e in self.edge_mapper.values():
+            _e.weight = _e.weight_c
 
     def route_single_flow(self, flow: Flow) -> bool:
         _b: float = flow.size / flow.period
@@ -175,7 +127,7 @@ class FlowRouter:
         if _e.weight + _w > 1:
             return False
         if eid in walked_edges:
-            if self.overlapped is False:
+            if self.__overlapped is False:
                 _e.weight += _w  # add weight on edge
         else:
             _e.weight += _w  # add weight on edge
@@ -200,7 +152,7 @@ class FlowRouter:
                 if len(route) != 0:
                     break
             if eid in walked_edges:
-                if self.overlapped is False:
+                if self.__overlapped is False:
                     _e.weight -= _w  # recover weight on edge
             else:
                 _e.weight -= _w  # recover weight on edge
@@ -225,7 +177,7 @@ class FlowRouter:
             _b: int = _e.bandwidth
             # check whether the next node's color is red or bandwidth overflow
             if _on.color != 1:  # TODO check end-to-end delay
-                if self.overlapped is True:
+                if self.__overlapped is True:
                     if _w + b / _b > 1:
                         continue
                 __E.append(_e)

@@ -10,21 +10,18 @@ from src.graph.Graph import Graph
 from src.graph.Flow import Flow
 from src.graph.TopoGenerator import TopoGenerator
 from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
-from src.net_envs.network.EthernetNetwork import EthernetNetwork
-from src.net_envs.network.EthernetNetworkFactory import EthernetNetworkFactory
-from src.net_envs.network.Network import Network
-from src.net_envs.network.NetworkFactory import NetworkFactory
 from src.net_envs.network.TSNNetwork import TSNNetwork
 from src.net_envs.network.TSNNetworkFactory import TSNNetworkFactory
 from src.type import MacAddress, EdgeId
 from src.utils.ConfigFileGenerator import ConfigFileGenerator
 from src.utils.Visualizer import Visualizer
-from src.utils.FlowGenerator import FlowGenerator
+from src.graph.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver, Solution
 from src.utils import MacAddressGenerator as mag
 from src.utils import RoutesGenerator as rg
 from src import config
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 '''
@@ -36,8 +33,8 @@ IDEAL_BANDWIDTH = int(1e0)  # 1Gbps = 1bit/ns, [unit: bpns]
 
 
 def main():
-    # test()  # fixed flows
-    test_2()  # random flows
+    test()  # fixed flows
+    # test_2()  # random flows
     # test_v()  # visualizer
     # test_mac_address_generator()
     # test_import_module()
@@ -180,7 +177,7 @@ def test_networkx():
     topo_generator.topo_strategy = ErdosRenyiStrategy()
     topo_generator.topo_strategy.n = 4
     topo_generator.topo_strategy.m = 5
-    graph: nx.DiGraph = topo_generator.generate_topo()
+    graph: nx.Graph = topo_generator.generate_core_topo()
     topo_generator.draw(graph)
 
 

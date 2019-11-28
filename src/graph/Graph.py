@@ -42,6 +42,10 @@ class Graph:
         self.init_edges()
         # self.print_nodes()
 
+    def calculate_hyper_period(self):
+        # TODO calculate hyper period of flows
+        pass
+
     def get_node_num(self):
         return self.nodes.__len__()
 
@@ -110,10 +114,12 @@ class Graph:
             self.flows.append(_f.flow_id)
             self.flow_mapper[_f.flow_id] = _f
 
+    # deprecated
     def route_all_flows(self, flows: List[Flow]):
         self.add_flows(flows)
         self.flow_router.route_all_flows()
 
+    # deprecated
     def route_flows_incrementally(self, flows: List[Flow]):
         self.add_flows(flows)
         _flows: List[int] = []
@@ -121,9 +127,11 @@ class Graph:
             _flows.append(_f.flow_id)
         self.flow_router.route_flows_incrementally(_flows)
 
+    # deprecated
     def schedule_all_flows(self):
         pass
 
+    # deprecated
     def schedule_flows_incrementally(self):
         pass
 

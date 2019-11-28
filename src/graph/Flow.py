@@ -18,7 +18,7 @@ class Flow:
     deadline: int  # end-to-end delay requirement of flow [unit: ns]
     routes: List[List[List[int]]]  # routes of flow
     walked_edges: Set[int]  # the edge flow walked
-    negative_walked_edges: Set[int]   # negative walked set used for flow sorting during routing phase
+    negative_walked_edges: Set[int]  # negative walked set used for flow sorting during routing phase
 
     def __init__(self, fid: int, s: int, p: int, src: int, dest: list, rl: float, dl: int):
         self.flow_id = fid
@@ -52,3 +52,18 @@ class Flow:
         }
         _json = json.dumps(o)
         logger.info(_json)
+
+    def __str__(self):
+        o = {
+            'flow id': self.flow_id,
+            'size': str(self.size) + ' b',
+            'period': str(self.period) + ' ns',
+            'bandwidth requirement': str(self.size / self.period) + ' b/ns',
+            'source host': str(self.source),
+            'destination host': self.destinations,
+            'reliability': self.reliability,
+            'deadline': str(self.deadline) + ' ns',
+            'routes': self.routes,
+            'walked_edges': list(self.walked_edges)
+        }
+        return json.dumps(o)

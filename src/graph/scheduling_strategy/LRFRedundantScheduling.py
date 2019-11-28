@@ -71,11 +71,12 @@ class LRFRedundantSchedulingStrategy(RedundantSchedulingStrategy):
             _E.append(_e)
             _allocator: TimeSlotAllocator = _e.time_slot_allocator  # get time slot allocator
             _allocator.save_scene()  # save scene
-            _arrival_time_offset: int = self.allocate_aeap_overlap(flow, _allocator, _arrival_time_offset)
+            # _arrival_time_offset: int = self.allocate_aeap_overlap(flow, _allocator, _arrival_time_offset)
+            _arrival_time_offset: int = self.allocate(flow, _allocator, _arrival_time_offset)
             # _arrival_time_offset: int = _allocator.allocate_aeap_overlap(flow, _arrival_time_offset)
             # _arrival_time_offset: int = _allocator.allocate_aeap(flow, _arrival_time_offset)
             # TODO fix bug here
-            if _arrival_time_offset == -1:
+            if _arrival_time_offset == -1 or _arrival_time_offset > flow.deadline:
                 # recover scene
                 for _e in _E:
                     _e.time_slot_allocator.recover_scene()

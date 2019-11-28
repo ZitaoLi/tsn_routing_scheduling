@@ -3,6 +3,7 @@ from enum import Enum
 
 import networkx as nx
 
+from src import config
 from src.graph.topo_strategy.TopoStrategy import TopoStrategy
 
 logger = logging.getLogger(__name__)
@@ -33,4 +34,9 @@ class BarabasiAlbertStrategy(TopoStrategy):
         self.__m = m
 
     def generate(self) -> nx.DiGraph:
-        return nx.barabasi_albert_graph(self.__n, self.__m).to_directed()
+        g: nx.Graph = None
+        for i in range(config.GRAPH_CONFIG['max-try-times']):
+            g = nx.barabasi_albert_graph(self.n, self.m)
+            if len(list(nx.connected_components(g))) == 1:
+                return g.to_directed()
+        raise RuntimeError('fail to generate ErdosRenyi Graph')
