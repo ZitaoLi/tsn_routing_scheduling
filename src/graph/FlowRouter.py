@@ -59,7 +59,7 @@ class FlowRouter:
         self.__routing_strategy = routing_strategy
 
     def route(self, flow_is_list: List[FlowId]):
-        self.__routing_strategy.route(flow_is_list, sorting_enabled=True)
+        self.failure_queue = self.__routing_strategy.route(flow_is_list, sorting_enabled=True)
 
 ########################################################################################################################
 

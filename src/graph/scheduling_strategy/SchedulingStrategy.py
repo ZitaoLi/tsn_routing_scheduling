@@ -18,7 +18,7 @@ class SchedulingStrategy(metaclass=abc.ABCMeta):
     node_mapper: Dict[int, Node]
     edge_mapper: Dict[int, Edge]
     flow_mapper: Dict[int, Flow]
-    failure_queue: Set[int]
+    failure_queue: Set[FlowId]
     __allocating_strategy: AllocatingStrategy  # allocating strategy
 
     def __init__(self, nodes: List[int], edges: List[int], flows: List[int], node_mapper: Dict[int, Node],
@@ -33,7 +33,7 @@ class SchedulingStrategy(metaclass=abc.ABCMeta):
         self.__allocating_strategy = AEAPAllocatingStrategy()  # default allocating strategy
 
     @abc.abstractmethod
-    def schedule(self, flow_id_list: List[FlowId], *args, **kwargs):
+    def schedule(self, flow_id_list: List[FlowId], *args, **kwargs) -> Set[FlowId]:
         pass
 
     def allocate(self, flow: Flow, allocator: TimeSlotAllocator, arrival_time_offset: int) -> int:

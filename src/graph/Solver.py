@@ -21,6 +21,7 @@ from src.graph.routing_strategy.RoutingStrategyFactory import RoutingStrategyFac
 from src.graph.scheduling_strategy.LRFRedundantScheduling import LRFRedundantSchedulingStrategy
 from src.graph.scheduling_strategy.SchedulingStrategy import SchedulingStrategy
 from src.graph.scheduling_strategy.SchedulingStrategyFactory import SchedulingStrategyFactory
+from src.type import FlowId
 from src.utils.Singleton import SingletonDecorator
 
 logger = logging.getLogger(__name__)
@@ -66,16 +67,18 @@ class Solver:
         _g: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
         _g.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
         _g.add_flows(flows)
-        _F: List[int] = [_flow.flow_id for _flow in flows]
+        _F_r: List[int] = [_flow.flow_id for _flow in flows]
+        logger.info('route ' + str(_F_r) + '...')
         # _g.flow_router.route_flows(_F)  # routing
         # set routing strategy and route flows
         _routing_strategy: RoutingStrategy = \
             RoutingStrategyFactory.get_instance(config.GRAPH_CONFIG['routing-strategy'], _g)
         _g.flow_router.routing_strategy = _routing_strategy
         _g.flow_router.overlapped = config.GRAPH_CONFIG['overlapped-routing']
-        _g.flow_router.route(_F)
+        _g.flow_router.route(_F_r)
         # select successful flows after routing
-        _F = [_fid for _fid in _F if _fid not in _g.flow_router.failure_queue]
+        _F_s = [_fid for _fid in _F_r if _fid not in _g.flow_router.failure_queue]
+        logger.info('schedule ' + str(_F_s) + '...')
         # _g.flow_scheduler.schedule_flows(_F)  # scheduling
         # set scheduling and allocating strategy and schedule flows
         _scheduling_strategy: SchedulingStrategy = \
@@ -84,7 +87,7 @@ class Solver:
             AllocatingStrategyFactory.get_instance(config.GRAPH_CONFIG['allocating-strategy'])
         _g.flow_scheduler.scheduling_strategy = _scheduling_strategy
         _g.flow_scheduler.allocating_strategy = _allocating_strategy
-        _g.flow_scheduler.schedule(_F)
+        _g.flow_scheduler.schedule(_F_s)
         _g.combine_failure_queue()
         # visualize Gannt chart
         if visual is True:

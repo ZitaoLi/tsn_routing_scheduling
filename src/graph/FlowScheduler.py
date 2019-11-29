@@ -65,7 +65,7 @@ class FlowScheduler:
         self.__scheduling_strategy.allocating_strategy = allocating_strategy
 
     def schedule(self, flow_is_list: List[FlowId]):
-        self.__scheduling_strategy.schedule(flow_is_list, sorting_enabled=True)
+        self.failure_queue = self.__scheduling_strategy.schedule(flow_is_list, sorting_enabled=True)
 
 ########################################################################################################################
 

@@ -23,10 +23,10 @@ GRAPH_CONFIG = {
 }
 
 FLOW_CONFIG = {
-    'flow-num': 0,  # number of flow
+    'flow-num': 10,  # number of flow
     'dest-num-set': [1, 2, 3],  # set of the number of destination nodes
-    'period-set': [int(1e5), int(2e5), int(5e5), int(1e6)],  # set of period, 周期能被最大周期整除
-    'size-set': [int(2e4), int(1e5), int(5e4)],
+    'period-set': [int(1e6), int(2e5), int(5e5)],  # set of period, 周期能被最大周期整除
+    'size-set': [int(2e4), int(1e4), int(5e4)],
     'reliability-set': [0.97, 0.98, 0.99],
     'deadline-set': [int(1e8), int(5e7), int(2e7)]
 }

@@ -23,7 +23,7 @@ class Edge:
     time_slot_array: TimeSlotArray  # time slots on edge, deprecated
     time_slot_allocator: TimeSlotAllocator  # time slot allocator
     type: int  # type, [host-to-switch or switch-to-switch]
-    hyper_period: int  # hyper period of all flows
+    __hyper_period: int  # hyper period of all flows
 
     def __init__(self, edge_id: int, in_node: Node, out_node: Node, b: int = 0, e_rate: float = 0, prop_d: int = 0,
                  proc_d: int = 0, hp: int = 0):
@@ -47,16 +47,16 @@ class Edge:
         self.weight_c = 0
         self.color = EdgeColor.RED
         self.type = EdgeType.HOST_TO_SWITCH
-        self.hyper_period = hp
+        self.__hyper_period = hp
         self.init_time_slot_allocator()  # initialize time slot allocator
         # self.init_time_slot_array()
 
     def init_time_slot_allocator(self):
-        self.time_slot_allocator = TimeSlotAllocator(self.edge_id, hp=self.hyper_period, b=self.bandwidth,
+        self.time_slot_allocator = TimeSlotAllocator(self.edge_id, hp=self.__hyper_period, b=self.bandwidth,
                                                      prop_d=self.propagation_delay, proc_d=self.process_delay)
 
     def init_time_slot_array(self):
-        self.time_slot_array = TimeSlotArray(self.edge_id, hp=self.hyper_period, b=self.bandwidth)
+        self.time_slot_array = TimeSlotArray(self.edge_id, hp=self.__hyper_period, b=self.bandwidth)
 
     def set_process_delay(self, proc_d: int):
         self.process_delay = proc_d
@@ -71,3 +71,12 @@ class Edge:
         self.bandwidth = b
         self.time_slot_allocator.set_bandwidth(b)
         # self.time_slot_array.set_bandwidth(b)
+
+    @property
+    def hyper_period(self):
+        return self.__hyper_period
+
+    @hyper_period.setter
+    def hyper_period(self, hyper_period: int):
+        self.__hyper_period = hyper_period
+        self.time_slot_allocator.hyper_period = hyper_period

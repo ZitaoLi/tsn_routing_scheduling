@@ -30,7 +30,7 @@ class AllocationBlock:
 
 class TimeSlotAllocator:
     edge_id: int
-    hyper_period: int  # hyper period of all flows, [unit: us]
+    __hyper_period: int  # hyper period of all flows, [unit: us]
     bandwidth: int  # bandwidth on edge, [unit: bps]
     propagation_delay: int
     process_delay: int
@@ -56,12 +56,25 @@ class TimeSlotAllocator:
     def __init__(self, edge_id: int, hp: int = 0, b: int = 0, s: int = config.GRAPH_CONFIG['min-flow-size'],
                  prop_d: int = 0, proc_d: int = 0):
         self.edge_id = edge_id
-        self.hyper_period = hp
+        self.__hyper_period = hp
         self.bandwidth = b
         self.min_flow_size = s
         self.propagation_delay = prop_d
         self.process_delay = proc_d
         self.reset()
+
+    @property
+    def hyper_period(self):
+        return self.__hyper_period
+
+    @hyper_period.setter
+    def hyper_period(self, hyper_period: int):
+        if hyper_period != self.__hyper_period:
+            self.__hyper_period = hyper_period
+            self.reset()
+            logger.info('time slots allocation on edge [' + str(self.edge_id) + '] has been reset')
+        else:
+            logger.info('time slots of edge [' + str(self.edge_id) + '] has no change')
 
     def to_string(self):
         _B: List[List[int]] = []
@@ -74,7 +87,7 @@ class TimeSlotAllocator:
             _B_m.append([_interval.lower, _interval.upper])
         o = {
             'edge id': self.edge_id,
-            'hyper_period': str(self.hyper_period) + ' ns',
+            'hyper_period': str(self.__hyper_period) + ' ns',
             'bandwidth': str(self.bandwidth) + ' b/ns',
             'min_flow_size': str(self.min_flow_size) + ' b',
             'time_slot_len': str(self.time_slot_len) + ' ns',
@@ -122,11 +135,11 @@ class TimeSlotAllocator:
         self.flow_num = 0
         self.flow_num_c = 0
         self.flow_segment_num = 0
-        if self.bandwidth != 0 and self.min_flow_size != 0 and self.hyper_period:
+        if self.bandwidth != 0 and self.min_flow_size != 0 and self.__hyper_period:
             self.time_slot_len = ceil(self.min_flow_size / self.bandwidth)
-            # self.time_slot_num = floor(self.hyper_period / self.time_slot_len)
+            # self.time_slot_num = floor(self.__hyper_period / self.time_slot_len)
             self.time_slot_len = ceil(self.min_flow_size / config.GRAPH_CONFIG['max-bandwidth'])  # TODO fix bug here
-            self.time_slot_num = floor(self.hyper_period / self.time_slot_len)
+            self.time_slot_num = floor(self.__hyper_period / self.time_slot_len)
         else:
             self.time_slot_len = 0
             self.time_slot_num = 0
@@ -151,8 +164,8 @@ class TimeSlotAllocator:
         :param hp: hyper period
         :return:
         '''
-        if hp != self.hyper_period:
-            self.hyper_period = hp
+        if hp != self.__hyper_period:
+            self.__hyper_period = hp
             self.reset()
             logger.info('time slots allocation on edge [' + str(self.edge_id) + '] has been reset')
         else:

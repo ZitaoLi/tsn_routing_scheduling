@@ -23,7 +23,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
         for _fid in self.flows:
             self.__flow_walked_edges[_fid] = set()
 
-    def route(self, flow_id_list: List[FlowId], *args, **kwargs):
+    def route(self, flow_id_list: List[FlowId], *args, **kwargs) -> Set[FlowId]:
         sorting_enabled: bool = True
         if 'sorting_enabled' in kwargs.keys():
             sorting_enabled = kwargs['sorting_enabled']
@@ -39,6 +39,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
             else:
                 logger.info(self.flow_mapper[fid].to_string())
         logger.info('FAILURE QUEUE:' + str(self.failure_queue))
+        return self.failure_queue
 
     @property
     def overlapped(self):

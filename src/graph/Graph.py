@@ -42,10 +42,6 @@ class Graph:
         self.init_edges()
         # self.print_nodes()
 
-    def calculate_hyper_period(self):
-        # TODO calculate hyper period of flows
-        pass
-
     def get_node_num(self):
         return self.nodes.__len__()
 
@@ -113,6 +109,13 @@ class Graph:
         for _f in flows:
             self.flows.append(_f.flow_id)
             self.flow_mapper[_f.flow_id] = _f
+
+    def compute_hyper_period(self):
+        p = [flow.period for flow in self.flow_mapper.values()]
+        from src.utils.computing import lcm_m
+        self.hyper_period = int(lcm_m(p))
+        for edge in self.edge_mapper.values():
+            edge.hyper_period = self.hyper_period
 
     # deprecated
     def route_all_flows(self, flows: List[Flow]):

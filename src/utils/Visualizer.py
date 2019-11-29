@@ -72,8 +72,8 @@ class Visualizer:
         gnt.set_xlim(xlim[0], xlim[1])
 
         # Setting labels for x-axis and y-axis
-        gnt.set_xlabel('seconds since start')
-        gnt.set_ylabel('Processor')
+        gnt.set_xlabel('y-axis')
+        gnt.set_ylabel('x-axis')
 
         _yticks: List[int] = []
         _yticklabels: List[str] = []

@@ -1,6 +1,6 @@
 import copy
 import logging
-from typing import List
+from typing import List, Set
 
 from math import ceil
 
@@ -28,7 +28,7 @@ class LRFRedundantSchedulingStrategy(RedundantSchedulingStrategy):
         _routes = sorted(routes, key=lambda r: len(r), reverse=True)
         return _routes
 
-    def schedule(self, flow_id_list: List[FlowId], *args, **kwargs):
+    def schedule(self, flow_id_list: List[FlowId], *args, **kwargs) -> Set[FlowId]:
         sorting_enabled: bool = True
         if 'sorting_enabled' in kwargs.keys():
             sorting_enabled = kwargs['sorting_enabled']
@@ -40,6 +40,7 @@ class LRFRedundantSchedulingStrategy(RedundantSchedulingStrategy):
                 self.failure_queue.add(_fid)
                 logger.info('add flow [' + str(_fid) + '] into failure queue')
         logger.info('FAILURE QUEUE:' + str(self.failure_queue))
+        return self.failure_queue
 
     def schedule_single_flow(self, flow: Flow) -> bool:
         logger.info('schedule flow [' + str(flow.flow_id) + ']...')

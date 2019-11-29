@@ -1,4 +1,5 @@
 import copy
+import logging
 import random
 import numpy as np
 import json
@@ -7,6 +8,8 @@ from math import floor
 
 from src import config
 from src.graph.Flow import Flow
+
+logger = logging.getLogger(__name__)
 
 
 class FlowGenerator:
@@ -52,6 +55,7 @@ class FlowGenerator:
             _D = random.sample(_edge_nodes_t, _dn)
             _f: Flow = Flow(_fid, _s, _p, _o, _D, _rl, _dl)
             _F.append(_f)
+            logger.info(_f)
         return _F
 
     @staticmethod
