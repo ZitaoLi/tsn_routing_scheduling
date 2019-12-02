@@ -309,7 +309,7 @@ class XMLFilterBase(xmlreader.XMLReader):
         self._parent.setErrorHandler(self)
         self._parent.setEntityResolver(self)
         self._parent.setDTDHandler(self)
-        self._parent.parse()
+        self._parent.parse(source)
 
     def setLocale(self, locale):
         self._parent.setLocale(locale)

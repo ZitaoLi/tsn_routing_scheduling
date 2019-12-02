@@ -26,17 +26,23 @@ class FlowGenerator:
         return _F[-1].period
 
     @staticmethod
-    def generate_flows(edge_nodes=None) -> List[Flow]:
+    def generate_flows(edge_nodes=None, **kargs) -> List[Flow]:
         '''
         generate flow randomly
         :param edge_nodes: arrival source nodes
         :return:
         '''
+        flow_num: int = config.FLOW_CONFIG['flow-num']
+        flow_id: int = 1
+        if 'flow_num' in kargs.keys():
+            flow_num = kargs['flow_num']
+        if 'flow_id' in kargs.keys():
+            flow_id = kargs['flow_id']
         if len(config.FLOW_CONFIG['dest-num-set']) + 1 > len(edge_nodes):
             raise RuntimeError('too less edge nodes')
         _F: List[Flow] = []
-        for _i in range(config.FLOW_CONFIG['flow-num']):
-            _fid = _i + 1
+        for _i in range(flow_num):
+            _fid = flow_id
             _s: int = \
                 config.FLOW_CONFIG['size-set'][random.randint(0, len(config.FLOW_CONFIG['size-set'])) - 1]
             _p: int = \
@@ -55,6 +61,7 @@ class FlowGenerator:
             _D = random.sample(_edge_nodes_t, _dn)
             _f: Flow = Flow(_fid, _s, _p, _o, _D, _rl, _dl)
             _F.append(_f)
+            _fid += 1
             logger.info(_f)
         return _F
 

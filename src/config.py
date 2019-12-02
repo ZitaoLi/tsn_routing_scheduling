@@ -11,7 +11,7 @@ pro_dir: str = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
 
 GRAPH_CONFIG = {
     'min-flow-size': 64 * 8,  # minimum frame size = 64B, [unit: Byte]
-    'hyper-period': int(3e5),  # 300us = 3e5ns, [unit: ns],
+    'hyper-period': int(3e4),  # 300us = 3e5ns, [unit: ns],
     'all-bandwidth': int(1e0),  # 1Gbps = 1bit/ns, [unit: bpns]
     'max-bandwidth': int(1e0),  # maximum bandwidth of all edges
     'overlapped-routing': True,  # whether routing with overlapping or not
@@ -25,8 +25,8 @@ GRAPH_CONFIG = {
 FLOW_CONFIG = {
     'flow-num': 10,  # number of flow
     'dest-num-set': [1, 2, 3],  # set of the number of destination nodes
-    'period-set': [int(1e6), int(2e5), int(5e5)],  # set of period, 周期能被最大周期整除
-    'size-set': [int(2e4), int(1e4), int(5e4)],
+    'period-set': [int(1e4), int(1.5e4), int(3e4)],  # set of period, 周期能被最大周期整除
+    'size-set': [int(1.5e3), int(5e3), int(1e3)],
     'reliability-set': [0.97, 0.98, 0.99],
     'deadline-set': [int(1e8), int(5e7), int(2e7)]
 }

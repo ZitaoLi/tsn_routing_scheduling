@@ -159,16 +159,14 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         self.allow_kbdint = False
         self.nosigint = nosigint
 
-        # Read $HOME/.pdbrc and ./.pdbrc
+        # Read ~/.pdbrc and ./.pdbrc
         self.rcLines = []
         if readrc:
-            if 'HOME' in os.environ:
-                envHome = os.environ['HOME']
-                try:
-                    with open(os.path.join(envHome, ".pdbrc")) as rcFile:
-                        self.rcLines.extend(rcFile)
-                except OSError:
-                    pass
+            try:
+                with open(os.path.expanduser('~/.pdbrc')) as rcFile:
+                    self.rcLines.extend(rcFile)
+            except OSError:
+                pass
             try:
                 with open(".pdbrc") as rcFile:
                     self.rcLines.extend(rcFile)
@@ -1133,9 +1131,9 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         """
         co = self.curframe.f_code
         dict = self.curframe_locals
-        n = co.co_argcount
-        if co.co_flags & 4: n = n+1
-        if co.co_flags & 8: n = n+1
+        n = co.co_argcount + co.co_kwonlyargcount
+        if co.co_flags & inspect.CO_VARARGS: n = n+1
+        if co.co_flags & inspect.CO_VARKEYWORDS: n = n+1
         for i in range(n):
             name = co.co_varnames[i]
             if name in dict:
@@ -1659,7 +1657,7 @@ To let the script run up to a given line X in the debugged file, use
 def main():
     import getopt
 
-    opts, args = getopt.getopt(sys.argv[1:], 'mhc:', ['--help', '--command='])
+    opts, args = getopt.getopt(sys.argv[1:], 'mhc:', ['help', 'command='])
 
     if not args:
         print(_usage)

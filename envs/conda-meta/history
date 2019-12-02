@@ -136,3 +136,18 @@
 -defaults::networkx-2.3-py_0
 +defaults::networkx-2.4-py_0
 # update specs: ['networkx']
+==> 2019-12-01 12:01:34 <==
+# cmd: C:\Users\Lztao\Anaconda3\Scripts\conda-script.py install -p C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs networkx -y
+# conda version: 4.6.11
+-defaults::bitarray-1.0.1-py37he774522_0
+-defaults::pip-19.1.1-py37_0
+-defaults::python-3.7.3-h8c8aaf0_1
+-defaults::setuptools-41.0.1-py37_0
+-defaults::sqlite-3.29.0-he774522_0
+-defaults::wheel-0.33.4-py37_0
++defaults::pip-19.3.1-py37_0
++defaults::python-3.7.5-h8c8aaf0_0
++defaults::setuptools-41.6.0-py37_0
++defaults::sqlite-3.30.1-he774522_0
++defaults::wheel-0.33.6-py37_0
+# update specs: ['networkx']

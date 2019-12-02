@@ -267,7 +267,7 @@ class DOMEventStream:
             SAX events into memory (no performance gain, but
             we are compatible to all SAX parsers).
         """
-        self.parser.parse()
+        self.parser.parse(self.stream)
         self.getEvent = self._emit
         return self._emit()
 

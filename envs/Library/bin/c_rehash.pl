@@ -12,8 +12,8 @@
 # Perl c_rehash script, scan all files in a directory
 # and add symbolic links to their hash values.
 
-my $dir = "D:/workspace/pycharm_workspace/tsn_routing_scheduling/envs\\Library";
-my $prefix = "D:/workspace/pycharm_workspace/tsn_routing_scheduling/envs\\Library";
+my $dir = "C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs\\Library";
+my $prefix = "C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs\\Library";
 
 my $errorcount = 0;
 my $openssl = $ENV{OPENSSL} || "openssl";

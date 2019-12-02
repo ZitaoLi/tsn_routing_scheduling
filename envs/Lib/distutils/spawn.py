@@ -172,37 +172,32 @@ def find_executable(executable, path=None):
     A string listing directories separated by 'os.pathsep'; defaults to
     os.environ['PATH'].  Returns the complete filename or None if not found.
     """
+    _, ext = os.path.splitext(executable)
+    if (sys.platform == 'win32') and (ext != '.exe'):
+        executable = executable + '.exe'
+
+    if os.path.isfile(executable):
+        return executable
+
     if path is None:
-        path = os.environ.get('PATH', os.defpath)
+        path = os.environ.get('PATH', None)
+        if path is None:
+            try:
+                path = os.confstr("CS_PATH")
+            except (AttributeError, ValueError):
+                # os.confstr() or CS_PATH is not available
+                path = os.defpath
+        # bpo-35755: Don't use os.defpath if the PATH environment variable is
+        # set to an empty string
+
+    # PATH='' doesn't match, whereas PATH=':' looks in the current directory
+    if not path:
+        return None
 
     paths = path.split(os.pathsep)
-    # base, ext = os.path.splitext(executable)
-
-    if sys.platform == 'win32':
-	# This should probably be:
-        # try:
-        #     exts = os.environ['PATHEXT'].lower().split(';')+['']
-        # except:
-        #     exts = ['.exe.', '.bat', '']
-        # but IMHO:
-        # 1. The original `ext` should appear as the first entry.
-        # 2. We should be adding `exts` to `base`, not `executable`
-        # 3. Why even bother? We do not add '.sh' for Unix.
-        exts = ['.exe', '.bat', '']
-    else:
-        exts = ['']
-
-    if not os.path.isfile(executable):
-        for ext in exts:
-            newexe = executable + ext
-            if os.path.isfile(newexe):
-                return newexe
-            else:
-                for p in paths:
-                    f = os.path.join(p, newexe)
-                    if os.path.isfile(f):
-                        # the file exists, we have a shot at spawn working
-                        return f
-        return None
-    else:
-        return executable
+    for p in paths:
+        f = os.path.join(p, executable)
+        if os.path.isfile(f):
+            # the file exists, we have a shot at spawn working
+            return f
+    return None
