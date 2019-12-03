@@ -29,7 +29,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
             sorting_enabled = kwargs['sorting_enabled']
             assert type(sorting_enabled) is bool, 'parameter "sorting_enabled" type must be bool'
         if sorting_enabled:
-            flow_id_list = RoutingStrategy.sort_flows_id_list(flow_id_list)
+            flow_id_list = self.sort_flows_id_list(flow_id_list)
         for fid in flow_id_list:
             self.save_weight()
             if not self.route_single_flow(self.flow_mapper[fid]):

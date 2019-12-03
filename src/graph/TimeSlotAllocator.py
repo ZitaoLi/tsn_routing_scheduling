@@ -31,7 +31,7 @@ class AllocationBlock:
 class TimeSlotAllocator:
     edge_id: int
     __hyper_period: int  # hyper period of all flows, [unit: us]
-    bandwidth: int  # bandwidth on edge, [unit: bps]
+    bandwidth: float  # bandwidth on edge, [unit: bps]
     propagation_delay: int
     process_delay: int
     min_flow_size: int  # minimal flow size, [unit: b]
@@ -53,7 +53,7 @@ class TimeSlotAllocator:
     flow_segment_num: int  # number of continuous flow traversed on edge
     flow_segment_num_c: int
 
-    def __init__(self, edge_id: int, hp: int = 0, b: int = 0, s: int = config.GRAPH_CONFIG['min-flow-size'],
+    def __init__(self, edge_id: int, hp: int = 0, b: float = 0, s: int = config.GRAPH_CONFIG['min-flow-size'],
                  prop_d: int = 0, proc_d: int = 0):
         self.edge_id = edge_id
         self.__hyper_period = hp
@@ -145,7 +145,7 @@ class TimeSlotAllocator:
             self.time_slot_num = 0
         self.to_string()
 
-    def set_bandwidth(self, b: int) -> bool:
+    def set_bandwidth(self, b: float) -> bool:
         '''
         change bandwidth will affect time slots at the same time
         :param b: bandwidth

@@ -106,6 +106,8 @@ class Graph:
 
     def add_flows(self, flows: List[Flow]):
         # add flows to flow list and flow mapper
+        if flows is None:
+            return
         for _f in flows:
             self.flows.append(_f.flow_id)
             self.flow_mapper[_f.flow_id] = _f

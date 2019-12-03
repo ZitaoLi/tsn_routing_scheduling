@@ -34,7 +34,7 @@ class LRFRedundantSchedulingStrategy(RedundantSchedulingStrategy):
             sorting_enabled = kwargs['sorting_enabled']
             assert type(sorting_enabled) is bool, 'parameter "sorting_enabled" type must be bool'
         if sorting_enabled:
-            flow_id_list = SchedulingStrategy.sort_flows_id_list(flow_id_list)
+            flow_id_list = self.sort_flows_id_list(flow_id_list)
         for _fid in flow_id_list:
             if not self.schedule_single_flow(self.flow_mapper[_fid]):
                 self.failure_queue.add(_fid)

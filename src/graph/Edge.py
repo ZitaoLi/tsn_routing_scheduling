@@ -13,7 +13,7 @@ class Edge:
     in_node: Node  # inbound port
     out_node: Node  # outbound port
     edge: tuple  # edge tuple
-    bandwidth: int  # bandwidth or speed
+    bandwidth: float  # bandwidth or speed
     error_rate: float  # bandwidth or speed
     propagation_delay: int  # propagation delay
     process_delay: int  # process delay
@@ -25,7 +25,7 @@ class Edge:
     type: int  # type, [host-to-switch or switch-to-switch]
     __hyper_period: int  # hyper period of all flows
 
-    def __init__(self, edge_id: int, in_node: Node, out_node: Node, b: int = 0, e_rate: float = 0, prop_d: int = 0,
+    def __init__(self, edge_id: int, in_node: Node, out_node: Node, b: float = 0, e_rate: float = 0, prop_d: int = 0,
                  proc_d: int = 0, hp: int = 0):
         '''
         :param edge_id: edge id [required]
@@ -67,7 +67,7 @@ class Edge:
     def set_error_rate(self, e_rate: float):
         self.error_rate = e_rate
 
-    def set_bandwidth(self, b: int):
+    def set_bandwidth(self, b: float):
         self.bandwidth = b
         self.time_slot_allocator.set_bandwidth(b)
         # self.time_slot_array.set_bandwidth(b)

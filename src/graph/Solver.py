@@ -21,7 +21,8 @@ from src.graph.routing_strategy.RoutingStrategyFactory import RoutingStrategyFac
 from src.graph.scheduling_strategy.LRFRedundantScheduling import LRFRedundantSchedulingStrategy
 from src.graph.scheduling_strategy.SchedulingStrategy import SchedulingStrategy
 from src.graph.scheduling_strategy.SchedulingStrategyFactory import SchedulingStrategyFactory
-from src.type import FlowId
+from src.graph.topo_strategy.TopoStrategy import TopoStrategy
+from src.type import FlowId, TOPO_STRATEGY, ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY
 from src.utils.Singleton import SingletonDecorator
 
 logger = logging.getLogger(__name__)
@@ -30,25 +31,42 @@ logger = logging.getLogger(__name__)
 class Solution:
     graph: Graph
     flows: List[Flow]
-    failure_flows: List[Flow]
+    failure_flows: List[FlowId]
+    topo_strategy: TOPO_STRATEGY
+    routing_strategy: ROUTING_STRATEGY
+    scheduling_strategy: SCHEDULING_STRATEGY
+    allocating_strategy: ALLOCATING_STRATEGY
 
-    def __init__(self):
-        self.graph = Graph()
-        self.flows = []
-        self.failure_flows = []
-
-    def set_graph(self, graph):
+    def __init__(self, graph: Graph = None, flows: List[Flow] = None,
+                 topo_strategy: TOPO_STRATEGY = None,
+                 routing_strategy: ROUTING_STRATEGY = None,
+                 scheduling_strategy: SCHEDULING_STRATEGY = None,
+                 allocating_strategy: ALLOCATING_STRATEGY = None):
         self.graph = graph
-
-    def set_flows(self, flows: List[Flow]):
-        self.flows = flows
-
-    def set_failure_flows(self, failure_flows: List[Flow]):
-        self.failure_flows = failure_flows
+        self.flows = [] if flows is None else flows
+        self.failure_flows = []
+        self.topo_strategy = topo_strategy
+        self.routing_strategy = routing_strategy
+        self.scheduling_strategy = scheduling_strategy
+        self.allocating_strategy = allocating_strategy
 
 
 class Solver:
     final_solution: Solution
+    visual: bool
+
+    def __init__(self, nodes: List[int] = None, edges: List[Tuple[int]] = None, flows: List[Flow] = None,
+                 topo_strategy: TOPO_STRATEGY = None,
+                 routing_strategy: ROUTING_STRATEGY = None,
+                 scheduling_strategy: SCHEDULING_STRATEGY = None,
+                 allocating_strategy: ALLOCATING_STRATEGY = None):
+        graph: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
+        graph.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
+        graph.add_flows(flows)
+        self.final_solution = Solution(graph, flows,
+                                       topo_strategy=topo_strategy, routing_strategy=routing_strategy,
+                                       scheduling_strategy=scheduling_strategy, allocating_strategy=allocating_strategy)
+        self.visual = False
 
     @staticmethod
     def objective_function(s: Solution) -> float:
@@ -61,13 +79,17 @@ class Solver:
         _ts_num: int = _t[_t.index(_max_t)][1]
         return _m + _max_ts_used / _ts_num
 
-    @classmethod
-    def generate_init_solution(cls, nodes: List[int], edges: List[Tuple[int]], flows: List[Flow], visual: bool = True):
-        # create graph
-        _g: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
-        _g.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
-        _g.add_flows(flows)
-        _F_r: List[int] = [_flow.flow_id for _flow in flows]
+    def add_flows(self, flows: List[Flow]):
+        [self.final_solution.flows.append(flow) for flow in flows]
+        self.final_solution.graph.add_flows(flows)
+
+    def add_flow(self, flow: Flow):
+        self.final_solution.flows.append(flow)
+        self.final_solution.graph.add_flows([flow])
+
+    def generate_init_solution(self):
+        _g: Graph = self.final_solution.graph
+        _F_r: List[int] = [_flow.flow_id for _flow in self.final_solution.flows]
         logger.info('route ' + str(_F_r) + '...')
         # _g.flow_router.route_flows(_F)  # routing
         # set routing strategy and route flows
@@ -89,39 +111,37 @@ class Solver:
         _g.flow_scheduler.allocating_strategy = _allocating_strategy
         _g.flow_scheduler.schedule(_F_s)
         _g.combine_failure_queue()
+        self.final_solution.failure_flows = list(_g.failure_queue)
         # visualize Gannt chart
-        if visual is True:
+        if self.visual is True:
             _g.draw_gantt()
-        # cls.final_solution = Solution(_g, flows)
-        cls.final_solution = Solution()
-        cls.final_solution.set_graph(_g)
-        cls.final_solution.set_flows(flows)
 
         # TODO save solution
         file = os.path.join(os.path.join(config.src_dir, 'json'), 'solution')
         with open(file, 'wb') as f:
-            pickle.dump(cls.final_solution, f)
-        return cls.final_solution
+            pickle.dump(self.final_solution, f)
+        return self.final_solution
 
-    @classmethod
-    def optimize(cls, max_iterations: int, max_no_improve: int, k: int, visual: bool = True):
-        _o: float = cls.objective_function(cls.final_solution)
+    def optimize(self,
+                 max_iterations: int = config.OPTIMIZATION['max_iterations'],
+                 max_no_improve: int = config.OPTIMIZATION['max_no_improve'],
+                 k: int = config.OPTIMIZATION['k']):
+        _o: float = self.objective_function(self.final_solution)
         for i in range(max_iterations):
-            _s: Solution = cls.perturbate(k)  # perturbation to generate a new solution
-            _s_hat: Solution = cls.local_search(_s, max_no_improve)
-            logger.info('local search objective function value = ' + str(cls.objective_function(_s_hat)))
-            cls.apply_acceptance_criterion(_s_hat)
+            _s: Solution = self.perturbate(k)  # perturbation to generate a new solution
+            _s_hat: Solution = self.local_search(_s, max_no_improve)
+            logger.info('local search objective function value = ' + str(self.objective_function(_s_hat)))
+            self.apply_acceptance_criterion(_s_hat)
         logger.info('initial objective function value = ' + str(_o))
-        logger.info('final objective function value = ' + str(cls.objective_function(cls.final_solution)))
-        if visual is True:
-            cls.final_solution.graph.draw_gantt()
+        logger.info('final objective function value = ' + str(self.objective_function(self.final_solution)))
+        if self.visual is True:
+            self.final_solution.graph.draw_gantt()
         # TODO save solution
-        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')
+        file = os.path.join(os.path.join(config.src_dir, 'json'), 'solution')
         with open(file, 'wb') as f:
-            pickle.dump(cls.final_solution, f)
+            pickle.dump(self.final_solution, f)
 
-    @classmethod
-    def local_search(cls, _s: Solution, max_no_improve: int) -> Solution:
+    def local_search(self, _s: Solution, max_no_improve: int) -> Solution:
         # TODO local search
         _sf: Solution = _s
         _o: float = 0.0
@@ -142,10 +162,10 @@ class Solver:
             # recombination failure queue
             _sc.graph.combine_failure_queue()
             if _o == 0:
-                _o = cls.objective_function(_sc)
+                _o = self.objective_function(_sc)
                 _sf = copy.deepcopy(_sc)
             else:
-                _oc: float = cls.objective_function(_sc)
+                _oc: float = self.objective_function(_sc)
                 if _oc < _o:
                     _o = _oc
                     _sf = copy.deepcopy(_sc)
@@ -153,10 +173,9 @@ class Solver:
                     pass  # TODO how to handle the same situation?
         return _sf
 
-    @classmethod
-    def perturbate(cls, k: float) -> Solution:
+    def perturbate(self, k: float) -> Solution:
         # TODO perturbate solution
-        _s: Solution = copy.deepcopy(cls.final_solution)
+        _s: Solution = copy.deepcopy(self.final_solution)
         _F: List[Flow] = [_flow for _flow in _s.flows if _flow.flow_id not in _s.graph.failure_queue]
         _remove_flows: List[Flow] = random.sample(_F, floor(_s.flows.__len__() * k))
         _s.graph.failure_queue = _s.graph.failure_queue.union(set([_flow.flow_id for _flow in _remove_flows]))
@@ -194,11 +213,10 @@ class Solver:
             _flow.walked_edges = set()
         return _s
 
-    @classmethod
-    def apply_acceptance_criterion(cls, _s_hat: Solution):
-        o1: float = cls.objective_function(cls.final_solution)
-        o2: float = cls.objective_function(_s_hat)
+    def apply_acceptance_criterion(self, _s_hat: Solution):
+        o1: float = self.objective_function(self.final_solution)
+        o2: float = self.objective_function(_s_hat)
         if o2 < o1:
-            cls.final_solution = copy.deepcopy(_s_hat)  # deep copy here
+            self.final_solution = copy.deepcopy(_s_hat)  # deep copy here
         elif o2 == o1:
             pass  # TODO how to handle the same situation?

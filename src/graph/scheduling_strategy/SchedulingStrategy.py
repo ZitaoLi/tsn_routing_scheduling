@@ -39,14 +39,16 @@ class SchedulingStrategy(metaclass=abc.ABCMeta):
     def allocate(self, flow: Flow, allocator: TimeSlotAllocator, arrival_time_offset: int) -> int:
         return self.__allocating_strategy.allocate(flow, allocator, arrival_time_offset)
 
-    @staticmethod
-    def sort_flows_id_list(flows: List[int]) -> List[int]:
+    def sort_flows_id_list(self, flows: List[int]) -> List[int]:
         '''
-        sort flows list by priority from <deadline requirement>tp <period> to <hops> [NOTED]
+        sort flows list by priority from <deadline requirement> to <period> to <hops> [NOTED]
         :param flows: flows list to sort
         :return: sorted flows list
         '''
-        # TODO sort flows list
+        flows: List[int] = copy.copy(flows)
+        flows.sort(key=lambda fid: len(self.flow_mapper[fid].routes))
+        flows.sort(key=lambda fid: self.flow_mapper[fid].period)
+        flows.sort(key=lambda fid: self.flow_mapper[fid].deadline)
         return flows
 
     @property

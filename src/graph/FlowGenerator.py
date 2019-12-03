@@ -41,8 +41,8 @@ class FlowGenerator:
         if len(config.FLOW_CONFIG['dest-num-set']) + 1 > len(edge_nodes):
             raise RuntimeError('too less edge nodes')
         _F: List[Flow] = []
+        _fid = flow_id
         for _i in range(flow_num):
-            _fid = flow_id
             _s: int = \
                 config.FLOW_CONFIG['size-set'][random.randint(0, len(config.FLOW_CONFIG['size-set'])) - 1]
             _p: int = \
