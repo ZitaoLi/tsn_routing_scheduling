@@ -7,6 +7,8 @@ from typing import List, Tuple, Set
 
 from math import floor, ceil
 
+import networkx as nx
+
 from src.graph.Edge import Edge
 from src.graph.Flow import Flow
 from src.graph.Graph import Graph
@@ -55,12 +57,16 @@ class Solver:
     final_solution: Solution
     visual: bool
 
-    def __init__(self, nodes: List[int] = None, edges: List[Tuple[int]] = None, flows: List[Flow] = None,
+    def __init__(self, nx_graph: nx.Graph = None,
+                 flows: List[Flow] = None,
                  topo_strategy: TOPO_STRATEGY = None,
                  routing_strategy: ROUTING_STRATEGY = None,
                  scheduling_strategy: SCHEDULING_STRATEGY = None,
                  allocating_strategy: ALLOCATING_STRATEGY = None):
-        graph: Graph = Graph(nodes=nodes, edges=edges, hp=config.GRAPH_CONFIG['hyper-period'])
+        graph: Graph = Graph(nx_graph=nx_graph,
+                             nodes=list(nx_graph.nodes),
+                             edges=list(nx_graph.edges),
+                             hp=config.GRAPH_CONFIG['hyper-period'])
         graph.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
         graph.add_flows(flows)
         self.final_solution = Solution(graph, flows,
@@ -115,11 +121,6 @@ class Solver:
         # visualize Gannt chart
         if self.visual is True:
             _g.draw_gantt()
-
-        # TODO save solution
-        file = os.path.join(os.path.join(config.src_dir, 'json'), 'solution')
-        with open(file, 'wb') as f:
-            pickle.dump(self.final_solution, f)
         return self.final_solution
 
     def optimize(self,
@@ -136,10 +137,6 @@ class Solver:
         logger.info('final objective function value = ' + str(self.objective_function(self.final_solution)))
         if self.visual is True:
             self.final_solution.graph.draw_gantt()
-        # TODO save solution
-        file = os.path.join(os.path.join(config.src_dir, 'json'), 'solution')
-        with open(file, 'wb') as f:
-            pickle.dump(self.final_solution, f)
 
     def local_search(self, _s: Solution, max_no_improve: int) -> Solution:
         # TODO local search

@@ -40,4 +40,11 @@ class RoutingStrategy(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def route(self, flow_id_list: List[FlowId], *args, **kwargs) -> Set[FlowId]:
+        '''
+        route flows
+        :param flow_id_list: list of flow id
+        :param args:
+        :param kwargs:
+        :return: set of failed flows
+        '''
         pass

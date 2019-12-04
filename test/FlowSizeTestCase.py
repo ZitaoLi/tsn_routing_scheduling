@@ -54,7 +54,8 @@ class FlowSizeTestCase(unittest.TestCase):
                 topo_generator.draw(graph)
                 flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes)
                 for i in range(config.TESTING['flow-start'], len(flows)):
-                    solver: Solver = Solver(nodes=list(graph.nodes), edges=list(graph.edges), flows=None,
+                    solver: Solver = Solver(nx_graph=graph,
+                                            flows=None,
                                             topo_strategy=topo_strategy_entity['strategy'],
                                             routing_strategy=config.GRAPH_CONFIG['routing-strategy'],
                                             scheduling_strategy=config.GRAPH_CONFIG['scheduling-strategy'],
@@ -74,6 +75,14 @@ class FlowSizeTestCase(unittest.TestCase):
                         end_time: time.process_time = time.perf_counter()
                         self.runtime = end_time - start_time  # whole method time with optimized method
                         self.analyze(solver.final_solution, prefix='O-')
+
+    def save_solution(self, solution: Solution):
+        # TODO save solution
+        import os
+        import pickle
+        file = os.path.join(os.path.join(config.src_dir, 'json'), 'solution')
+        with open(file, 'wb') as f:
+            pickle.dump(solution, f)
 
     def analyze(self, solution: Solution, prefix=''):
         flow_id_list: List[FlowId] = [flow.flow_id for flow in solution.flows]

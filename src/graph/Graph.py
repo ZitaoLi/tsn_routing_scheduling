@@ -1,5 +1,7 @@
 from typing import List, Dict, Set
 
+import networkx as nx
+
 from src.graph.TimeSlotAllocator import TimeSlotAllocator
 from src.graph.FlowScheduler import FlowScheduler
 from .Node import Node
@@ -17,6 +19,7 @@ class Graph:
     nodes: List[int]
     edges: List[int]
     flows: List[int]
+    nx_graph: nx.Graph
     node_mapper: Dict[int, Node]
     edge_mapper: Dict[int, Edge]
     flow_mapper: Dict[int, Flow]
@@ -25,7 +28,8 @@ class Graph:
     flow_scheduler: FlowScheduler
     failure_queue: Set[int]
 
-    def __init__(self, nodes: List[int] = None, edges: List[int] = None, hp: int = 0):
+    def __init__(self, nx_graph: nx.Graph = None, nodes: List[int] = None, edges: List[int] = None, hp: int = 0):
+        self.nx_graph = nx_graph
         self.nodes = nodes
         self.edges = edges
         self.flows = []
