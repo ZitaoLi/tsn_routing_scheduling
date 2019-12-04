@@ -14,7 +14,7 @@ from src.net_envs.network_component.GateControlList import EnhancementGateContro
 from src.net_envs.network_component.Mac import MAC_TYPE
 from src.net_envs.network_element.TSNHost import TSNHost
 from src.net_envs.network_element.TSNSwitch import TSNSwitch
-from src.type import NodeId, MacAddress, PortNo
+from src.type import NodeId, MacAddress, PortNo, SimTime
 
 etree = html.etree  # ???
 logger = logging.getLogger(__name__)
@@ -61,8 +61,7 @@ class ConfigFileGenerator:
 
     @staticmethod
     # TODO flat and hierarchical xml
-    def generate_schedule_xml(tsn_network: TSNNetwork, flows: List[Flow]):
-        tsn_host_list: List[TSNHost] = tsn_network.tsn_host_list
+    def generate_switch_schedule_xml(tsn_network: TSNNetwork):
         tsn_switch_list: List[TSNSwitch] = tsn_network.tsn_switch_list
         # <root></root>
         root: etree.Element = etree.Element('schedule')
@@ -82,22 +81,6 @@ class ConfigFileGenerator:
         xml_cycle: etree.Element = etree.Element('cycle')
         xml_cycle.text = config.GRAPH_CONFIG['hyper-period']
         root.append(xml_cycle)
-        for tsn_host in tsn_host_list:
-            # <host></host>
-            xml_host: etree.Element = etree.Element('host')
-            xml_host.attrib['name'] = tsn_host.device_name
-            root.append(xml_host)
-            if tsn_host.port_gate_control_list.__len__() == 0:  # this port has no gcl
-                break
-            # TODO
-            for port_no, gcl in tsn_host.port_gate_control_list.items():
-                assert gcl.items.__len__() != 0, 'incorrect gate control list'
-                xml_entry: etree.Element = etree.Element('entry')
-                xml_host.append(xml_entry)
-                for gcl_item in gcl:
-                    pass
-                    if gcl.__class__ is EnhancementGateControlList:
-                        pass
         for tsn_switch in tsn_switch_list:
             # <switch></switch>
             xml_switch: etree.Element = etree.Element('switch')
@@ -133,4 +116,66 @@ class ConfigFileGenerator:
                         xml_phase: etree.Element = etree.Element('phase')
                         xml_phase.text = gcl_item.phase
                         xml_entry.append(xml_phase)
+
+    @staticmethod
+    def generate_host_schedule_xml(tsn_network: TSNNetwork, flows: List[Flow]):
+        tsn_host_list: List[TSNHost] = tsn_network.tsn_host_list
+        for tsn_host in tsn_host_list:
+            if tsn_host.port_gate_control_list.__len__() == 0:  # this port has no gcl
+                break
+            # TODO
+            for port_no, gcl in tsn_host.port_gate_control_list.items():
+                assert gcl.items.__len__() != 0, 'incorrect gate control list'
+                start_time: SimTime = SimTime(0)
+                for gcl_item in gcl:
+                    if gcl_item.flow_id == 0:
+                        start_time += gcl_item.time
+                        continue
+                    _F: List[Flow] = list(filter(lambda f: f.flow_id == gcl_item.flow_id, flows))
+                    if _F is None or len(_F) == 0:
+                        raise RuntimeError('flow [{}] does not exist'.format(gcl_item.flow_id))
+                    flow: Flow = _F[0]
+                    # <root></root>
+                    root: etree.Element = etree.Element('schedule')
+                    # <!--time-->
+                    if config.GRAPH_CONFIG['time-granularity'] is config.TIME_GRANULARITY.NS:
+                        xml_time_comment: etree.Comment = etree.Comment('ns')
+                    elif config.GRAPH_CONFIG['time-granularity'] is config.TIME_GRANULARITY.US:
+                        xml_time_comment: etree.Comment = etree.Comment('us')
+                    elif config.GRAPH_CONFIG['time-granularity'] is config.TIME_GRANULARITY.MS:
+                        xml_time_comment: etree.Comment = etree.Comment('ms')
+                    elif config.GRAPH_CONFIG['time-granularity'] is config.TIME_GRANULARITY.S:
+                        xml_time_comment: etree.Comment = etree.Comment('s')
+                    else:
+                        raise RuntimeError('unknown time type')
+                    root.append(copy.copy(xml_time_comment))
+                    # <cycle></cycle>
+                    xml_cycle: etree.Element = etree.Element('cycle')
+                    xml_cycle.text = flow.period
+                    root.append(xml_cycle)
+                    # <!-- flow-id=fid -->
+                    xml_flow_id_comment: etree.Comment = etree.Comment('flow-id={}'.format(flow.flow_id))
+                    root.append(xml_flow_id_comment)
+                    # <host></host>
+                    xml_host: etree.Element = etree.Element('host')
+                    xml_host.attrib['name'] = 'flow'
+                    root.append(xml_host)
+                    xml_entry: etree.Element = etree.Element('entry')
+                    xml_host.append(xml_entry)
+                    # <start></start>
+                    xml_start: etree.Element = etree.Element('start')
+                    xml_start.text = start_time
+                    xml_entry.append(xml_start)
+                    # <queue></queue>
+                    xml_queue: etree.Element = etree.Element('queue')
+                    xml_queue.text = 7
+                    xml_entry.append(xml_queue)
+                    # <dest></dest>
+
+                    # <size></size>
+                    if gcl.__class__ is EnhancementGateControlList:
+                        # <group></group>
+                        # <uniqueID></uniqueID>
+                        # <phase></phase>
+                        pass
 

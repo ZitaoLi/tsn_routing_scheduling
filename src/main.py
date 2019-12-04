@@ -166,6 +166,7 @@ def test_create_network():
     # logger.info(str(ethernet_network.__class__) + ': ' + str(ethernet_network))
     tsn_network_factory: TSNNetworkFactory = TSNNetworkFactory()
     tsn_network: TSNNetwork = tsn_network_factory.product(
+        solution_filename='solution',
         enhancement_enable=config.XML_CONFIG['enhancement-tsn-switch-enable'])
     logger.info(str(tsn_network.__class__) + ': ' + str(tsn_network))
     ConfigFileGenerator.generate_routes_xml(tsn_network)

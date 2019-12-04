@@ -2,16 +2,16 @@ import os
 from enum import Enum
 
 from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
-from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, TOPO_STRATEGY
-
-TIME_GRANULARITY = Enum('TIME_GRANULARITY', ('NS, US, MS, S'))
+from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, TOPO_STRATEGY, TIME_GRANULARITY
 
 src_dir: str = os.path.dirname(os.path.abspath(__file__))
 pro_dir: str = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
 res_dir: str = os.path.join(pro_dir, 'res')
-flow_size_res_dir = os.path.join(res_dir, 'flow_size')
-graph_size_res_dir = os.path.join(res_dir, 'graph_size')
-redundancy = os.path.join(res_dir, 'redundancy')
+flow_size_res_dir: str = os.path.join(res_dir, 'flow_size')
+graph_size_res_dir: str = os.path.join(res_dir, 'graph_size')
+redundancy_res_dir: str = os.path.join(res_dir, 'redundancy')
+solutions_res_dir: str = os.path.join(res_dir, 'solutions')
+json_dir: str = os.path.join(src_dir, 'json')
 
 GRAPH_CONFIG = {
     'min-flow-size': 64 * 8,  # minimum frame size = 64B, [unit: Byte]
@@ -31,22 +31,22 @@ GRAPH_CONFIG = {
             'm': 14,
             'p': 0.2,
         },
-        {
-            'strategy': TOPO_STRATEGY.BA_STRATEGY,
-            'n': 10,
-            'm': 2,
-        },
-        {
-            'strategy': TOPO_STRATEGY.RRG_STRATEGY,
-            'd': 3,
-            'n': 10,
-        },
-        {
-            'strategy': TOPO_STRATEGY.WS_STRATEGY,
-            'n': 10,
-            'k': 2,
-            'p': 1.0,
-        },
+        # {
+        #     'strategy': TOPO_STRATEGY.BA_STRATEGY,
+        #     'n': 10,
+        #     'm': 2,
+        # },
+        # {
+        #     'strategy': TOPO_STRATEGY.RRG_STRATEGY,
+        #     'd': 3,
+        #     'n': 10,
+        # },
+        # {
+        #     'strategy': TOPO_STRATEGY.WS_STRATEGY,
+        #     'n': 10,
+        #     'k': 2,
+        #     'p': 1.0,
+        # },
     ],
     'routing-strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
     'scheduling-strategy': SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY,
@@ -85,5 +85,8 @@ XML_CONFIG = {
 
 TESTING = {
     'round': 10,  # test rounds
+    'prefix': 1,
     'flow-start': 10,  # the least number of flows
+    'draw-gantt-chart': False,
+    'save-solution': False
 }

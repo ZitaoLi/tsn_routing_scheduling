@@ -149,3 +149,10 @@ class FlowGenerator:
             _f: Flow = json.loads(_flow_str, object_hook=cls._json2obj_helper)
             _F.append(_f)
         return _F
+
+    @staticmethod
+    def save_flows(flows: List[Flow]):
+        import os
+        filename: str = os.path.join(config.json_dir, 'flows')
+        with open(filename, "w") as f:
+            f.write(FlowGenerator.flows2json(flows))

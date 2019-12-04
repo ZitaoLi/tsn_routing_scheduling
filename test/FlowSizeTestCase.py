@@ -61,28 +61,37 @@ class FlowSizeTestCase(unittest.TestCase):
                                             scheduling_strategy=config.GRAPH_CONFIG['scheduling-strategy'],
                                             allocating_strategy=config.GRAPH_CONFIG['allocating-strategy'])
                     solver.visual = config.GRAPH_CONFIG['visible']
-                    solver.add_flows(flows[:i + 1])
-                    import time
-                    # origin method
-                    start_time: time.process_time = time.perf_counter()
-                    solver.generate_init_solution()  # get initial solution
-                    middle_time: time.process_time = time.perf_counter()
-                    self.runtime = middle_time - start_time  # basic method time
-                    self.analyze(solver.final_solution, prefix='B-')
-                    if config.OPTIMIZATION['enable'] is True:
-                        # optimized method
-                        solver.optimize()  # optimize
-                        end_time: time.process_time = time.perf_counter()
-                        self.runtime = end_time - start_time  # whole method time with optimized method
-                        self.analyze(solver.final_solution, prefix='O-')
+                    solver.add_flows(flows[:i])
+                    # solver.add_flows(flows[:i+1])
+                    try:
+                        import time
+                        # origin method
+                        start_time: time.process_time = time.perf_counter()
+                        solver.generate_init_solution()  # get initial solution
+                        middle_time: time.process_time = time.perf_counter()
+                        self.runtime = middle_time - start_time  # basic method time
+                        self.analyze(solver.final_solution, prefix='B-')
+                        if config.OPTIMIZATION['enable'] is True:
+                            # optimized method
+                            solver.optimize()  # optimize
+                            end_time: time.process_time = time.perf_counter()
+                            self.runtime = end_time - start_time  # whole method time with optimized method
+                            self.analyze(solver.final_solution, prefix='O-')
+                    except:
+                        # save flows if error happen
+                        FlowGenerator.save_flows(flows)
 
-    def save_solution(self, solution: Solution):
+    def save_solution(self, solution: Solution, filename: str):
         # TODO save solution
         import os
         import pickle
-        file = os.path.join(os.path.join(config.src_dir, 'json'), 'solution')
-        with open(file, 'wb') as f:
+        filename = os.path.join(config.solutions_res_dir, filename)
+        with open(filename, 'wb') as f:
             pickle.dump(solution, f)
+
+    def draw_gantt_chart(self, solution: Solution):
+        if config.TESTING['draw-gantt-chart'] is True:
+            solution.graph.draw_gantt()
 
     def analyze(self, solution: Solution, prefix=''):
         flow_id_list: List[FlowId] = [flow.flow_id for flow in solution.flows]
@@ -117,9 +126,10 @@ class FlowSizeTestCase(unittest.TestCase):
                         str(solution.allocating_strategy)
         filename = filename.replace('.', '_').replace('STRATEGY_', '').replace('_STRATEGY', '') \
             .replace('TOPO_', '').replace('ROUTING_', '').replace('SCHEDULING_', '').replace('ALLOCATING_', '')
-        prefix += 'T{}-N{}-'.format(self.round, node_num)
-        filename = path.join(config.flow_size_res_dir, prefix + filename + '.csv')
-        with open(filename, 'a', newline='') as file:
+        # prefix += 'T{}-N{}-'.format(self.round, node_num)
+        prefix += 'T{}-N{}-'.format(self.round + config.TESTING['prefix'], node_num)
+        filename = path.join(config.flow_size_res_dir, prefix + filename)
+        with open(filename + '.csv', 'a', newline='') as file:
             writer: csv.writer = csv.writer(file)
             line: list = [
                 flow_num,  # number of flows
@@ -135,6 +145,10 @@ class FlowSizeTestCase(unittest.TestCase):
                 median_load  # median load
             ]
             writer.writerow(line)
+        if config.TESTING['draw-gantt-chart'] is True:
+            self.draw_gantt_chart(solution)
+        if config.TESTING['save-solution'] is True:
+            self.save_solution(solution, filename)
 
 
 if __name__ == '__main__':

@@ -19,22 +19,25 @@ class AEAPAllocatingStrategy(AllocatingStrategy):
         _next_arrival_time_offset: int = 0  # packet arrival time at next hop
         _B: List[AllocationBlock] = allocator.flow_times_mapper.get(flow.flow_id)
         _flag: bool = False
-        if _B is not None:
-            _b: AllocationBlock = list(filter(lambda b: b.phase == 0, _B))[0]
-            # if arrival time offset dost not exceed send time offset, then we can delay it and make it overlapped fully
-            # otherwise, we can just allocate it as early as possible
-            if arrival_time_offset <= _b.send_time_offset:
-                _send_time_offset = _b.send_time_offset
-                if allocator.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period,
-                                          overlaped=True):
-                    allocator.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
-                    _flag = True
-                else:
-                    logger.error('allocate time slots error on edge [' + str(allocator.edge_id) + ']')
-                    logger.error('send time offset: ' + str(_send_time_offset))
-                    logger.error('error interval: ' + str([_b.interval.lower, _b.interval.upper]))
-                    # self.to_string()
-                    return -1
+        if _B is not None and len(_B) != 0:
+            __B: List[AllocationBlock] = list(filter(lambda b: b.phase == 0, _B))
+            if len(__B) != 0 and __B is not None:
+                _b: AllocationBlock = __B[0]
+                # if arrival time offset dost not exceed send time offset,
+                # then we can delay it and make it overlapped fully
+                # otherwise, we can just allocate it as early as possible
+                if arrival_time_offset <= _b.send_time_offset:
+                    _send_time_offset = _b.send_time_offset
+                    if allocator.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period,
+                                              overlaped=True):
+                        allocator.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
+                        _flag = True
+                    else:
+                        logger.error('allocate time slots error on edge [' + str(allocator.edge_id) + ']')
+                        logger.error('send time offset: ' + str(_send_time_offset))
+                        logger.error('error interval: ' + str([_b.interval.lower, _b.interval.upper]))
+                        # self.to_string()
+                        return -1
         if _flag is False:
             _send_time_offset = arrival_time_offset
             # flow cannot be delayed more than (number of time slots on edge - number of needed time slots)

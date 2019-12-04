@@ -12,15 +12,16 @@ from src.net_envs.network_element.NetworkDeviceFactory import NetworkDeviceFacto
 from src.type import MacAddress, EdgeId, NodeId, FlowId
 import src.utils.MacAddressGenerator as MAG
 from src.utils.Singleton import SingletonABC
+from src import config
 
 
 class NetworkFactory(NetworkFactoryInterface, metaclass=SingletonABC):
     solution: Solution
     node_edge_mac_info: MAG.NodeEdgeMacInfo
 
-    def get_solution(self):
-        file = os.path.join(os.path.join(os.path.abspath('.'), 'json'), 'solution')  # TODO fix hard code
-        with open(file, 'rb') as f:
+    def get_solution(self, filename: str):
+        filename = os.path.join(config.solutions_res_dir, filename)
+        with open(filename, 'rb') as f:
             self.solution: Solution = pickle.load(f)
 
     def parse_node_edge_mac_info(self, solution: Solution):
@@ -48,7 +49,8 @@ class NetworkFactory(NetworkFactoryInterface, metaclass=SingletonABC):
         network: Network = Network()
 
         # get solution which contains graph and flows
-        self.get_solution()
+        assert 'solution_filename' in kwargs.keys(), 'parameter "solution_filename" is required'
+        self.get_solution(kwargs['solution_filename'])
 
         # parse node-edge-mac-info
         self.parse_node_edge_mac_info(self.solution)
@@ -65,4 +67,5 @@ class NetworkFactory(NetworkFactoryInterface, metaclass=SingletonABC):
         network.add_network_devices(network_device_list)
 
         # TODO add channels
-        # p
+
+        return network
