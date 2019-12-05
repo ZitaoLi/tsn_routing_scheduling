@@ -13,71 +13,42 @@ from src.graph.TopoGenerator import TopoGenerator
 from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
 from src.graph.topo_strategy.TopoStrategy import TopoStrategy
 from src.graph.topo_strategy.TopoStrategyFactory import TopoStrategyFactory
-from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY
+from src.type import NodeId, EdgeId, FlowId
 import src.config as config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class FlowSizeTestCase(unittest.TestCase):
+class GraphSizeTestCase(unittest.TestCase):
 
     def setUp(self):
-        config.TESTING['round'] = 1
-        config.TESTING['flow-size'] = [10, 20]
-        config.TESTING['draw-gantt-chart'] = True
-        config.OPTIMIZATION['enable'] = False
-        config.GRAPH_CONFIG['all-bandwidth'] = 1  # 500Mbps
-        config.GRAPH_CONFIG['core-node-num'] = 10
+        config.FLOW_CONFIG['flow-num'] = 50
         config.GRAPH_CONFIG['edge-node-num'] = 10
-        config.GRAPH_CONFIG['topo-strategy'] = [
-            {
-                'strategy': TOPO_STRATEGY.ER_STRATEGY,
-                'type': ErdosRenyiStrategy.ER_TYPE.GNP,
-                'n': 10,
-                'm': 14,
-                'p': 0.2,
-            },
-            # {
-            #     'strategy': TOPO_STRATEGY.BA_STRATEGY,
-            #     'n': 10,
-            #     'm': 2,
-            # },
-            # {
-            #     'strategy': TOPO_STRATEGY.RRG_STRATEGY,
-            #     'd': 3,
-            #     'n': 10,
-            # },
-            # {
-            #     'strategy': TOPO_STRATEGY.WS_STRATEGY,
-            #     'n': 10,
-            #     'k': 2,
-            #     'p': 1.0,
-            # },
-        ]
-        for topo_strategy_entity in config.GRAPH_CONFIG['topo-strategy']:
-            topo_strategy_entity['n'] = config.GRAPH_CONFIG['core-node-num']
 
     def tearDown(self):
         pass
 
     def test_flow_size(self):
         topo_generator: TopoGenerator = TopoGenerator()
-        for topo_strategy_entity in config.GRAPH_CONFIG['topo-strategy']:
-            topo_strategy: TopoStrategy = TopoStrategyFactory.get_instance(**topo_strategy_entity)
-            topo_generator.topo_strategy = topo_strategy
-            for test_round in range(config.TESTING['round']):
-                self.round = test_round
-                # generate topology
-                graph: nx.Graph = topo_generator.generate_core_topo()
-                attached_edge_nodes_num: int = config.GRAPH_CONFIG['edge-node-num']
-                attached_edge_nodes: List[NodeId] = topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
-                topo_generator.draw(graph)
-                # generate flows
-                flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes, graph=graph)
-                for i in range(config.TESTING['flow-size'][0],
-                               config.TESTING['flow-size'][1] + 1,
-                               config.TESTING['x-axis-gap']):
+        for test_round in range(config.TESTING['round']):
+            self.round = test_round
+            for graph_size in range(config.TESTING['graph-core-size'][0], config.TESTING['graph-core-size'][1] + 1):
+                for topo_strategy_entity in config.GRAPH_CONFIG['topo-strategy']:
+                    topo_strategy_entity['n'] = graph_size
+                    topo_strategy: TopoStrategy = TopoStrategyFactory.get_instance(**topo_strategy_entity)
+                    topo_generator.topo_strategy = topo_strategy
+                    config.GRAPH_CONFIG['core-node-num'] = graph_size
+                    # config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = \
+                    #     int(graph_size * 0.6) if int(graph_size * 0.6) < config.GRAPH_CONFIG['edge-node-num'] \
+                    #     else config.GRAPH_CONFIG['edge-node-num']
+                    config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = 6
+                        # generate topology
+                    graph: nx.Graph = topo_generator.generate_core_topo()
+                    attached_edge_nodes_num: int = config.GRAPH_CONFIG['edge-node-num']
+                    attached_edge_nodes: List[NodeId] = topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
+                    topo_generator.draw(graph)
+                    flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes)
                     solver: Solver = Solver(nx_graph=graph,
                                             flows=None,
                                             topo_strategy=topo_strategy_entity['strategy'],
@@ -85,8 +56,7 @@ class FlowSizeTestCase(unittest.TestCase):
                                             scheduling_strategy=config.GRAPH_CONFIG['scheduling-strategy'],
                                             allocating_strategy=config.GRAPH_CONFIG['allocating-strategy'])
                     solver.visual = config.GRAPH_CONFIG['visible']
-                    solver.add_flows(flows[:i])
-                    # solver.add_flows(flows[:i+1])
+                    solver.add_flows(flows)
                     try:
                         import time
                         # origin method
@@ -94,13 +64,13 @@ class FlowSizeTestCase(unittest.TestCase):
                         solver.generate_init_solution()  # get initial solution
                         middle_time: time.process_time = time.perf_counter()
                         self.runtime = middle_time - start_time  # basic method time
-                        self.analyze(solver.final_solution, prefix='B-')
+                        self.analyze(solver.final_solution, prefix='G_SIZE-B-')
                         if config.OPTIMIZATION['enable'] is True:
                             # optimized method
                             solver.optimize()  # optimize
                             end_time: time.process_time = time.perf_counter()
                             self.runtime = end_time - start_time  # whole method time with optimized method
-                            self.analyze(solver.final_solution, prefix='O-')
+                            self.analyze(solver.final_solution, prefix='G_SIZE-O-')
                     except:
                         # save flows if error happen
                         FlowGenerator.save_flows(flows)
@@ -151,7 +121,7 @@ class FlowSizeTestCase(unittest.TestCase):
         filename = filename.replace('.', '_').replace('STRATEGY_', '').replace('_STRATEGY', '') \
             .replace('TOPO_', '').replace('ROUTING_', '').replace('SCHEDULING_', '').replace('ALLOCATING_', '')
         # prefix += 'T{}-N{}-'.format(self.round, node_num)
-        prefix += 'T{}-N{}-'.format(self.round + config.TESTING['prefix'], node_num)
+        prefix += 'T{}-F{}-'.format(self.round + config.TESTING['prefix'], flow_num)
         filename = path.join(config.flow_size_res_dir, prefix + filename)
         with open(filename + '.csv', 'a', newline='') as file:
             writer: csv.writer = csv.writer(file)

@@ -60,15 +60,15 @@ class TopoGenerator(object):
         while t.__len__() <= config.GRAPH_CONFIG['edge-nodes-distribution-degree']:
             attached_nodes = []
             t = set()
-            for i in range(nodes_num):
+            for i in range(n):
                 selected_node: NodeId = np.random.choice(nodes, p=p)
                 attached_nodes.append(selected_node)
                 t.add(selected_node)
         edge_nodes: List[NodeId] = []
-        for i, node in enumerate(range(nodes_num + 1, nodes_num + n + 1)):
-            graph.add_edge(node, attached_nodes[i])
-            graph.add_edge(attached_nodes[i], node)
-            edge_nodes.append(node)
+        for i, node_no in enumerate(range(nodes_num + 1, nodes_num + n + 1)):
+            graph.add_edge(node_no, attached_nodes[i])
+            graph.add_edge(attached_nodes[i], node_no)
+            edge_nodes.append(node_no)
         return edge_nodes
 
     def attach_edge_nodes_sparse(self, graph: nx.Graph, n: int) -> List[NodeId]:

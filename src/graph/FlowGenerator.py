@@ -1,6 +1,8 @@
 import copy
 import logging
 import random
+
+import networkx as nx
 import numpy as np
 import json
 from typing import List, Dict
@@ -8,6 +10,7 @@ from math import floor
 
 from src import config
 from src.graph.Flow import Flow
+from src.type import NodeId
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +29,10 @@ class FlowGenerator:
         return _F[-1].period
 
     @staticmethod
-    def generate_flows(edge_nodes=None, **kargs) -> List[Flow]:
+    def generate_flows(edge_nodes: List[NodeId] = None, graph: nx.Graph = None, **kargs) -> List[Flow]:
         '''
         generate flow randomly
+        :param graph:
         :param edge_nodes: arrival source nodes
         :return:
         '''
@@ -58,6 +62,14 @@ class FlowGenerator:
             _D: List[int] = []
             _edge_nodes_t: List[int] = copy.deepcopy(edge_nodes)
             _edge_nodes_t.remove(_o)
+            source_neighbor: int = list(graph.neighbors(_o))[0]
+            neighbors: List[int] = list(graph.neighbors(source_neighbor))
+            neighbors.remove(_o)
+            neighbors = list(filter(lambda n: list(graph.neighbors(n)).__len__() == 1, neighbors))
+            _edge_nodes_t = list(set(_edge_nodes_t) - set(neighbors))
+            if neighbors.__len__() >= 1:
+                _t: List[int] = random.sample(neighbors, int(np.ceil(0.2 * len(neighbors))))
+                [_edge_nodes_t.append(n) for n in _t]
             _D = random.sample(_edge_nodes_t, _dn)
             _f: Flow = Flow(_fid, _s, _p, _o, _D, _rl, _dl)
             _F.append(_f)

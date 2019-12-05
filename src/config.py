@@ -31,22 +31,22 @@ GRAPH_CONFIG = {
             'm': 14,
             'p': 0.2,
         },
-        # {
-        #     'strategy': TOPO_STRATEGY.BA_STRATEGY,
-        #     'n': 10,
-        #     'm': 2,
-        # },
-        # {
-        #     'strategy': TOPO_STRATEGY.RRG_STRATEGY,
-        #     'd': 3,
-        #     'n': 10,
-        # },
-        # {
-        #     'strategy': TOPO_STRATEGY.WS_STRATEGY,
-        #     'n': 10,
-        #     'k': 2,
-        #     'p': 1.0,
-        # },
+        {
+            'strategy': TOPO_STRATEGY.BA_STRATEGY,
+            'n': 10,
+            'm': 2,
+        },
+        {
+            'strategy': TOPO_STRATEGY.RRG_STRATEGY,
+            'd': 3,
+            'n': 10,
+        },
+        {
+            'strategy': TOPO_STRATEGY.WS_STRATEGY,
+            'n': 10,
+            'k': 2,
+            'p': 1.0,
+        },
     ],
     'routing-strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
     'scheduling-strategy': SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY,
@@ -84,9 +84,12 @@ XML_CONFIG = {
 }
 
 TESTING = {
-    'round': 10,  # test rounds
+    'round': 5,  # test rounds
+    'x-axis-gap': 5,
     'prefix': 1,
-    'flow-start': 10,  # the least number of flows
+    'flow-size': [10, 100],  # the least number of flows
     'draw-gantt-chart': False,
-    'save-solution': False
+    'save-solution': False,
+    'graph-core-size': [10, 20],
+    'graph-edge-size': [],
 }
