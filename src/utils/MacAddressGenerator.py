@@ -226,5 +226,9 @@ class MacAddressGenerator:
 
     @staticmethod
     def parse_mac_type(mac: MacAddress):
-        # TODO
-        return MAC_TYPE.MULTICAST if config.XML_CONFIG['multicast-model'] is True else MAC_TYPE.UNICAST
+        if mac[:2] == '00':
+            return MAC_TYPE.UNICAST
+        elif mac[:2] == '01':
+            return MAC_TYPE.MULTICAST
+        else:
+            return MAC_TYPE.BROADCAST

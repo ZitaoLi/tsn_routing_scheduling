@@ -23,6 +23,8 @@ class NetworkDeviceFactory(NetworkDeviceFactoryInterface, metaclass=SingletonABC
         self.network_device_no += 1
         assert 'unique_id' in kwargs.keys(), "parameter 'unique_id' is required"  # unique_id is required
         if 'prefix_name' in kwargs.keys():
-            return _C(kwargs['unique_id'], kwargs['prefix_name'] + str(self.network_device_no))
+            # return _C(kwargs['unique_id'], kwargs['prefix_name'] + str(self.network_device_no))
+            return _C(kwargs['unique_id'], kwargs['prefix_name'] + str(kwargs['unique_id']))
         else:
-            return _C(kwargs['unique_id'], 'NetworkDevice' + str(self.network_device_no))
+            # return _C(kwargs['unique_id'], 'NetworkDevice' + str(self.network_device_no))
+            return _C(kwargs['unique_id'], 'NetworkDevice' + str(kwargs['unique_id']))

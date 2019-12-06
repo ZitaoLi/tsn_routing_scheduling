@@ -22,7 +22,7 @@ class TSNNetworkFactory(EthernetNetworkFactory):
         enhancement_enable: bool = kwargs['enhancement_enable']
 
         # initialize empty network
-        ethernet_network: EthernetNetwork = super().product()
+        ethernet_network: EthernetNetwork = super().product(*args, **kwargs)
         ethernet_network.__class__ = TSNNetwork  # force into EthernetNetwork
         tsn_network: TSNNetwork = ethernet_network
 

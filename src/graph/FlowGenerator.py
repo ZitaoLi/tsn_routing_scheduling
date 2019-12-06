@@ -164,7 +164,12 @@ class FlowGenerator:
 
     @staticmethod
     def save_flows(flows: List[Flow]):
-        import os
-        filename: str = os.path.join(config.json_dir, 'flows')
-        with open(filename, "w") as f:
+        with open(config.flows_filename, "w") as f:
             f.write(FlowGenerator.flows2json(flows))
+
+    @staticmethod
+    def load_flows() -> List[Flow]:
+        flows: List[Flow] = []
+        with open(config.flows_filename, "r") as f:
+            flows = FlowGenerator.json2flows(f.read())
+        return flows

@@ -12,6 +12,7 @@ graph_size_res_dir: str = os.path.join(res_dir, 'graph_size')
 redundancy_res_dir: str = os.path.join(res_dir, 'redundancy')
 solutions_res_dir: str = os.path.join(res_dir, 'solutions')
 json_dir: str = os.path.join(src_dir, 'json')
+flows_filename: str = os.path.join(json_dir, 'flows.json')
 
 GRAPH_CONFIG = {
     'min-flow-size': 64 * 8,  # minimum frame size = 64B, [unit: Byte]
@@ -92,4 +93,5 @@ TESTING = {
     'save-solution': False,
     'graph-core-size': [10, 20],
     'graph-edge-size': [],
+    'generate-flows': False
 }

@@ -6,7 +6,7 @@ import jsonpickle
 from src.graph.Flow import Flow
 from src.graph.Graph import Graph
 from src.type import FlowId, NodeId, MacAddress, EdgeId
-from src.utils.MacAddressGenerator import EdgeMacMapper
+from src.utils.MacAddressGenerator import EdgeMacMapper, FlowMacMapper
 
 
 class GenTriple:
@@ -63,13 +63,15 @@ class FlowRoutes:
     src_node: NodeId
     dest_node: List[NodeId]
     flow_routes: Dict[NodeId, OneToOneRedundantRoutes]
+    group_mac: MacAddress
 
     def __init__(self, flow_id: FlowId, src_node: NodeId, dest_nodes: List[NodeId],
-                 flow_routes: Dict[NodeId, OneToOneRedundantRoutes]):
+                 flow_routes: Dict[NodeId, OneToOneRedundantRoutes], group_mac: MacAddress):
         self.flow_id = flow_id
         self.src_node = src_node
         self.dest_node = dest_nodes
         self.flow_routes = flow_routes
+        self.group_mac = group_mac
 
 
 class RouteImmediateEntity:
@@ -99,7 +101,10 @@ class RouteImmediateEntity:
 class RoutesGenerator:
     @staticmethod
     def generate_routes_immediate_entity(
-            graph: Graph, flow_list: List[Flow], edge_mac_dict: Dict[EdgeId, EdgeMacMapper]) -> RouteImmediateEntity:
+            graph: Graph,
+            flow_list: List[Flow],
+            edge_mac_dict: Dict[EdgeId, EdgeMacMapper],
+            flow_mac_dict: Dict[FlowId, FlowMacMapper]) -> RouteImmediateEntity:
         '''
         :param graph:
         :param flow_list:
@@ -139,7 +144,9 @@ class RoutesGenerator:
                 redundant_route_instance: OneToOneRedundantRoutes = \
                     OneToOneRedundantRoutes(src_node_id, dest_node_id, redundant_routes)
                 flow_routes[dest_node_id] = redundant_route_instance
-            flow_routes_instance: FlowRoutes = FlowRoutes(flow_id, src_node_id, dest_node_id_list, flow_routes)
+            group_mac: MacAddress = flow_mac_dict[flow_id].group_mac
+            flow_routes_instance: FlowRoutes = \
+                FlowRoutes(flow_id, src_node_id, dest_node_id_list, flow_routes, group_mac)
             flow_routes_dict[flow_id] = flow_routes_instance
         route_immediate_entity: RouteImmediateEntity = \
             RouteImmediateEntity(flow_routes_dict, flow_id_list, edge_mac_dict)

@@ -26,7 +26,8 @@ class NetworkFactory(NetworkFactoryInterface, metaclass=SingletonABC):
 
     def parse_node_edge_mac_info(self, solution: Solution):
         # get mac-list, edge-mac-dict and node-mac-dict
-        mac_list: List[MacAddress] = MAG.MacAddressGenerator.generate_all_multicast_mac_address(solution.graph)
+        # mac_list: List[MacAddress] = MAG.MacAddressGenerator.generate_all_multicast_mac_address(solution.graph)
+        mac_list: List[MacAddress] = MAG.MacAddressGenerator.generate_all_unicast_mac_address(solution.graph)
         group_mac_list: List[MacAddress] = MAG.MacAddressGenerator.generate_flow_group_mac_address(solution.flows)
         edge_mac_dict: Dict[EdgeId, MAG.EdgeMacMapper] = \
             MAG.MacAddressGenerator.assign_mac_address_to_edge(mac_list, solution.graph)

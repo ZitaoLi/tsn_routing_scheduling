@@ -7,8 +7,8 @@ from src.type import NodeId, NodeName
 
 class Host(NetworkDevice, HostInterface):
 
-    def __init__(self, switch_id: NodeId, switch_name: NodeName):
-        super().__init__(switch_id, switch_name)
+    def __init__(self, host_id: NodeId, host_name: NodeName):
+        super().__init__(host_id, host_name)
         # self.gate_control_list = GateControlList()  # initialize gate control list
 
     def send(self):

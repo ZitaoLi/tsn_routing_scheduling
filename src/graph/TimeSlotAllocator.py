@@ -104,6 +104,9 @@ class TimeSlotAllocator:
         _json = json.dumps(o)
         logger.info(_json)
 
+    def sort_allocation_blocks(self, blocks: List[AllocationBlock]):
+        return sorted(blocks, key=lambda b: b.interval.lower)
+
     def save_scene(self):
         self.allocation_blocks_c = self.allocation_blocks.copy()
         self.allocation_blocks_m_c = self.allocation_blocks_m.copy()

@@ -10,7 +10,7 @@ from lxml import html
 
 from src.net_envs.network_component.FilteringDatabase import FilteringDatabase
 from src.net_envs.network_component.GateControlList import EnhancementGateControlList, GateControlList, \
-    GateControlListItem
+    GateControlListItem, EnhancementGateControlListItem
 from src.net_envs.network_component.Mac import MAC_TYPE
 from src.net_envs.network_element.TSNHost import TSNHost
 from src.net_envs.network_element.TSNSwitch import TSNSwitch
@@ -79,7 +79,7 @@ class ConfigFileGenerator:
         root.append(copy.copy(xml_time_comment))
         # <cycle></cycle>
         xml_cycle: etree.Element = etree.Element('cycle')
-        xml_cycle.text = config.GRAPH_CONFIG['hyper-period']
+        xml_cycle.text = str(config.GRAPH_CONFIG['hyper-period'])
         root.append(xml_cycle)
         for tsn_switch in tsn_switch_list:
             # <switch></switch>
@@ -92,7 +92,8 @@ class ConfigFileGenerator:
                 assert gcl.items.__len__() != 0, 'incorrect gate control list'
                 # <port></port>
                 xml_port: etree.Element = etree.Element('port')
-                xml_port.attrib['id'] = port_no - 1
+                xml_port.attrib['id'] = str(port_no - 1)
+                xml_switch.append(xml_port)
                 for gcl_item in gcl.items:
                     # <entry></entry>
                     xml_entry: etree.Element = etree.Element('entry')
@@ -101,21 +102,24 @@ class ConfigFileGenerator:
                     xml_entry.append(copy.copy(xml_time_comment))
                     # <length></length>
                     xml_length: etree.Element = etree.Element('length')
-                    xml_length.text = gcl_item.time
+                    xml_length.text = str(gcl_item.time)
                     xml_entry.append(xml_length)
                     # <bitvector></bitvector>
                     xml_bitvector: etree.Element = etree.Element('bitvector')
                     xml_bitvector.text = gcl_item.gate_states.to01()
                     xml_entry.append(xml_bitvector)
-                    if gcl_item.__class__ is EnhancementGateControlList:  # enhancement extension
+                    if type(gcl_item) is EnhancementGateControlListItem:  # enhancement extension
                         # <uniqueID></uniqueID>
                         xml_unique_id: etree.Element = etree.Element('uniqueID')
-                        xml_unique_id.text = gcl_item.flow_id
+                        xml_unique_id.text = str(gcl_item.flow_id)
                         xml_entry.append(xml_unique_id)
                         # <phase></phase>
                         xml_phase: etree.Element = etree.Element('phase')
-                        xml_phase.text = gcl_item.phase
+                        xml_phase.text = str(gcl_item.phase)
                         xml_entry.append(xml_phase)
+        logger.info('\n' + str(
+            etree.tostring(root, pretty_print=True, xml_declaration=True, encoding='utf-8'), encoding='utf-8'))
+        # TODO save to file
 
     @staticmethod
     def generate_host_schedule_xml(tsn_network: TSNNetwork, flows: List[Flow]):
@@ -173,9 +177,9 @@ class ConfigFileGenerator:
                     # <dest></dest>
 
                     # <size></size>
-                    if gcl.__class__ is EnhancementGateControlList:
+                    if type(gcl) is EnhancementGateControlList:
                         # <group></group>
                         # <uniqueID></uniqueID>
                         # <phase></phase>
                         pass
-
+                    # TODO save to file

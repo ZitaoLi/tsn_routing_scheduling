@@ -19,7 +19,7 @@ class EthernetNetworkFactory(NetworkFactory):
 
     def product(self, *args, **kwargs) -> EthernetNetwork:
         # initialize empty network
-        network: Network = super().product()
+        network: Network = super().product(*args, **kwargs)
         network.__class__ = EthernetNetwork  # force into EthernetNetwork
         ethernet_network: EthernetNetwork = network
 
@@ -33,7 +33,8 @@ class EthernetNetworkFactory(NetworkFactory):
         # set route immediate entity
         self.route_immediate_entity = \
             RG.RoutesGenerator.generate_routes_immediate_entity(
-                self.solution.graph, self.solution.flows, self.node_edge_mac_info.edge_mac_dict)
+                self.solution.graph, self.solution.flows,
+                self.node_edge_mac_info.edge_mac_dict, self.node_edge_mac_info.flow_mac_dict)
 
         # product hosts and add them into network
         host_list: List[Host] = []

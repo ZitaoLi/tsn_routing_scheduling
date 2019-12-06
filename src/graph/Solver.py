@@ -217,3 +217,11 @@ class Solver:
             self.final_solution = copy.deepcopy(_s_hat)  # deep copy here
         elif o2 == o1:
             pass  # TODO how to handle the same situation?
+
+    def save_solution(self, filename: str):
+        # TODO save solution
+        import os
+        import pickle
+        filename = os.path.join(config.solutions_res_dir, filename)
+        with open(filename, 'wb') as f:
+            pickle.dump(self.final_solution, f)

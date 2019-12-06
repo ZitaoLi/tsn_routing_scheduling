@@ -151,3 +151,12 @@
 +defaults::sqlite-3.30.1-he774522_0
 +defaults::wheel-0.33.6-py37_0
 # update specs: ['networkx']
+==> 2019-12-04 16:06:33 <==
+# cmd: C:\Users\Lztao\Anaconda3\Scripts\conda-script.py install -p C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs bitarray -y
+# conda version: 4.6.11
+-defaults::ca-certificates-2019.10.16-0
+-defaults::certifi-2019.9.11-py37_0
++defaults::bitarray-1.1.0-py37he774522_0
++defaults::ca-certificates-2019.11.27-0
++defaults::certifi-2019.11.28-py37_0
+# update specs: ['bitarray']
