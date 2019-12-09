@@ -13,7 +13,7 @@ from src.graph.TopoGenerator import TopoGenerator
 from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
 from src.graph.topo_strategy.TopoStrategy import TopoStrategy
 from src.graph.topo_strategy.TopoStrategyFactory import TopoStrategyFactory
-from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY
+from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY, ROUTING_STRATEGY
 import src.config as config
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +27,7 @@ class FlowSizeTestCase(unittest.TestCase):
         config.TESTING['flow-size'] = [10, 20]
         config.TESTING['draw-gantt-chart'] = True
         config.OPTIMIZATION['enable'] = False
+        config.GRAPH_CONFIG['routing-strategy'] = ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY
         config.GRAPH_CONFIG['all-bandwidth'] = 1  # 500Mbps
         config.GRAPH_CONFIG['core-node-num'] = 10
         config.GRAPH_CONFIG['edge-node-num'] = 10
@@ -101,7 +102,8 @@ class FlowSizeTestCase(unittest.TestCase):
                             end_time: time.process_time = time.perf_counter()
                             self.runtime = end_time - start_time  # whole method time with optimized method
                             self.analyze(solver.final_solution, prefix='O-')
-                    except:
+                    except IOError as e:
+                        logger.info(e)
                         # save flows if error happen
                         FlowGenerator.save_flows(flows)
 

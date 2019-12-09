@@ -93,14 +93,14 @@ class Solver:
         self.final_solution.flows.append(flow)
         self.final_solution.graph.add_flows([flow])
 
-    def generate_init_solution(self):
+    def generate_init_solution(self) -> Solution:
         _g: Graph = self.final_solution.graph
         _F_r: List[int] = [_flow.flow_id for _flow in self.final_solution.flows]
         logger.info('route ' + str(_F_r) + '...')
         # _g.flow_router.route_flows(_F)  # routing
         # set routing strategy and route flows
         _routing_strategy: RoutingStrategy = \
-            RoutingStrategyFactory.get_instance(config.GRAPH_CONFIG['routing-strategy'], _g)
+            RoutingStrategyFactory.get_instance(self.final_solution.routing_strategy, _g)
         _g.flow_router.routing_strategy = _routing_strategy
         _g.flow_router.overlapped = config.GRAPH_CONFIG['overlapped-routing']
         _g.flow_router.route(_F_r)
@@ -110,9 +110,9 @@ class Solver:
         # _g.flow_scheduler.schedule_flows(_F)  # scheduling
         # set scheduling and allocating strategy and schedule flows
         _scheduling_strategy: SchedulingStrategy = \
-            SchedulingStrategyFactory.get_instance(config.GRAPH_CONFIG['scheduling-strategy'], _g)
+            SchedulingStrategyFactory.get_instance(self.final_solution.scheduling_strategy, _g)
         _allocating_strategy: AllocatingStrategy = \
-            AllocatingStrategyFactory.get_instance(config.GRAPH_CONFIG['allocating-strategy'])
+            AllocatingStrategyFactory.get_instance(self.final_solution.allocating_strategy)
         _g.flow_scheduler.scheduling_strategy = _scheduling_strategy
         _g.flow_scheduler.allocating_strategy = _allocating_strategy
         _g.flow_scheduler.schedule(_F_s)

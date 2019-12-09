@@ -51,7 +51,7 @@ class ConfigFileGeneratorTestCase(unittest.TestCase):
                                 scheduling_strategy=SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY,
                                 allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY)
         solver.visual = True
-        solver.generate_init_solution()
+        self.solution = solver.generate_init_solution()
         solver.save_solution('solution')
         tsn_network_factory: TSNNetworkFactory = TSNNetworkFactory()
         tsn_network: TSNNetwork = tsn_network_factory.product(
@@ -65,6 +65,15 @@ class ConfigFileGeneratorTestCase(unittest.TestCase):
 
     def test_generate_switch_schedule_xml(self):
         ConfigFileGenerator.generate_switch_schedule_xml(self.tsn_network)
+
+    def test_generate_host_schedule_xml(self):
+        ConfigFileGenerator.generate_host_schedule_xml(self.tsn_network)
+
+    def test_generate_ini_file(self):
+        logger.info(ConfigFileGenerator.generate_ini_file(network_name='TestScenario', flows=self.solution.flows))
+
+    def test_generate_flows_xml(self):
+        ConfigFileGenerator.generate_flows_xml(self.solution.flows)
 
 
 if __name__ == '__main__':

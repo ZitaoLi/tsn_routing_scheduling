@@ -340,10 +340,14 @@ class TSNHostConfigurationInfo(ConfigurationInfo):
         route_immediate_entity: RG.RouteImmediateEntity = kwargs['route_immediate_entity']
         m_flows: List[Flow] = list(filter(lambda f: f.source == self.tsn_host_id, flows))
         for m_flow in m_flows:
+            cycle_time: SimTime = m_flow.period
+            size: int = m_flow.size
             flow_id: FlowId = m_flow.flow_id
             start_time: SimTime = SimTime(0)  # TODO
             queue: QueueId = QueueId(7)
             dest_mac: MacAddress = ''  # TODO
             group_mac: MacAddress = node_edge_mac_info.flow_mac_dict[flow_id].group_mac
-            tsn_flow_info: TSNFlowInfo = TSNFlowInfo(flow_id, start_time, queue, dest_mac, group_mac)
+            tsn_flow_info: TSNFlowInfo = TSNFlowInfo(
+                flow_id=flow_id, start_time=start_time, queue=queue, dest_mac=dest_mac, group_mac=group_mac,
+                size=size, cycle_time=cycle_time)
             self.tsn_flow_info_list.append(tsn_flow_info)

@@ -8,14 +8,23 @@ from src.type import NodeId, NodeName, PortNo, FlowId, SimTime, QueueId, MacAddr
 class TSNFlowInfo(object):
     flow_id: FlowId
     start_time: SimTime
+    cycle_time: SimTime
+    size: int
     queue: QueueId
     dest_mac: MacAddress
     group_mac: MacAddress
 
-    def __init__(self,
-                 flow_id: FlowId, start_time: SimTime, queue: QueueId, dest_mac: MacAddress, group_mac: MacAddress):
+    def __init__(self, flow_id: FlowId = 0,
+                 start_time: SimTime = SimTime(0),
+                 size: int = 0,
+                 cycle_time: SimTime = SimTime(0),
+                 queue: QueueId = QueueId(7),
+                 dest_mac: MacAddress = MacAddress(''),
+                 group_mac: MacAddress = MacAddress('')):
         self.flow_id = flow_id
         self.start_time = start_time
+        self.size = size
+        self.cycle_time = cycle_time
         self.queue = queue
         self.dest_mac = dest_mac
         self.group_mac = group_mac

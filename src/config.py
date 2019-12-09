@@ -13,6 +13,7 @@ redundancy_res_dir: str = os.path.join(res_dir, 'redundancy')
 solutions_res_dir: str = os.path.join(res_dir, 'solutions')
 json_dir: str = os.path.join(src_dir, 'json')
 flows_filename: str = os.path.join(json_dir, 'flows.json')
+template_dir: str = os.path.join(src_dir, 'templates')
 
 GRAPH_CONFIG = {
     'min-flow-size': 64 * 8,  # minimum frame size = 64B, [unit: Byte]
