@@ -11,6 +11,7 @@ flow_size_res_dir: str = os.path.join(res_dir, 'flow_size')
 graph_size_res_dir: str = os.path.join(res_dir, 'graph_size')
 redundancy_res_dir: str = os.path.join(res_dir, 'redundancy')
 solutions_res_dir: str = os.path.join(res_dir, 'solutions')
+test_scenario_res_dir: str = os.path.join(res_dir, 'test_scenario')
 json_dir: str = os.path.join(src_dir, 'json')
 flows_filename: str = os.path.join(json_dir, 'flows.json')
 template_dir: str = os.path.join(src_dir, 'templates')
@@ -51,7 +52,7 @@ GRAPH_CONFIG = {
         },
     ],
     'routing-strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
-    'scheduling-strategy': SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY,
+    'scheduling-strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
     'allocating-strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY,
     'max-try-times': 50,  # max retry times if the graph is not connected,
     'visible': False,  # whether visualizing or not

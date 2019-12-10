@@ -3,6 +3,7 @@ import logging
 import os
 import pickle
 import random
+import time
 from typing import List, Tuple, Set
 
 from math import floor, ceil
@@ -31,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class Solution:
+    solution_name: str
     graph: Graph
     flows: List[Flow]
     failure_flows: List[FlowId]
@@ -43,7 +45,8 @@ class Solution:
                  topo_strategy: TOPO_STRATEGY = None,
                  routing_strategy: ROUTING_STRATEGY = None,
                  scheduling_strategy: SCHEDULING_STRATEGY = None,
-                 allocating_strategy: ALLOCATING_STRATEGY = None):
+                 allocating_strategy: ALLOCATING_STRATEGY = None,
+                 solution_name: str = 'default'):
         self.graph = graph
         self.flows = [] if flows is None else flows
         self.failure_flows = []
@@ -51,18 +54,21 @@ class Solution:
         self.routing_strategy = routing_strategy
         self.scheduling_strategy = scheduling_strategy
         self.allocating_strategy = allocating_strategy
+        self.solution_name = solution_name
 
 
 class Solver:
     final_solution: Solution
     visual: bool
+    runtime: float
 
     def __init__(self, nx_graph: nx.Graph = None,
                  flows: List[Flow] = None,
                  topo_strategy: TOPO_STRATEGY = None,
                  routing_strategy: ROUTING_STRATEGY = None,
                  scheduling_strategy: SCHEDULING_STRATEGY = None,
-                 allocating_strategy: ALLOCATING_STRATEGY = None):
+                 allocating_strategy: ALLOCATING_STRATEGY = None,
+                 solution_name: str = 'BaseSolution'):
         graph: Graph = Graph(nx_graph=nx_graph,
                              nodes=list(nx_graph.nodes),
                              edges=list(nx_graph.edges),
@@ -71,8 +77,10 @@ class Solver:
         graph.add_flows(flows)
         self.final_solution = Solution(graph, flows,
                                        topo_strategy=topo_strategy, routing_strategy=routing_strategy,
-                                       scheduling_strategy=scheduling_strategy, allocating_strategy=allocating_strategy)
+                                       scheduling_strategy=scheduling_strategy, allocating_strategy=allocating_strategy,
+                                       solution_name=solution_name)
         self.visual = False
+        self.runtime = 0
 
     @staticmethod
     def objective_function(s: Solution) -> float:
@@ -101,21 +109,24 @@ class Solver:
         # set routing strategy and route flows
         _routing_strategy: RoutingStrategy = \
             RoutingStrategyFactory.get_instance(self.final_solution.routing_strategy, _g)
+        _scheduling_strategy: SchedulingStrategy = \
+            SchedulingStrategyFactory.get_instance(self.final_solution.scheduling_strategy, _g)
+        _allocating_strategy: AllocatingStrategy = \
+            AllocatingStrategyFactory.get_instance(self.final_solution.allocating_strategy)
         _g.flow_router.routing_strategy = _routing_strategy
         _g.flow_router.overlapped = config.GRAPH_CONFIG['overlapped-routing']
+        start_time: time.process_time = time.perf_counter()  # start time
         _g.flow_router.route(_F_r)
         # select successful flows after routing
         _F_s = [_fid for _fid in _F_r if _fid not in _g.flow_router.failure_queue]
         logger.info('schedule ' + str(_F_s) + '...')
         # _g.flow_scheduler.schedule_flows(_F)  # scheduling
         # set scheduling and allocating strategy and schedule flows
-        _scheduling_strategy: SchedulingStrategy = \
-            SchedulingStrategyFactory.get_instance(self.final_solution.scheduling_strategy, _g)
-        _allocating_strategy: AllocatingStrategy = \
-            AllocatingStrategyFactory.get_instance(self.final_solution.allocating_strategy)
         _g.flow_scheduler.scheduling_strategy = _scheduling_strategy
         _g.flow_scheduler.allocating_strategy = _allocating_strategy
         _g.flow_scheduler.schedule(_F_s)
+        end_time: time.process_time = time.perf_counter()
+        self.runtime = end_time - start_time
         _g.combine_failure_queue()
         self.final_solution.failure_flows = list(_g.failure_queue)
         # visualize Gannt chart
@@ -127,12 +138,15 @@ class Solver:
                  max_iterations: int = config.OPTIMIZATION['max_iterations'],
                  max_no_improve: int = config.OPTIMIZATION['max_no_improve'],
                  k: int = config.OPTIMIZATION['k']):
+        start_time: time.process_time = time.perf_counter()
         _o: float = self.objective_function(self.final_solution)
         for i in range(max_iterations):
             _s: Solution = self.perturbate(k)  # perturbation to generate a new solution
             _s_hat: Solution = self.local_search(_s, max_no_improve)
             logger.info('local search objective function value = ' + str(self.objective_function(_s_hat)))
             self.apply_acceptance_criterion(_s_hat)
+        end_time: time.process_time = time.perf_counter()
+        self.runtime = end_time - start_time
         logger.info('initial objective function value = ' + str(_o))
         logger.info('final objective function value = ' + str(self.objective_function(self.final_solution)))
         if self.visual is True:
@@ -218,10 +232,72 @@ class Solver:
         elif o2 == o1:
             pass  # TODO how to handle the same situation?
 
-    def save_solution(self, filename: str):
-        # TODO save solution
+    def save_solution(self, solution: Solution = None, filename: str = None):
+        if solution is None:
+            raise RuntimeError('miss parameters')
         import os
         import pickle
-        filename = os.path.join(config.solutions_res_dir, filename)
+        if filename is None:
+            filename = os.path.join(config.solutions_res_dir, solution.solution_name)
         with open(filename, 'wb') as f:
-            pickle.dump(self.final_solution, f)
+            pickle.dump(solution, f)
+
+    def draw_gantt_chart(self, solution: Solution):
+        solution.graph.draw_gantt()
+
+    def generate_solution_name(self, solution: Solution = None, prefix: str = '', postfix: str = '') -> str:
+        if solution is None:
+            raise RuntimeError('parameter "solution" is required')
+        solution_name: str = str(solution.topo_strategy) + \
+                        str(solution.routing_strategy) + \
+                        str(solution.scheduling_strategy) + \
+                        str(solution.allocating_strategy)
+        solution_name = solution_name.replace('.', '_').\
+            replace('ROUTING_STRATEGY', '').replace('SCHEDULING_STRATEGY', '').replace('ALLOCATING_STRATEGY', '').\
+            replace('REDUNDANT_', '').replace('SINGLE_', '').replace('__', '_')
+        solution.solution_name = prefix + solution_name + postfix
+        solution_name = solution_name.lower()
+        return solution_name
+
+    def analyze(self, solution: Solution, target_filename: str = None):
+        flow_id_list: List[FlowId] = [flow.flow_id for flow in solution.flows]
+        failed_flow_id_list: List[FlowId] = solution.failure_flows
+        successful_flow_id_list: List[FlowId] = list(set(flow_id_list) - set(failed_flow_id_list))
+        successful_flow: List[Flow] = list(filter(lambda flow: flow.flow_id in successful_flow_id_list, solution.flows))
+        bandwidth_list: List[float] = [flow.bandwidth for flow in successful_flow]
+        flow_num: int = len(flow_id_list)  # number of flows
+        edge_list: List[Edge] = list(solution.graph.edge_mapper.values())
+        edge_num: int = len(edge_list)
+        node_num: int = len(solution.graph.nodes)
+        load_list: List[float] = [edge.time_slot_allocator.load for edge in edge_list]
+        import numpy as np
+        successful_flow_num: int = len(successful_flow_id_list)  # number of successful flows
+        ideal_throughput: float = sum(bandwidth_list)  # ideal throughput
+        actual_throughput: float = 0.0  # actual throughput
+        max_load: float = np.max(load_list)  # maximum load
+        min_load: float = np.min(load_list)  # min load
+        average_load: float = np.average(load_list)  # averaged load
+        median_load: float = np.median(load_list)  # median load
+        runtime: float = '{:.9f}'.format(self.runtime)
+        logger.info('number of successful flows: ' + str(successful_flow_num))
+        logger.info('ideal throughput: ' + str(ideal_throughput * 1000) + 'Mbps')
+        logger.info('runtime: {}s'.format(runtime))
+        logger.info('maximun load {}%'.format(max_load * 100))
+        logger.info('average load {}%'.format(average_load * 100))
+        import csv
+        with open(target_filename + '.csv', 'a', newline='') as file:
+            writer: csv.writer = csv.writer(file)
+            line: list = [
+                flow_num,  # number of flows
+                node_num,  # number of nodes
+                edge_num,  # number of edges
+                successful_flow_num,  # number of successful flows
+                ideal_throughput,  # ideal throughput
+                actual_throughput,  # actual throughput
+                runtime,  # runtime
+                max_load,  # maximum load
+                min_load,  # minimum load
+                average_load,  # average load
+                median_load  # median load
+            ]
+            writer.writerow(line)

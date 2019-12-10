@@ -40,7 +40,8 @@ class TSNSwitchConfigurator(SwitchConfigurator):
             enhancement_gate_control_list_configuration_info.parse(
                 graph=self.graph,
                 node_edge_mac_info=self.node_edge_mac_info,
-                route_immediate_entity=self.route_immediate_entity)
+                route_immediate_entity=self.route_immediate_entity,
+                ports=tsn_switch.ports)
             tsn_switch.port_gate_control_list = enhancement_gate_control_list_configuration_info.port_gate_control_list
 
 

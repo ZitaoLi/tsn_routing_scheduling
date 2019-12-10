@@ -48,15 +48,17 @@ class ConfigFileGeneratorTestCase(unittest.TestCase):
                                 flows=flows,
                                 topo_strategy=topo_strategy_entity['strategy'],
                                 routing_strategy=ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
-                                scheduling_strategy=SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY,
+                                scheduling_strategy=SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
                                 allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY)
         solver.visual = True
         self.solution = solver.generate_init_solution()
-        solver.save_solution('solution')
+        self.solution.solution_name = 'solution'
+        solver.save_solution(solution=self.solution)
         tsn_network_factory: TSNNetworkFactory = TSNNetworkFactory()
         tsn_network: TSNNetwork = tsn_network_factory.product(
             solution_filename='solution',
             enhancement_enable=config.XML_CONFIG['enhancement-tsn-switch-enable'])
+        self.node_edge_mac_info = tsn_network_factory.node_edge_mac_info
         logger.info(str(tsn_network.__class__) + ': ' + str(tsn_network))
         self.tsn_network = tsn_network
 
@@ -69,11 +71,20 @@ class ConfigFileGeneratorTestCase(unittest.TestCase):
     def test_generate_host_schedule_xml(self):
         ConfigFileGenerator.generate_host_schedule_xml(self.tsn_network)
 
+    def test_generate_flows_xml(self):
+        ConfigFileGenerator.generate_flows_xml(self.solution.flows)
+
     def test_generate_ini_file(self):
         logger.info(ConfigFileGenerator.generate_ini_file(network_name='TestScenario', flows=self.solution.flows))
 
-    def test_generate_flows_xml(self):
-        ConfigFileGenerator.generate_flows_xml(self.solution.flows)
+    def test_generate_ned_file(self):
+        logger.info(ConfigFileGenerator.generate_ned_file(tsn_network=self.tsn_network,
+                                                          solution=self.solution,
+                                                          node_edge_mac_info=self.node_edge_mac_info,
+                                                          flows=self.solution.flows))
+
+    def test_create_test_scenario(self):
+        ConfigFileGenerator.create_test_scenario(tsn_network=self.tsn_network, solution=self.solution)
 
 
 if __name__ == '__main__':

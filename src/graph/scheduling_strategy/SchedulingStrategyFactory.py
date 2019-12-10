@@ -8,7 +8,7 @@ class SchedulingStrategyFactory(object):
 
     @staticmethod
     def get_instance(strategy_name: str, graph: Graph, *args, **kwargs) -> SchedulingStrategy:
-        if strategy_name == SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY:
+        if strategy_name == SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY:
             return LRFRedundantSchedulingStrategy(
                 graph.nodes, graph.edges, graph.flows, graph.node_mapper, graph.edge_mapper, graph.flow_mapper)
         else:

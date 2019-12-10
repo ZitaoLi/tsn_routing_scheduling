@@ -20,7 +20,7 @@ import nesting.node.ethernet.VlanEtherSwitchPreemptable2;
 import nesting.node.ethernet.TSNHost;
 
 
-network TestScenario2
+network TestScenario
 {
     types:
         channel C extends DatarateChannel

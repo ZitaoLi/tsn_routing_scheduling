@@ -53,7 +53,7 @@ class RoutingTestCase(unittest.TestCase):
                                 flows=self.flows,
                                 topo_strategy=None,
                                 routing_strategy=ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
-                                scheduling_strategy=SCHEDULING_STRATEGY.LRF_RRDUNDANT_SCHEDULING_STRATEGY,
+                                scheduling_strategy=SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
                                 allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY)
         solver.visual = True
         self.solution = solver.generate_init_solution()

@@ -160,3 +160,9 @@
 +defaults::ca-certificates-2019.11.27-0
 +defaults::certifi-2019.11.28-py37_0
 # update specs: ['bitarray']
+==> 2019-12-09 10:14:06 <==
+# cmd: C:\Users\Lztao\Anaconda3\Scripts\conda-script.py install -p C:/Users/Lztao/workspace/pycharm_workspace/tsn/envs jinja2 -y
+# conda version: 4.6.11
++defaults::jinja2-2.10.3-py_0
++defaults::markupsafe-1.1.1-py37he774522_0
+# update specs: ['jinja2']
