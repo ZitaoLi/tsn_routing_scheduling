@@ -13,32 +13,32 @@ from src.graph.TopoGenerator import TopoGenerator
 from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
 from src.graph.topo_strategy.TopoStrategy import TopoStrategy
 from src.graph.topo_strategy.TopoStrategyFactory import TopoStrategyFactory
-from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY, ROUTING_STRATEGY
+from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY
 import src.config as config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+# logging.disable(logging.INFO)
 
 
 class FlowSizeTestCase(unittest.TestCase):
 
     def setUp(self):
-        config.TESTING['round'] = 1
-        config.TESTING['flow-size'] = [10, 20]
-        config.TESTING['draw-gantt-chart'] = True
-        config.OPTIMIZATION['enable'] = False
-        config.GRAPH_CONFIG['routing-strategy'] = ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY
+        config.TESTING['round'] = 5
+        config.TESTING['flow-size'] = [10, 100]
+        config.TESTING['draw-gantt-chart'] = False
+        config.OPTIMIZATION['enable'] = True
         config.GRAPH_CONFIG['all-bandwidth'] = 1  # 500Mbps
         config.GRAPH_CONFIG['core-node-num'] = 10
         config.GRAPH_CONFIG['edge-node-num'] = 10
         config.GRAPH_CONFIG['topo-strategy'] = [
-            {
-                'strategy': TOPO_STRATEGY.ER_STRATEGY,
-                'type': ErdosRenyiStrategy.ER_TYPE.GNP,
-                'n': 10,
-                'm': 14,
-                'p': 0.2,
-            },
+            # {
+            #     'strategy': TOPO_STRATEGY.ER_STRATEGY,
+            #     'type': ErdosRenyiStrategy.ER_TYPE.GNP,
+            #     'n': 10,
+            #     'm': 14,
+            #     'p': 0.2,
+            # },
             # {
             #     'strategy': TOPO_STRATEGY.BA_STRATEGY,
             #     'n': 10,
@@ -49,12 +49,12 @@ class FlowSizeTestCase(unittest.TestCase):
             #     'd': 3,
             #     'n': 10,
             # },
-            # {
-            #     'strategy': TOPO_STRATEGY.WS_STRATEGY,
-            #     'n': 10,
-            #     'k': 2,
-            #     'p': 1.0,
-            # },
+            {
+                'strategy': TOPO_STRATEGY.WS_STRATEGY,
+                'n': 10,
+                'k': 4,
+                'p': 1.0,
+            },
         ]
         for topo_strategy_entity in config.GRAPH_CONFIG['topo-strategy']:
             topo_strategy_entity['n'] = config.GRAPH_CONFIG['core-node-num']
@@ -102,8 +102,7 @@ class FlowSizeTestCase(unittest.TestCase):
                             end_time: time.process_time = time.perf_counter()
                             self.runtime = end_time - start_time  # whole method time with optimized method
                             self.analyze(solver.final_solution, prefix='O-')
-                    except IOError as e:
-                        logger.info(e)
+                    except:
                         # save flows if error happen
                         FlowGenerator.save_flows(flows)
 

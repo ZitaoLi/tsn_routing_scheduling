@@ -18,6 +18,7 @@ package nesting.simulations.{{solution_name}};
 import ned.DatarateChannel;
 import nesting.node.ethernet.VlanEtherSwitchPreemptable2;
 import nesting.node.ethernet.TSNHost;
+import nesting.node.ethernet.FlowStatisticsApp;
 
 
 network TestScenario
@@ -30,6 +31,7 @@ network TestScenario
             per = {{link['per'] or '0'}};
         }
     submodules:
+        flowStatisticsApp: FlowStatisticsApp;
         {% for switch in switches -%}
         switch{{switch['switch_id']}}: VlanEtherSwitchPreemptable2 {
             gates:

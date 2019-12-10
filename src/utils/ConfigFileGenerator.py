@@ -317,6 +317,7 @@ class ConfigFileGenerator:
         template: jinja2.Template = ConfigFileGenerator.load_template(config.template_dir, 'test_scenario_template.ned')
         return template.render(
             solution_name=solution.solution_name.lower(),
+            simlation_time='9s',
             hosts=hosts,
             switches=switches,
             link={'delay': '0ns', 'datarate': '1Gbps', 'per': '0'})
