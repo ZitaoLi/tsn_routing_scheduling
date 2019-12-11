@@ -65,7 +65,8 @@ FLOW_CONFIG = {
     'hyper-period': int(3e5),  # 300us = 3e5ns, [unit: ns],
     'size-set': [int(1.5e3), int(5e3), int(1e3)],  # 1500bit, [unit: bit],
     'reliability-set': [0.97, 0.98, 0.99],
-    'deadline-set': [int(1e8), int(5e7), int(2e7)]
+    'deadline-set': [int(1e8), int(5e7), int(2e7)],
+    'redundancy_degree': 2,
 }
 
 OPTIMIZATION = {

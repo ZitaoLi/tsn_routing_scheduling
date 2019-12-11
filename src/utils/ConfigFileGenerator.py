@@ -50,14 +50,16 @@ class ConfigFileGenerator:
                     ports_str = ports_str.lstrip()
                     if mac_type == MAC_TYPE.UNICAST:
                         xml_filtering_database_item: etree.Element = etree.SubElement(xml_forward, 'individualAddress')
+                        xml_filtering_database_item.attrib['port'] = ports_str
                     elif mac_type == MAC_TYPE.MULTICAST:
                         xml_filtering_database_item: etree.Element = etree.SubElement(xml_forward, 'multicastAddress')
+                        xml_filtering_database_item.attrib['ports'] = ports_str
                     elif mac_type == MAC_TYPE.BROADCAST:
                         xml_filtering_database_item: etree.Element = etree.SubElement(xml_forward, 'broadcastAddress')
+                        xml_filtering_database_item.attrib['ports'] = ports_str
                     else:
                         raise RuntimeError('unknown mac type')
                     xml_filtering_database_item.attrib['macAddress'] = mac
-                    xml_filtering_database_item.attrib['ports'] = ports_str
             else:
                 # TODO non-static situation
                 pass
@@ -179,7 +181,7 @@ class ConfigFileGenerator:
                 xml_entry.append(xml_dest)
                 # <size></size>
                 xml_size: etree.Element = etree.Element('size')
-                xml_size.text = str(int(tsn_flow_info.size / 8))  # bit to byte
+                xml_size.text = str(int(tsn_flow_info.size / 8) - 50)  # TODO bit to byte and reduce overhead
                 xml_entry.append(xml_size)
                 # enhancement part
                 # <group></group>
@@ -215,7 +217,7 @@ class ConfigFileGenerator:
                 _D += str(d) + ' '
             _D = _D.rstrip()
             flow_xml.attrib['destination'] = _D
-            flow_xml.attrib['size'] = str(int(flow.size / 8))  # bit to byte
+            flow_xml.attrib['size'] = str(int(flow.size / 8) - 50)  # bit to byte
             flow_xml.attrib['cycle'] = str(flow.period)
             flow_xml.attrib['deadline'] = str(flow.deadline)
             flow_xml.attrib['reliability'] = str(flow.reliability)
@@ -280,10 +282,11 @@ class ConfigFileGenerator:
                                 node_edge_port_pair_list[tsn_host.device_id]))[0][0]
                 peer_node_id: NodeId = NodeId(solution.graph.edge_mapper[forward_edge_id].out_node.node_id)
                 backward_edge_id: EdgeId = list(filter(
-                    lambda eid: solution.graph.edge_mapper[eid].out_node.node_id == tsn_host.device_id,
+                    lambda eid: solution.graph.edge_mapper[eid].out_node.node_id == tsn_host.device_id and
+                                solution.graph.edge_mapper[eid].in_node.node_id == peer_node_id,
                     solution.graph.edge_mapper))[0]
                 peer_port_id: PortNo = list(filter(lambda edge_port_pair: edge_port_pair[0] == backward_edge_id,
-                                                   node_edge_port_pair_list[peer_node_id]))[0][1]
+                                                       node_edge_port_pair_list[peer_node_id]))[0][1]
                 port: Dict = \
                     {'port_id': port.port_id - 1, 'peer_node_id': peer_node_id, 'peer_port_id': peer_port_id - 1}
                 ports.append(port)
@@ -359,7 +362,7 @@ class ConfigFileGenerator:
             flows: Dict[str, str] = {}
             host_dir: str = os.path.join(hosts_dir, 'host{}'.format(host_id))
             for flow_id, flow_content in host_content.items():
-                flow_filename: str = os.path.join(host_dir, 'flow{}'.format(flow_id))
+                flow_filename: str = os.path.join(host_dir, 'flow{}.xml.cml'.format(flow_id))
                 flows[flow_filename] = flow_content
             hosts_flows_file[host_dir] = flows
         switches_dir: str = os.path.join(schedules_dir, 'switches')

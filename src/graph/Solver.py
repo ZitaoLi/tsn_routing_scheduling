@@ -253,10 +253,12 @@ class Solver:
                         str(solution.scheduling_strategy) + \
                         str(solution.allocating_strategy)
         solution_name = solution_name.replace('.', '_').\
-            replace('ROUTING_STRATEGY', '').replace('SCHEDULING_STRATEGY', '').replace('ALLOCATING_STRATEGY', '').\
-            replace('REDUNDANT_', '').replace('SINGLE_', '').replace('__', '_')
-        solution.solution_name = prefix + solution_name + postfix
+            replace('ROUTING', '').replace('SCHEDULING', '').\
+            replace('ALLOCATING', '').replace('TOPO', '').\
+            replace('REDUNDANT', '').replace('STRATEGY', '').replace('SINGLE_', '').replace('__', '_')
+        solution_name = prefix + solution_name + postfix
         solution_name = solution_name.lower()
+        solution.solution_name = solution_name  # 副作用
         return solution_name
 
     def analyze(self, solution: Solution, target_filename: str = None):

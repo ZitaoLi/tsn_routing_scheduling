@@ -369,9 +369,12 @@ class TSNHostConfigurationInfo(ConfigurationInfo):
             cycle_time: SimTime = m_flow.period
             size: int = m_flow.size
             flow_id: FlowId = m_flow.flow_id
-            start_time: SimTime = flows_strart_time[flow_id]  # TODO
+            if flow_id in flows_strart_time.keys():
+                start_time: SimTime = flows_strart_time[flow_id]  # TODO
+            else:
+                continue
             queue: QueueId = QueueId(7)
-            dest_mac: MacAddress = ''  # TODO
+            dest_mac: MacAddress = node_edge_mac_info.flow_mac_dict[flow_id].group_mac  # TODO
             group_mac: MacAddress = node_edge_mac_info.flow_mac_dict[flow_id].group_mac
             tsn_flow_info: TSNFlowInfo = TSNFlowInfo(
                 flow_id=flow_id, start_time=start_time, queue=queue, dest_mac=dest_mac, group_mac=group_mac,

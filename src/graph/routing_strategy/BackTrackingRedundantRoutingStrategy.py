@@ -1,6 +1,7 @@
 import logging
 from typing import List, Dict, Set
 
+from src import config
 from src.graph.Edge import Edge
 from src.graph.Flow import Flow
 from src.graph.Node import Node
@@ -220,7 +221,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
         # TODO filter feasible state
         # TODO compute reliability
 
-        if len(routes) == 2:
+        if len(routes) == config.FLOW_CONFIG['redundancy_degree']:
             return True
         return False
 
