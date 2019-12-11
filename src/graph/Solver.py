@@ -137,7 +137,7 @@ class Solver:
     def optimize(self,
                  max_iterations: int = config.OPTIMIZATION['max_iterations'],
                  max_no_improve: int = config.OPTIMIZATION['max_no_improve'],
-                 k: int = config.OPTIMIZATION['k']):
+                 k: int = config.OPTIMIZATION['k']) -> Solution:
         start_time: time.process_time = time.perf_counter()
         _o: float = self.objective_function(self.final_solution)
         for i in range(max_iterations):
@@ -149,8 +149,7 @@ class Solver:
         self.runtime = end_time - start_time
         logger.info('initial objective function value = ' + str(_o))
         logger.info('final objective function value = ' + str(self.objective_function(self.final_solution)))
-        if self.visual is True:
-            self.final_solution.graph.draw_gantt()
+        return self.final_solution
 
     def local_search(self, _s: Solution, max_no_improve: int) -> Solution:
         # TODO local search

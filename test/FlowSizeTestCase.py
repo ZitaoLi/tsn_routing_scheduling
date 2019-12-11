@@ -115,8 +115,7 @@ class FlowSizeTestCase(unittest.TestCase):
             pickle.dump(solution, f)
 
     def draw_gantt_chart(self, solution: Solution):
-        if config.TESTING['draw-gantt-chart'] is True:
-            solution.graph.draw_gantt()
+        solution.graph.draw_gantt()
 
     def analyze(self, solution: Solution, prefix=''):
         flow_id_list: List[FlowId] = [flow.flow_id for flow in solution.flows]
@@ -150,7 +149,7 @@ class FlowSizeTestCase(unittest.TestCase):
                         str(solution.scheduling_strategy) + '-' + \
                         str(solution.allocating_strategy)
         filename = filename.replace('.', '_').replace('STRATEGY_', '').replace('_STRATEGY', '') \
-            .replace('TOPO_', '').replace('ROUTING_', '').replace('SCHEDULING_', '').replace('ALLOCATING_', '')
+            .replace('TOPO_', '').replace('_ROUTING_', '').replace('_SCHEDULING_', '').replace('_ALLOCATING_', '')
         # prefix += 'T{}-N{}-'.format(self.round, node_num)
         prefix += 'T{}-N{}-'.format(self.round + config.TESTING['prefix'], node_num)
         filename = path.join(config.flow_size_res_dir, prefix + filename)
