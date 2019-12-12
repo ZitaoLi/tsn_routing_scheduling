@@ -37,7 +37,7 @@ class SimulationTestCase2(unittest.TestCase):
         else:
             self.flows: List[Flow] = FlowGenerator.load_flows()
 
-        config.FLOW_CONFIG['redundancy_degree'] = 6
+        config.FLOW_CONFIG['redundancy_degree'] = 5
         config.GRAPH_CONFIG['routing_strategy'] = ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY
         # config.GRAPH_CONFIG['routing_strategy'] = ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY
         config.GRAPH_CONFIG['scheduling_strategy'] = SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY
@@ -54,6 +54,16 @@ class SimulationTestCase2(unittest.TestCase):
         import os
         filename: str = os.path.join(config.res_dir, solution_name)
         solver.analyze(solution=self.solution, target_filename=filename)  # analyze solution
+        config.OPTIMIZATION['enable'] = True
+        if config.OPTIMIZATION['enable'] is True:
+            # optimized method
+            self.solution = solver.optimize()  # optimize
+            solver.draw_gantt_chart(self.solution)  # draw gantt chart
+            solution_name: str = solver.generate_solution_name(
+                solution=self.solution,
+                prefix='o_n7_f10_r5_')
+            filename: str = os.path.join(config.res_dir, solution_name)
+            solver.analyze(solution=self.solution, target_filename=filename)
         solver.save_solution(solution=self.solution)  # save solution
 
         tsn_network_factory: TSNNetworkFactory = TSNNetworkFactory()
