@@ -7,7 +7,7 @@ from src.graph.Flow import Flow
 from src.graph.Node import Node
 from src.graph.routing_strategy.RedundantRoutingStrategy import RedundantRoutingStrategy
 from src.graph.routing_strategy.RoutingStrategy import RoutingStrategy
-from src.type import FlowId
+from src.type import FlowId, EdgeId
 
 logger = logging.getLogger(__name__)
 
@@ -60,21 +60,24 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
 
     def route_single_flow(self, flow: Flow) -> bool:
         _b: float = flow.size / flow.period
-        if self.route_one2many(flow.flow_id, flow.source, flow.destinations, _b):
+        if self.route_one2many(flow.flow_id, flow.source, flow.destinations, _b,
+                               size=flow.size, deadline=flow.deadline):
             logger.info('routing for flow [' + str(flow.flow_id) + '] succeed')
             return True
         else:
             logger.info('routing for flow [' + str(flow.flow_id) + '] failure')
             return False
 
-    def route_one2many(self, fid: int, src: int, dest: List[int], b: float) -> bool:
+    def route_one2many(self, fid: int, src: int, dest: List[int], b: float,
+                       size: int = 0, deadline: int = 0) -> bool:
         _routes: List[List[List[int]]] = []  # routes set for one-to-many
         _walked_edges: Set[int] = set()  # walked edges set
         # if not all are successful ,then return False
         for _d in dest:
             __routes: List[List[int]] = []  # routes set for one-to-one
             while not self.check_reliability(__routes):
-                _route: List[int] = self.route_one2one(fid, src, _d, b, _walked_edges)  # route for one-to-one
+                _route: List[int] = self.route_one2one(fid, src, _d, b, _walked_edges,
+                                                       size=size, deadline=deadline)  # route for one-to-one
                 if len(_route) != 0:
                     __routes.append(_route)
                     for _eid in _route:
@@ -93,7 +96,8 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
                     self.flow_mapper[fid].walked_edges.add(_eid)
         return True
 
-    def route_one2one(self, fid: int, src: int, dest: int, b: float, walked_edges: Set[int]) -> List[int]:
+    def route_one2one(self, fid: int, src: int, dest: int, b: float, walked_edges: Set[int],
+                      size: int = 0, deadline: int = 0) -> List[int]:
         # get source edge
         src_node: Node = self.node_mapper[src]
         src_edge: Edge = src_node.out_edge[0]  # source node has only one outbound edge
@@ -105,7 +109,10 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
         # back tracing to find a end-to-end route
         route: List[List[int]] = []  # final route
         _route: List[int] = []  # back-tracing stack
-        self.back_trace(fid, route, _route, src_edge.edge_id, 0, dest_edge.edge_id, b, weight, walked_edges)
+        _hops: int = self.compute_hops(link_bandwidth=config.GRAPH_CONFIG['all-bandwidth'],
+                                       flow_size=size, flow_deadline=deadline)  # hops of routes
+        self.back_trace(
+            fid, route, _route, src_edge.edge_id, 0, dest_edge.edge_id, b, weight, walked_edges, hops=_hops, hop=1)
         # recover node color
         for _nid in self.nodes:
             _n: Node = self.node_mapper[_nid]
@@ -122,17 +129,33 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
         else:
             return []
 
+    def compute_hops(self, link_bandwidth: float = 0, flow_size: int = 0, flow_deadline: int = 0) -> int:
+        import math
+        if link_bandwidth is not None or link_bandwidth != 0:
+            if flow_size is not Node or flow_size != 0:
+                if flow_deadline is not None or flow_deadline != 0:
+                    hops: int = math.ceil(flow_deadline / (flow_size / link_bandwidth))
+                    if hops < config.FLOW_CONFIG['max-hops']:
+                        return hops
+        return config.FLOW_CONFIG['max-hops']  # max hops
+
     def back_trace(self, fid: int, route: List[List[int]], _route: List[int], eid: int, n: int, dest_e: int, b: float,
-                   weight: List[List[int]], walked_edges: Set[int]):
+                   weight: List[List[int]], walked_edges: Set[int], hops: int = 0, hop: int = 0):
         _e: Edge = self.edge_mapper[eid]
         _w = b / _e.bandwidth
-        if _e.weight + _w > 1:
-            return False
+        # if _e.weight + _w > 1:  # check bandwidth
+        #     return False
+        # check bandwidth
         if eid in walked_edges:
             if self.__overlapped is False:
+                if _e.weight + _w > 1:  # check bandwidth
+                    return False
                 _e.weight += _w  # add weight on edge
         else:
+            if _e.weight + _w > 1:  # check bandwidth
+                return False
             _e.weight += _w  # add weight on edge
+
         _in: Node = _e.in_node
         _in.color = 1  # set inbound node color to 1
         _route.append(eid)  # append edge to route
@@ -147,10 +170,12 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
             weight.append(_weight)
             return True
         else:
-            _E: List[Edge] = self.get_feasible_edges(eid, b)  # get feasible edges
+            _E: List[Edge] = \
+                self.get_feasible_edges(eid, b, hop=hop, hops=hops, walked_edges=walked_edges)  # get feasible edges
             _E: List[Edge] = self.sort_edges(_E, fid)  # sorting operation without side effect
             for __e in _E:
-                self.back_trace(fid, route, _route, __e.edge_id, n + 1, dest_e, b, weight, walked_edges)
+                self.back_trace(
+                    fid, route, _route, __e.edge_id, n + 1, dest_e, b, weight, walked_edges, hops=hops, hop=hop+1)
                 if len(route) != 0:
                     break
             if eid in walked_edges:
@@ -160,9 +185,13 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
                 _e.weight -= _w  # recover weight on edge
             _route.pop()  # recover route
 
-    def get_feasible_edges(self, edge_id: int, b: float) -> List[Edge]:
+    def get_feasible_edges(
+            self, edge_id: int, b: float, hop: int = 0, hops: int = 0, walked_edges: Set[int] = None) -> List[Edge]:
         '''
         get feasible outbound edges
+        :param walked_edges:
+        :param hops:
+        :param hop:
         :param edge_id: inbound edge id
         :param b: bandwidth requirement of flow
         :return: List[Edge]
@@ -176,15 +205,56 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
             _e: Edge = _E.pop()
             _on: Node = _e.out_node
             _w: float = _e.weight
-            _b: int = _e.bandwidth
+            _b: float = _e.bandwidth
             # check whether the next node's color is red or bandwidth overflow
-            if _on.color != 1:  # TODO check end-to-end delay
+            # if _on.color != 1:  # TODO check end-to-end delay
+            if self.check(edge=_e, bandwidth=b, hop=hop, hops=hops, walked_edges=walked_edges):
                 if self.__overlapped is True:
                     if _w + b / _b > 1:
                         continue
                 __E.append(_e)
                 continue
         return __E
+
+    def check(self, **kwargs) -> bool:
+        '''
+        check next edge
+        :param kwargs:
+        :return:
+        '''
+        if 'edge' not in kwargs.keys():
+            raise RuntimeError('miss parameter "edge: Edge"')
+        if 'bandwidth' not in kwargs.keys():
+            raise RuntimeError('miss parameter "bandwidth: float"')
+        if 'hop' not in kwargs.keys():
+            raise RuntimeError('miss parameter "hop: int"')
+        if 'hops' not in kwargs.keys():
+            raise RuntimeError('miss parameter "hops: int"')
+        if 'walked_edges' not in kwargs.keys():
+            raise RuntimeError('miss parameter "walked_edges: Set(EdgeId)"')
+        edge: Edge = kwargs['edge']
+        if edge.out_node.color == 1:
+            logger.info('unavailable node [{}]'.format(edge.out_node.node_id))
+            return False  # unavailable node
+        hops: int = kwargs['hops']
+        hop: int = kwargs['hop']
+        if hops < hop + 1 or hops == 0:
+            logger.info('edge [{}] out of hops "{}"'.format(edge.edge_id, hops))
+            return False  # out of hops constraint
+        walked_edge: Set[EdgeId] = kwargs['walked_edges']
+        bandwidth: float = kwargs['bandwidth']
+        appending_weight: float = bandwidth / edge.bandwidth
+        appended_weight: float = edge.weight + appending_weight
+        if edge.edge_id in walked_edge:
+            if self.__overlapped is False:
+                if appended_weight > 1:
+                    logger.info('edge [{}] out of bandwidth'.format(edge.edge_id))
+                    return False  # out of bandwidth
+        else:
+            if appended_weight > 1:
+                logger.info('edge [{}] out of bandwidth'.format(edge.edge_id))
+                return False  # out of bandwidth
+        return True
 
     def sort_edges(self, edges: List[Edge], fid: int) -> List[Edge]:
         '''

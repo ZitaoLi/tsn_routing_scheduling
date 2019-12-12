@@ -48,3 +48,7 @@ class RoutingStrategy(metaclass=abc.ABCMeta):
         :return: set of failed flows
         '''
         pass
+
+    @abc.abstractmethod
+    def check(self, **kwargs) -> bool:
+        pass

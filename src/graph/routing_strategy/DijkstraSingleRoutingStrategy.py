@@ -48,3 +48,6 @@ class DijkstraSingleRoutingStrategy(SingleRoutingStrategy):
             edge_id_list.append(edge_id)
             in_node_id = out_node_id
         return edge_id_list
+
+    def check(self, **kwargs) -> bool:
+        pass

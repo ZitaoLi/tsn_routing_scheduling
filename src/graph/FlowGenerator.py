@@ -29,7 +29,25 @@ class FlowGenerator:
         return _F[-1].period
 
     @staticmethod
-    def generate_flows(edge_nodes: List[NodeId] = None, graph: nx.Graph = None, **kargs) -> List[Flow]:
+    def generate_flow_properties(flow_num: int = 0) -> List[Dict]:
+        flow_properties: List[Dict] = []
+        for i in range(flow_num):
+            properties: Dict = {}
+            properties['size'] = \
+                config.FLOW_CONFIG['size-set'][random.randint(0, len(config.FLOW_CONFIG['size-set'])) - 1]
+            properties['period'] = \
+                config.FLOW_CONFIG['period-set'][random.randint(0, len(config.FLOW_CONFIG['period-set'])) - 1]
+            properties['reliability'] = \
+                config.FLOW_CONFIG['reliability-set'][random.randint(0, len(config.FLOW_CONFIG['reliability-set'])) - 1]
+            properties['deadline'] = \
+                config.FLOW_CONFIG['deadline-set'][random.randint(0, len(config.FLOW_CONFIG['deadline-set'])) - 1]
+            properties['dest-num'] = \
+                config.FLOW_CONFIG['dest-num-set'][random.randint(0, len(config.FLOW_CONFIG['dest-num-set'])) - 1]
+            flow_properties.append(properties)
+        return flow_properties
+
+    @staticmethod
+    def generate_flows(edge_nodes: List[NodeId] = None, graph: nx.Graph = None, **kwargs) -> List[Flow]:
         '''
         generate flow randomly
         :param graph:
@@ -38,25 +56,32 @@ class FlowGenerator:
         '''
         flow_num: int = config.FLOW_CONFIG['flow-num']
         flow_id: int = 1
-        if 'flow_num' in kargs.keys():
-            flow_num = kargs['flow_num']
-        if 'flow_id' in kargs.keys():
-            flow_id = kargs['flow_id']
+        if 'flow_num' in kwargs.keys():
+            flow_num = kwargs['flow_num']
+        if 'flow_id' in kwargs.keys():
+            flow_id = kwargs['flow_id']
         if len(config.FLOW_CONFIG['dest-num-set']) + 1 > len(edge_nodes):
             raise RuntimeError('too less edge nodes')
         _F: List[Flow] = []
         _fid = flow_id
         for _i in range(flow_num):
-            _s: int = \
-                config.FLOW_CONFIG['size-set'][random.randint(0, len(config.FLOW_CONFIG['size-set'])) - 1]
-            _p: int = \
-                config.FLOW_CONFIG['period-set'][random.randint(0, len(config.FLOW_CONFIG['period-set'])) - 1]
-            _dn: int = \
-                config.FLOW_CONFIG['dest-num-set'][random.randint(0, len(config.FLOW_CONFIG['dest-num-set'])) - 1]
-            _rl: int = \
-                config.FLOW_CONFIG['reliability-set'][random.randint(0, len(config.FLOW_CONFIG['reliability-set'])) - 1]
-            _dl: int = \
-                config.FLOW_CONFIG['deadline-set'][random.randint(0, len(config.FLOW_CONFIG['deadline-set'])) - 1]
+            if 'flow_properties' in kwargs.keys():
+                _s: int = kwargs['flow_properties'][_i]['size']
+                _p: int = kwargs['flow_properties'][_i]['period']
+                _rl: int = kwargs['flow_properties'][_i]['reliability']
+                _dl: int = kwargs['flow_properties'][_i]['deadline']
+                _dn: int = kwargs['flow_properties'][_i]['dest-num']
+            else:
+                _s: int = \
+                    config.FLOW_CONFIG['size-set'][random.randint(0, len(config.FLOW_CONFIG['size-set'])) - 1]
+                _p: int = \
+                    config.FLOW_CONFIG['period-set'][random.randint(0, len(config.FLOW_CONFIG['period-set'])) - 1]
+                _rl: int = \
+                    config.FLOW_CONFIG['reliability-set'][random.randint(0, len(config.FLOW_CONFIG['reliability-set'])) - 1]
+                _dl: int = \
+                    config.FLOW_CONFIG['deadline-set'][random.randint(0, len(config.FLOW_CONFIG['deadline-set'])) - 1]
+                _dn: int = \
+                    config.FLOW_CONFIG['dest-num-set'][random.randint(0, len(config.FLOW_CONFIG['dest-num-set'])) - 1]
             _o: int = \
                 edge_nodes[random.randint(0, len(edge_nodes)) - 1]
             _D: List[int] = []

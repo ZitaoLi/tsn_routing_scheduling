@@ -67,6 +67,7 @@ FLOW_CONFIG = {
     'reliability-set': [0.97, 0.98, 0.99],
     'deadline-set': [int(1e8), int(5e7), int(2e7)],
     'redundancy_degree': 2,
+    'max-hops': 16,  # max hops
 }
 
 OPTIMIZATION = {
