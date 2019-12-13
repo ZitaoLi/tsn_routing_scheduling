@@ -9,7 +9,7 @@
     "python >=3.5",
     "typed-ast >=1.3.1,<1.4.0"
   ],
-  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\mypy-0.701-py_1",
+  "extracted_package_dir": "C:\\Users\\homet\\Anaconda3\\pkgs\\mypy-0.701-py_1",
   "features": "",
   "files": [
     "Lib/site-packages/mypy-0.701.dist-info/INSTALLER",
@@ -1375,13 +1375,13 @@
   "license": "MIT",
   "license_family": "MIT",
   "link": {
-    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\mypy-0.701-py_1",
+    "source": "C:\\Users\\homet\\Anaconda3\\pkgs\\mypy-0.701-py_1",
     "type": 1
   },
   "md5": "0dbb2c26670fde1f3d79001400707247",
   "name": "mypy",
   "noarch": "python",
-  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\mypy-0.701-py_1.tar.bz2",
+  "package_tarball_full_path": "C:\\Users\\homet\\Anaconda3\\pkgs\\mypy-0.701-py_1.tar.bz2",
   "package_type": "noarch_python",
   "paths_data": {
     "paths": [
@@ -10390,7 +10390,7 @@
     ],
     "paths_version": 1
   },
-  "requested_spec": "mypy",
+  "requested_spec": "None",
   "size": 936443,
   "subdir": "noarch",
   "timestamp": 1556659352400,

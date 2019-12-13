@@ -21,6 +21,8 @@ GRAPH_CONFIG = {
     'hyper-period': int(3e5),  # 300us = 3e5ns, [unit: ns],
     'all-bandwidth': int(1e0),  # 1Gbps = 1bit/ns, [unit: bpns]
     'max-bandwidth': int(1e0),  # maximum bandwidth of all edges
+    'all-propagation-delay': 0,
+    'all-per': 0.02,
     'overlapped-routing': True,  # whether routing with overlapping or not
     'time-granularity': TIME_GRANULARITY.NS,  # time granularity, default is ns
     'edge-nodes-distribution-degree': 6,  # distribution degree of edge nodes
@@ -97,5 +99,6 @@ TESTING = {
     'save-solution': False,
     'graph-core-size': [10, 20],
     'graph-edge-size': [],
-    'generate-flows': False
+    'generate-flows': False,
+    'simulation-time': 1.2  #s
 }

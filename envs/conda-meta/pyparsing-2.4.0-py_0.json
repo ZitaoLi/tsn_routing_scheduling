@@ -6,7 +6,7 @@
   "depends": [
     "python"
   ],
-  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\pyparsing-2.4.0-py_0",
+  "extracted_package_dir": "C:\\Users\\homet\\Anaconda3\\pkgs\\pyparsing-2.4.0-py_0",
   "features": "",
   "files": [
     "Lib/site-packages/pyparsing-2.4.0.dist-info/INSTALLER",
@@ -21,13 +21,13 @@
   "fn": "pyparsing-2.4.0-py_0.tar.bz2",
   "license": "MIT",
   "link": {
-    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\pyparsing-2.4.0-py_0",
+    "source": "C:\\Users\\homet\\Anaconda3\\pkgs\\pyparsing-2.4.0-py_0",
     "type": 1
   },
   "md5": "f6e70d858b30e70e663fd37cc20564ef",
   "name": "pyparsing",
   "noarch": "python",
-  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\pyparsing-2.4.0-py_0.tar.bz2",
+  "package_tarball_full_path": "C:\\Users\\homet\\Anaconda3\\pkgs\\pyparsing-2.4.0-py_0.tar.bz2",
   "package_type": "noarch_python",
   "paths_data": {
     "paths": [
