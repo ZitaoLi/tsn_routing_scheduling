@@ -75,7 +75,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
         # if not all are successful ,then return False
         for _d in dest:
             __routes: List[List[int]] = []  # routes set for one-to-one
-            while not self.check_reliability(__routes):
+            while not self.check_e2e_reliability(__routes, src, dest, rel=self.flow_mapper[fid].reliability):
                 _route: List[int] = self.route_one2one(fid, src, _d, b, _walked_edges,
                                                        size=size, deadline=deadline)  # route for one-to-one
                 if len(_route) != 0:

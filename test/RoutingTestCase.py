@@ -1,4 +1,5 @@
 import copy
+import logging
 import unittest
 from typing import List, Tuple
 
@@ -10,7 +11,10 @@ from src.graph.Graph import Graph
 from src.graph.Solver import Solver
 from src.graph.TopoGenerator import TopoGenerator
 from src.graph.routing_strategy.RoutingStrategyFactory import RoutingStrategyFactory
-from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY
+from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, RELIABILITY_STRATEGY
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class RoutingTestCase(unittest.TestCase):
@@ -52,10 +56,10 @@ class RoutingTestCase(unittest.TestCase):
         solver: Solver = Solver(nx_graph=self.graph,
                                 flows=self.flows,
                                 topo_strategy=None,
-                                routing_strategy=ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
+                                routing_strategy=ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
                                 scheduling_strategy=SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                                allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY)
-        solver.visual = True
+                                allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY,
+                                reliability_strategy=RELIABILITY_STRATEGY.MULTI_ROUTES_RELIABILITY_STRATEGY)
         self.solution = solver.generate_init_solution()
 
 

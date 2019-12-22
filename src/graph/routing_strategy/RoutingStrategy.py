@@ -5,6 +5,8 @@ from typing import List, Dict, Set
 from src.graph.Edge import Edge
 from src.graph.Flow import Flow
 from src.graph.Node import Node
+from src.graph.reliability_strategy.MultiRoutesReliabilityStrategy import MultiRoutesReliabilityStrategy
+from src.graph.reliability_strategy.ReliabilityStrategy import ReliabilityStrategy
 from src.type import FlowId
 
 
@@ -16,6 +18,7 @@ class RoutingStrategy(metaclass=abc.ABCMeta):
     edge_mapper: Dict[int, Edge]
     flow_mapper: Dict[int, Flow]
     failure_queue: Set[FlowId]
+    _reliability_strategy: ReliabilityStrategy
 
     def __init__(self, nodes: List[int], edges: List[int], flows: List[int], node_mapper: Dict[int, Node],
                  edge_mapper: Dict[int, Edge], flow_mapper: Dict[int, Flow]):
@@ -26,6 +29,16 @@ class RoutingStrategy(metaclass=abc.ABCMeta):
         self.edge_mapper = edge_mapper
         self.flow_mapper = flow_mapper
         self.failure_queue = set()
+        self._reliability_strategy = \
+            MultiRoutesReliabilityStrategy(nodes, edges, flows, node_mapper, edge_mapper, flow_mapper)
+
+    @property
+    def reliability_strategy(self):
+        return self._reliability_strategy
+
+    @reliability_strategy.setter
+    def reliability_strategy(self, reliability_strategy: ReliabilityStrategy):
+        self._reliability_strategy = reliability_strategy
 
     def sort_flows_id_list(self, flows: List[int]):
         '''
@@ -51,4 +64,9 @@ class RoutingStrategy(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def check(self, **kwargs) -> bool:
+        '''
+        check something
+        :param kwargs:
+        :return:
+        '''
         pass

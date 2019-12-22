@@ -18,6 +18,8 @@ from src.graph.TimeSlotAllocator import TimeSlotAllocator, AllocationBlock
 from src.graph.allocating_strategy.AEAPAllocatingStrategy import AEAPAllocatingStrategy
 from src.graph.allocating_strategy.AllocatingStrategy import AllocatingStrategy
 from src.graph.allocating_strategy.AllocatingStrategyFactory import AllocatingStrategyFactory
+from src.graph.reliability_strategy.ReliabilityStrategy import ReliabilityStrategy
+from src.graph.reliability_strategy.ReliabilityStrategyFactory import ReliabilityStrategyFactory
 from src.graph.routing_strategy.BackTrackingRedundantRoutingStrategy import BackTrackingRedundantRoutingStrategy
 from src.graph.routing_strategy.RoutingStrategy import RoutingStrategy
 from src.graph.routing_strategy.RoutingStrategyFactory import RoutingStrategyFactory
@@ -25,7 +27,8 @@ from src.graph.scheduling_strategy.LRFRedundantScheduling import LRFRedundantSch
 from src.graph.scheduling_strategy.SchedulingStrategy import SchedulingStrategy
 from src.graph.scheduling_strategy.SchedulingStrategyFactory import SchedulingStrategyFactory
 from src.graph.topo_strategy.TopoStrategy import TopoStrategy
-from src.type import FlowId, TOPO_STRATEGY, ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY
+from src.type import FlowId, TOPO_STRATEGY, ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, \
+    RELIABILITY_STRATEGY
 from src.utils.Singleton import SingletonDecorator
 
 logger = logging.getLogger(__name__)
@@ -40,12 +43,14 @@ class Solution:
     routing_strategy: ROUTING_STRATEGY
     scheduling_strategy: SCHEDULING_STRATEGY
     allocating_strategy: ALLOCATING_STRATEGY
+    reliability_strategy: RELIABILITY_STRATEGY
 
     def __init__(self, graph: Graph = None, flows: List[Flow] = None,
                  topo_strategy: TOPO_STRATEGY = None,
                  routing_strategy: ROUTING_STRATEGY = None,
                  scheduling_strategy: SCHEDULING_STRATEGY = None,
                  allocating_strategy: ALLOCATING_STRATEGY = None,
+                 reliability_strategy: RELIABILITY_STRATEGY = None,
                  solution_name: str = 'default'):
         self.graph = graph
         self.flows = [] if flows is None else flows
@@ -54,12 +59,28 @@ class Solution:
         self.routing_strategy = routing_strategy
         self.scheduling_strategy = scheduling_strategy
         self.allocating_strategy = allocating_strategy
+        self.reliability_strategy = reliability_strategy
         self.solution_name = solution_name
+
+    def analyze_flow_routes_repetition_degree(self, filename: str = None):
+        '''
+        analyze repetition degree between the same talker/listener pair
+        :param filename:
+        :return:
+        '''
+        pass
+
+    def analyze_flow_routes_reuse_degree(self, filename: str = None):
+        '''
+        analyze repetition degree between different talker/listener pairs
+        :param filename:
+        :return:
+        '''
+        pass
 
 
 class Solver:
     final_solution: Solution
-    visual: bool
     runtime: float
 
     def __init__(self, nx_graph: nx.Graph = None,
@@ -68,6 +89,7 @@ class Solver:
                  routing_strategy: ROUTING_STRATEGY = None,
                  scheduling_strategy: SCHEDULING_STRATEGY = None,
                  allocating_strategy: ALLOCATING_STRATEGY = None,
+                 reliability_strategy: RELIABILITY_STRATEGY = None,
                  solution_name: str = 'BaseSolution'):
         graph: Graph = Graph(nx_graph=nx_graph,
                              nodes=list(nx_graph.nodes),
@@ -78,8 +100,7 @@ class Solver:
         self.final_solution = Solution(graph, flows,
                                        topo_strategy=topo_strategy, routing_strategy=routing_strategy,
                                        scheduling_strategy=scheduling_strategy, allocating_strategy=allocating_strategy,
-                                       solution_name=solution_name)
-        self.visual = False
+                                       reliability_strategy=reliability_strategy,  solution_name=solution_name)
         self.runtime = 0
 
     @staticmethod
@@ -106,13 +127,16 @@ class Solver:
         _F_r: List[int] = [_flow.flow_id for _flow in self.final_solution.flows]
         logger.info('route ' + str(_F_r) + '...')
         # _g.flow_router.route_flows(_F)  # routing
-        # set routing strategy and route flows
         _routing_strategy: RoutingStrategy = \
             RoutingStrategyFactory.get_instance(self.final_solution.routing_strategy, _g)
         _scheduling_strategy: SchedulingStrategy = \
             SchedulingStrategyFactory.get_instance(self.final_solution.scheduling_strategy, _g)
         _allocating_strategy: AllocatingStrategy = \
             AllocatingStrategyFactory.get_instance(self.final_solution.allocating_strategy)
+        _reliability_strategy: ReliabilityStrategy = \
+            ReliabilityStrategyFactory.get_instance(self.final_solution.reliability_strategy, _g)
+        # set routing strategy and route flows
+        _routing_strategy.reliability_strategy = _reliability_strategy
         _g.flow_router.routing_strategy = _routing_strategy
         _g.flow_router.overlapped = config.GRAPH_CONFIG['overlapped-routing']
         start_time: time.process_time = time.perf_counter()  # start time
@@ -129,9 +153,6 @@ class Solver:
         self.runtime = end_time - start_time
         _g.combine_failure_queue()
         self.final_solution.failure_flows = list(_g.failure_queue)
-        # visualize Gannt chart
-        if self.visual is True:
-            _g.draw_gantt()
         return self.final_solution
 
     def optimize(self,
@@ -280,11 +301,15 @@ class Solver:
         average_load: float = np.average(load_list)  # averaged load
         median_load: float = np.median(load_list)  # median load
         runtime: float = '{:.9f}'.format(self.runtime)
-        logger.info('number of successful flows: ' + str(successful_flow_num))
+        logging.info('number of flows: {}'.format(flow_num))
+        logging.info('number of nodes: {}'.format(node_num))
+        logger.info('number of available flows: ' + str(successful_flow_num))
         logger.info('ideal throughput: ' + str(ideal_throughput * 1000) + 'Mbps')
+        logger.info('actual throughput: ' + str(actual_throughput * 1000) + 'Mbps')
         logger.info('runtime: {}s'.format(runtime))
-        logger.info('maximun load {}%'.format(max_load * 100))
+        logger.info('maximum load {}%'.format(max_load * 100))
         logger.info('average load {}%'.format(average_load * 100))
+        logger.info('median load {}%'.format(median_load * 100))
         import csv
         with open(target_filename + '.csv', 'a', newline='') as file:
             writer: csv.writer = csv.writer(file)
