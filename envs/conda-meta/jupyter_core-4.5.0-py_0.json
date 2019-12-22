@@ -7,7 +7,7 @@
     "python",
     "traitlets"
   ],
-  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\jupyter_core-4.5.0-py_0",
+  "extracted_package_dir": "C:\\Users\\homet\\Anaconda3\\pkgs\\jupyter_core-4.5.0-py_0",
   "features": "",
   "files": [
     "Lib/site-packages/jupyter.py",
@@ -87,13 +87,13 @@
   "license": "BSD 3-clause",
   "license_family": "BSD",
   "link": {
-    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\jupyter_core-4.5.0-py_0",
+    "source": "C:\\Users\\homet\\Anaconda3\\pkgs\\jupyter_core-4.5.0-py_0",
     "type": 1
   },
   "md5": "d70a384bcdc546c3072e89e41fec89bc",
   "name": "jupyter_core",
   "noarch": "python",
-  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\jupyter_core-4.5.0-py_0.tar.bz2",
+  "package_tarball_full_path": "C:\\Users\\homet\\Anaconda3\\pkgs\\jupyter_core-4.5.0-py_0.tar.bz2",
   "package_type": "noarch_python",
   "paths_data": {
     "paths": [

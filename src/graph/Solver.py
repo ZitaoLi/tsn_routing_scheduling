@@ -122,6 +122,10 @@ class Solver:
         self.final_solution.flows.append(flow)
         self.final_solution.graph.add_flows([flow])
 
+    def set_flows(self, flows: List[Flow]):
+        self.final_solution.flows = flows
+        self.final_solution.graph.flows = flows
+
     def generate_init_solution(self) -> Solution:
         _g: Graph = self.final_solution.graph
         _F_r: List[int] = [_flow.flow_id for _flow in self.final_solution.flows]
@@ -253,12 +257,14 @@ class Solver:
             pass  # TODO how to handle the same situation?
 
     def save_solution(self, solution: Solution = None, filename: str = None):
-        if solution is None:
-            raise RuntimeError('miss parameters')
         import os
         import pickle
+        if solution is None:
+            solution: Solution = self.final_solution
         if filename is None:
             filename = os.path.join(config.solutions_res_dir, solution.solution_name)
+        else:
+            filename = os.path.join(config.solutions_res_dir, filename)
         with open(filename, 'wb') as f:
             pickle.dump(solution, f)
 

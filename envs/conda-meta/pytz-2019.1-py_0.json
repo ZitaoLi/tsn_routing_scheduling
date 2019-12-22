@@ -6,7 +6,7 @@
   "depends": [
     "python"
   ],
-  "extracted_package_dir": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\pytz-2019.1-py_0",
+  "extracted_package_dir": "C:\\Users\\homet\\Anaconda3\\pkgs\\pytz-2019.1-py_0",
   "features": "",
   "files": [
     "Lib/site-packages/pytz-2019.1.dist-info/INSTALLER",
@@ -631,13 +631,13 @@
   "fn": "pytz-2019.1-py_0.tar.bz2",
   "license": "MIT",
   "link": {
-    "source": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\pytz-2019.1-py_0",
+    "source": "C:\\Users\\homet\\Anaconda3\\pkgs\\pytz-2019.1-py_0",
     "type": 1
   },
   "md5": "cbb1721fde782f33a3c80ac645ae1951",
   "name": "pytz",
   "noarch": "python",
-  "package_tarball_full_path": "C:\\Users\\Lztao\\Anaconda3\\pkgs\\pytz-2019.1-py_0.tar.bz2",
+  "package_tarball_full_path": "C:\\Users\\homet\\Anaconda3\\pkgs\\pytz-2019.1-py_0.tar.bz2",
   "package_type": "noarch_python",
   "paths_data": {
     "paths": [

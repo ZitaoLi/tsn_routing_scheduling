@@ -26,7 +26,7 @@ class GraphSizeTestCase(unittest.TestCase):
         config.FLOW_CONFIG['flow-num'] = 100
         config.TESTING['x-axis-gap'] = 2
         config.GRAPH_CONFIG['edge-node-num'] = 10
-        config.TESTING['round'] = [1, 2]  # [1, 5]
+        config.TESTING['round'] = [3, 5]  # [1, 5]
         config.TESTING['generate-flows'] = True
         config.OPTIMIZATION['enable'] = False
         config.FLOW_CONFIG['deadline-set'] = [int(1e9)]

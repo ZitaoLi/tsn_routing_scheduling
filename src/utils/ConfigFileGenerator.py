@@ -320,10 +320,12 @@ class ConfigFileGenerator:
         template: jinja2.Template = ConfigFileGenerator.load_template(config.template_dir, 'test_scenario_template.ned')
         return template.render(
             solution_name=solution.solution_name.lower(),
-            simlation_time='9s',
+            simlation_time='{}s'.format(config.TESTING['simulation-time']),
             hosts=hosts,
             switches=switches,
-            link={'delay': '0ns', 'datarate': '1Gbps', 'per': '0'})
+            link={'delay': '{}ns'.format(config.GRAPH_CONFIG['all-propagation-delay']),
+                  'datarate': '{}Gbps'.format(config.GRAPH_CONFIG['all-bandwidth']),
+                  'per': '{}'.format(config.GRAPH_CONFIG['all-per'])})
 
     @staticmethod
     def create_test_scenario(tsn_network: TSNNetwork = None,
@@ -362,7 +364,7 @@ class ConfigFileGenerator:
             flows: Dict[str, str] = {}
             host_dir: str = os.path.join(hosts_dir, 'host{}'.format(host_id))
             for flow_id, flow_content in host_content.items():
-                flow_filename: str = os.path.join(host_dir, 'flow{}.xml.cml'.format(flow_id))
+                flow_filename: str = os.path.join(host_dir, 'flow{}.xml'.format(flow_id))
                 flows[flow_filename] = flow_content
             hosts_flows_file[host_dir] = flows
         switches_dir: str = os.path.join(schedules_dir, 'switches')
