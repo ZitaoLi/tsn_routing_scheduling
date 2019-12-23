@@ -13,7 +13,7 @@ class ReliabilityStrategyFactory(object):
             return MultiRoutesReliabilityStrategy(graph.nodes, graph.edges, graph.flows, graph.node_mapper,
                                                   graph.edge_mapper, graph.flow_mapper)
         elif strategy_name == RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY:
-            EnumerationMethodReliabilityStrategy(graph.nodes, graph.edges, graph.flows, graph.node_mapper,
-                                                 graph.edge_mapper, graph.flow_mapper)
+            return EnumerationMethodReliabilityStrategy(graph.nodes, graph.edges, graph.flows, graph.node_mapper,
+                                                        graph.edge_mapper, graph.flow_mapper)
         else:
             raise RuntimeError("reliability strategy doesn't exist")

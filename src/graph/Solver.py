@@ -95,12 +95,15 @@ class Solver:
                              nodes=list(nx_graph.nodes),
                              edges=list(nx_graph.edges),
                              hp=config.GRAPH_CONFIG['hyper-period'])
-        graph.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])
+        # TODO set bandwidth to edges
+        graph.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])  # set bandwidth
+        # TODO set error rate to edges
+        graph.set_all_error_rate(config.GRAPH_CONFIG['all-per'])  # set error rate
         graph.add_flows(flows)
         self.final_solution = Solution(graph, flows,
                                        topo_strategy=topo_strategy, routing_strategy=routing_strategy,
                                        scheduling_strategy=scheduling_strategy, allocating_strategy=allocating_strategy,
-                                       reliability_strategy=reliability_strategy,  solution_name=solution_name)
+                                       reliability_strategy=reliability_strategy, solution_name=solution_name)
         self.runtime = 0
 
     @staticmethod
@@ -140,20 +143,21 @@ class Solver:
         _reliability_strategy: ReliabilityStrategy = \
             ReliabilityStrategyFactory.get_instance(self.final_solution.reliability_strategy, _g)
         # set routing strategy and route flows
-        _routing_strategy.reliability_strategy = _reliability_strategy
+        # _routing_strategy.reliability_strategy = _reliability_strategy
         _g.flow_router.routing_strategy = _routing_strategy
+        _g.flow_router.reliability_strategy = _reliability_strategy
         _g.flow_router.overlapped = config.GRAPH_CONFIG['overlapped-routing']
         start_time: time.process_time = time.perf_counter()  # start time
-        _g.flow_router.route(_F_r)
-        # select successful flows after routing
-        _F_s = [_fid for _fid in _F_r if _fid not in _g.flow_router.failure_queue]
+        _g.flow_router.route(_F_r)  # route
+        _F_s = [_fid for _fid in _F_r if
+                _fid not in _g.flow_router.failure_queue]  # select successful flows after routing
         logger.info('schedule ' + str(_F_s) + '...')
         # _g.flow_scheduler.schedule_flows(_F)  # scheduling
         # set scheduling and allocating strategy and schedule flows
         _g.flow_scheduler.scheduling_strategy = _scheduling_strategy
         _g.flow_scheduler.allocating_strategy = _allocating_strategy
-        _g.flow_scheduler.schedule(_F_s)
-        end_time: time.process_time = time.perf_counter()
+        _g.flow_scheduler.schedule(_F_s)  # schedule
+        end_time: time.process_time = time.perf_counter()  # end time
         self.runtime = end_time - start_time
         _g.combine_failure_queue()
         self.final_solution.failure_flows = list(_g.failure_queue)
@@ -275,12 +279,12 @@ class Solver:
         if solution is None:
             raise RuntimeError('parameter "solution" is required')
         solution_name: str = str(solution.topo_strategy) + \
-                        str(solution.routing_strategy) + \
-                        str(solution.scheduling_strategy) + \
-                        str(solution.allocating_strategy)
-        solution_name = solution_name.replace('.', '_').\
-            replace('ROUTING', '').replace('SCHEDULING', '').\
-            replace('ALLOCATING', '').replace('TOPO', '').\
+                             str(solution.routing_strategy) + \
+                             str(solution.scheduling_strategy) + \
+                             str(solution.allocating_strategy)
+        solution_name = solution_name.replace('.', '_'). \
+            replace('ROUTING', '').replace('SCHEDULING', ''). \
+            replace('ALLOCATING', '').replace('TOPO', ''). \
             replace('REDUNDANT', '').replace('STRATEGY', '').replace('SINGLE_', '').replace('__', '_')
         solution_name = prefix + solution_name + postfix
         solution_name = solution_name.lower()

@@ -89,6 +89,11 @@ class Graph:
         pass
 
     def set_all_edges_bandwidth(self, b: int):
+        '''
+        set bandwidth of all edges
+        :param b:
+        :return:
+        '''
         for edge in self.edge_mapper.values():
             edge.set_bandwidth(b)
 
@@ -107,6 +112,15 @@ class Graph:
     def set_all_edges_process_delay(self, proc_d: int):
         # TODO set all edges propagation delay
         pass
+
+    def set_all_error_rate(self, error_rate: float):
+        '''
+        set error rate of all edges
+        :param error_rate:
+        :return:
+        '''
+        for edge in self.edge_mapper.values():
+            edge.error_rate = error_rate
 
     def add_flows(self, flows: List[Flow]):
         # add flows to flow list and flow mapper

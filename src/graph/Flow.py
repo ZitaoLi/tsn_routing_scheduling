@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import List, Set
+from typing import List, Set, Tuple, Dict
 
 from src.utils.Visualizer import Visualizer
 
@@ -17,6 +17,7 @@ class Flow:
     reliability: float  # reliability requirement of flow
     deadline: int  # end-to-end delay requirement of flow [unit: ns]
     routes: List[List[List[int]]]  # routes of flow
+    routes_reliability: Dict[int, float]  # reliability of routes, e.g., [(s, d1, e2e_r), ...]
     walked_edges: Set[int]  # the edge flow walked
     negative_walked_edges: Set[int]  # negative walked set used for flow sorting during routing phase
 
@@ -30,6 +31,7 @@ class Flow:
         self.reliability = rl
         self.deadline = dl
         self.routes = []
+        self.routes_reliability = dict()
         self.walked_edges = set()
         self.negative_walked_edges = set()
         self.color = Visualizer.random_color()
@@ -48,6 +50,7 @@ class Flow:
             'reliability': self.reliability,
             'deadline': str(self.deadline) + ' ns',
             'routes': self.routes,
+            'routes_reliability': self.routes_reliability,
             'walked_edges': list(self.walked_edges)
         }
         _json = json.dumps(o)
@@ -64,6 +67,7 @@ class Flow:
             'reliability': self.reliability,
             'deadline': str(self.deadline) + ' ns',
             'routes': self.routes,
+            'routes_reliability': self.routes_reliability,
             'walked_edges': list(self.walked_edges)
         }
         return json.dumps(o)

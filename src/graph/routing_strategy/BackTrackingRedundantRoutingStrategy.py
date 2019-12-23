@@ -75,14 +75,15 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
         # if not all are successful ,then return False
         for _d in dest:
             __routes: List[List[int]] = []  # routes set for one-to-one
-            while not self.check_e2e_reliability(__routes, src, dest, rel=self.flow_mapper[fid].reliability):
+            while not self.check_e2e_reliability(__routes, src, _d, fid=fid):
                 _route: List[int] = self.route_one2one(fid, src, _d, b, _walked_edges,
                                                        size=size, deadline=deadline)  # route for one-to-one
-                if len(_route) != 0:
+                if len(_route) != 0 and _route is not None:
                     __routes.append(_route)
                     for _eid in _route:
                         self.flow_mapper[fid].negative_walked_edges.add(_eid)  # add walked edge to negative walked set
                 else:
+                    self.flow_mapper[fid].routes_reliability = dict()  # recover routes_reliability
                     return False  # there is no path left
             __routes = self.find_all_e2e_routes(src, _d, __routes)  # extend routes set for one-to-one
             _routes.append(__routes)  # add one-to-one routes set to one-to-many routes set
@@ -122,6 +123,15 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
             for _i, _w in enumerate(weight[0]):
                 self.edge_mapper[_i + 1].weight = _w
         if len(route) != 0:
+            # check walked edges
+            flag: bool = False
+            for eid in route[0]:
+                if eid not in self.flow_mapper[fid].negative_walked_edges:
+                    flag = True
+                    break
+            if flag is False:
+                logging.info('there is no more end-to-end to search')
+                return []
             # update walked edges
             for _eid in route[0]:
                 walked_edges.add(_eid)
@@ -145,20 +155,31 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
         _w = b / _e.bandwidth
         # if _e.weight + _w > 1:  # check bandwidth
         #     return False
-        # check bandwidth
-        if eid in walked_edges:
-            if self.__overlapped is False:
-                if _e.weight + _w > 1:  # check bandwidth
-                    return False
-                _e.weight += _w  # add weight on edge
-        else:
-            if _e.weight + _w > 1:  # check bandwidth
-                return False
-            _e.weight += _w  # add weight on edge
+        # # check bandwidth
+        # if eid in walked_edges:
+        #     if config.GRAPH_CONFIG['overlapped-routing'] is False:
+        #         if _e.weight + _w > 1:  # check bandwidth
+        #             logger.info('walked edge [{}] out of bandwidth'.format(_e.edge_id))
+        #             return False
+        #         _e.weight += _w  # add weight on edge
+        # else:
+        #     if _e.weight + _w > 1:  # check bandwidth
+        #         logger.info('non-walked edge [{}] out of bandwidth'.format(_e.edge_id))
+        #         return False
+        #     _e.weight += _w  # add weight on edge
 
         _in: Node = _e.in_node
         _in.color = 1  # set inbound node color to 1
         _route.append(eid)  # append edge to route
+
+        # # check walked edges
+        # flag: bool = False
+        # for eid in _route:
+        #     if eid not in self.flow_mapper[fid].negative_walked_edges:
+        #         flag = True
+        #         break
+        # if flag is False:
+        #     logging.info('"backtracking" there is no more end-to-end routes to search')
 
         if eid == dest_e:
             #  set final route
@@ -179,7 +200,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
                 if len(route) != 0:
                     break
             if eid in walked_edges:
-                if self.__overlapped is False:
+                if config.GRAPH_CONFIG['overlapped-routing'] is False:
                     _e.weight -= _w  # recover weight on edge
             else:
                 _e.weight -= _w  # recover weight on edge
@@ -234,7 +255,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
             raise RuntimeError('miss parameter "walked_edges: Set(EdgeId)"')
         edge: Edge = kwargs['edge']
         if edge.out_node.color == 1:
-            logger.info('unavailable node [{}]'.format(edge.out_node.node_id))
+            # logger.info('unavailable node [{}]'.format(edge.out_node.node_id))
             return False  # unavailable node
         hops: int = kwargs['hops']
         hop: int = kwargs['hop']

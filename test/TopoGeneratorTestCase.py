@@ -4,6 +4,7 @@ from typing import List
 
 import networkx as nx
 
+from src import config
 from src.graph.TopoGenerator import TopoGenerator
 from src.graph.topo_strategy.BarabasiAlbertStrategy import BarabasiAlbertStrategy
 from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class TopoGeneratorTestCase(unittest.TestCase):
 
     def setUp(self):
-        pass
+        config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = 3
 
     def tearDown(self):
         pass
@@ -25,11 +26,22 @@ class TopoGeneratorTestCase(unittest.TestCase):
     # def test_something(self):
     #     self.assertEqual(True, False)
 
-    def test_er_strategy(self):
+    def test_er_strategy_gnm(self):
         topo_generator: TopoGenerator = TopoGenerator()
         topo_generator.topo_strategy = ErdosRenyiStrategy()
         topo_generator.topo_strategy.n = 10
         topo_generator.topo_strategy.m = 10
+        graph: nx.Graph = topo_generator.generate_core_topo()
+        attached_edge_nodes_num: int = 4
+        attached_edge_nodes: List[NodeId] = topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
+        logger.info(attached_edge_nodes)
+        topo_generator.draw(graph)
+
+    def test_er_strategy_gnp(self):
+        topo_generator: TopoGenerator = TopoGenerator()
+        topo_generator.topo_strategy = ErdosRenyiStrategy(t=ErdosRenyiStrategy.ER_TYPE.GNP)
+        topo_generator.topo_strategy.n = 10
+        topo_generator.topo_strategy.p = 0.3
         graph: nx.Graph = topo_generator.generate_core_topo()
         attached_edge_nodes_num: int = 4
         attached_edge_nodes: List[NodeId] = topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)

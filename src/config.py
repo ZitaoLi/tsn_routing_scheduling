@@ -2,7 +2,8 @@ import os
 from enum import Enum
 
 from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
-from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, TOPO_STRATEGY, TIME_GRANULARITY
+from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, TOPO_STRATEGY, TIME_GRANULARITY, \
+    RELIABILITY_STRATEGY
 
 src_dir: str = os.path.dirname(os.path.abspath(__file__))
 pro_dir: str = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
@@ -54,6 +55,7 @@ GRAPH_CONFIG = {
         },
     ],
     'routing-strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+    'reliability-strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
     'scheduling-strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
     'allocating-strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY,
     'max-try-times': 50,  # max retry times if the graph is not connected,
@@ -68,7 +70,7 @@ FLOW_CONFIG = {
     'size-set': [int(1.5e3), int(5e3), int(1e3)],  # 1500bit, [unit: bit],
     'reliability-set': [0.97, 0.98, 0.99],
     'deadline-set': [int(1e8), int(5e7), int(2e7)],
-    'redundancy_degree': 2,
+    'redundancy_degree': 1,
     'max-hops': 16,  # max hops
 }
 

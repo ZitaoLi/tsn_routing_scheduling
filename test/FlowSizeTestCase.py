@@ -38,7 +38,7 @@ class FlowSizeTestCase(unittest.TestCase):
                 'type': ErdosRenyiStrategy.ER_TYPE.GNP,
                 'n': 10,
                 'm': 14,
-                'p': 0.2,
+                'p': 0.3,
             },
             {
                 'strategy': TOPO_STRATEGY.BA_STRATEGY,
@@ -87,7 +87,8 @@ class FlowSizeTestCase(unittest.TestCase):
                                             topo_strategy=topo_strategy_entity['strategy'],
                                             routing_strategy=config.GRAPH_CONFIG['routing-strategy'],
                                             scheduling_strategy=config.GRAPH_CONFIG['scheduling-strategy'],
-                                            allocating_strategy=config.GRAPH_CONFIG['allocating-strategy'])
+                                            allocating_strategy=config.GRAPH_CONFIG['allocating-strategy'],
+                                            reliability_strategy=config.GRAPH_CONFIG['reliability-strategy'])
                     solver.add_flows(flows[:i])
                     try:
                         import time

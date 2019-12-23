@@ -59,7 +59,7 @@ class RoutingTestCase(unittest.TestCase):
                                 routing_strategy=ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
                                 scheduling_strategy=SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
                                 allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY,
-                                reliability_strategy=RELIABILITY_STRATEGY.MULTI_ROUTES_RELIABILITY_STRATEGY)
+                                reliability_strategy=RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY)
         self.solution = solver.generate_init_solution()
 
 

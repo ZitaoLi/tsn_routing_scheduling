@@ -5,6 +5,8 @@ from src.graph.Edge import Edge
 from src.graph.Node import Node
 import logging
 
+from src.graph.reliability_strategy.MultiRoutesReliabilityStrategy import MultiRoutesReliabilityStrategy
+from src.graph.reliability_strategy.ReliabilityStrategy import ReliabilityStrategy
 from src.graph.routing_strategy.BackTrackingRedundantRoutingStrategy import BackTrackingRedundantRoutingStrategy
 from src.graph.routing_strategy.RoutingStrategy import RoutingStrategy
 from src.type import FlowId
@@ -24,6 +26,7 @@ class FlowRouter:
     flow_walked_edges: Dict[int, Set[int]]
     flow_walked_edges_c: Dict[int, Set[int]]
     __routing_strategy: RoutingStrategy
+    __reliability_strategy: ReliabilityStrategy
 
     def __init__(self, nodes: List[int], edges: List[int], flows: List[int], node_mapper: Dict[int, Node],
                  edge_mapper: Dict[int, Edge], flow_mapper: Dict[int, Flow]):
@@ -39,6 +42,9 @@ class FlowRouter:
         # default routing strategy is Long-Routes-First Redundant Routing Strategy
         self.__routing_strategy = \
             BackTrackingRedundantRoutingStrategy(nodes, edges, flows, node_mapper, edge_mapper, flow_mapper)
+        self.__reliability_strategy = \
+            MultiRoutesReliabilityStrategy(nodes, edges, flows, node_mapper, edge_mapper, flow_mapper)
+        self.__routing_strategy.reliability_strategy = self.__reliability_strategy
 
     @staticmethod
     def sort_flows(flows: List[int]):
@@ -57,6 +63,16 @@ class FlowRouter:
     @routing_strategy.setter
     def routing_strategy(self, routing_strategy: RoutingStrategy):
         self.__routing_strategy = routing_strategy
+        self.__routing_strategy.reliability_strategy = self.__reliability_strategy
+
+    @property
+    def reliability_strategy(self):
+        return self.__reliability_strategy
+
+    @reliability_strategy.setter
+    def reliability_strategy(self, reliability_strategy: ReliabilityStrategy):
+        self.__reliability_strategy = reliability_strategy
+        self.__routing_strategy.reliability_strategy = reliability_strategy
 
     def route(self, flow_is_list: List[FlowId]):
         self.failure_queue = self.__routing_strategy.route(flow_is_list, sorting_enabled=True)
