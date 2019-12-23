@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<flows>
+  <flow id="1" source="1" destination="7" size="575" cycle="150000" deadline="100000000" reliability="0.98"/>
+  <flow id="2" source="1" destination="7 8 6" size="575" cycle="100000" deadline="20000000" reliability="0.99"/>
+  <flow id="3" source="6" destination="7" size="75" cycle="150000" deadline="20000000" reliability="0.99"/>
+  <flow id="4" source="8" destination="6 7 1" size="75" cycle="100000" deadline="50000000" reliability="0.99"/>
+  <flow id="5" source="7" destination="6 8 1" size="75" cycle="300000" deadline="20000000" reliability="0.97"/>
+</flows>

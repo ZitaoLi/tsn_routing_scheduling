@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<filteringDatabases>
+  <filteringDatabase id="0">
+    <static>
+      <forward>
+        <individualAddress macAddress="00-00-00-00-00-0C" ports="0"/>
+        <multicastAddress macAddress="01-00-00-00-00-01" ports="0"/>
+        <individualAddress macAddress="00-00-00-00-00-12" ports="0"/>
+        <multicastAddress macAddress="01-00-00-00-00-02" ports="0"/>
+        <multicastAddress macAddress="01-00-00-00-00-03" ports="0"/>
+      </forward>
+    </static>
+  </filteringDatabase>
+  <filteringDatabase id="2">
+    <static>
+      <forward>
+        <individualAddress macAddress="00-00-00-00-00-0C" ports="1 3 2"/>
+        <multicastAddress macAddress="01-00-00-00-00-01" ports="1 3 2"/>
+        <individualAddress macAddress="00-00-00-00-00-12" ports="1 2 3"/>
+        <multicastAddress macAddress="01-00-00-00-00-02" ports="2 3 1"/>
+        <multicastAddress macAddress="01-00-00-00-00-03" ports="2 3"/>
+      </forward>
+    </static>
+  </filteringDatabase>
+  <filteringDatabase id="1">
+    <static>
+      <forward>
+        <individualAddress macAddress="00-00-00-00-00-0C" ports="3"/>
+        <multicastAddress macAddress="01-00-00-00-00-01" ports="3 1"/>
+        <individualAddress macAddress="00-00-00-00-00-12" ports="1"/>
+        <multicastAddress macAddress="01-00-00-00-00-02" ports="1 3"/>
+        <multicastAddress macAddress="01-00-00-00-00-03" ports="3"/>
+      </forward>
+    </static>
+  </filteringDatabase>
+  <filteringDatabase id="3">
+    <static>
+      <forward>
+        <individualAddress macAddress="00-00-00-00-00-12" ports="2"/>
+        <multicastAddress macAddress="01-00-00-00-00-01" ports="2"/>
+        <multicastAddress macAddress="01-00-00-00-00-02" ports="2"/>
+        <individualAddress macAddress="00-00-00-00-00-0C" ports="0"/>
+        <multicastAddress macAddress="01-00-00-00-00-03" ports="0"/>
+      </forward>
+    </static>
+  </filteringDatabase>
+  <filteringDatabase id="4">
+    <static>
+      <forward>
+        <individualAddress macAddress="00-00-00-00-00-0C" ports="0"/>
+        <multicastAddress macAddress="01-00-00-00-00-01" ports="0"/>
+        <individualAddress macAddress="00-00-00-00-00-12" ports="0"/>
+        <multicastAddress macAddress="01-00-00-00-00-02" ports="0"/>
+        <multicastAddress macAddress="01-00-00-00-00-03" ports="0"/>
+      </forward>
+    </static>
+  </filteringDatabase>
+</filteringDatabases>

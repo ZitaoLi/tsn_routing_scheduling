@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<schedule>
+  <!--ns-->
+  <cycle>150000</cycle>
+  <!--flow-id=9-->
+  <host name="host1">
+    <entry>
+      <start>0</start>
+      <queue>7</queue>
+      <dest>01-00-00-00-00-09</dest>
+      <size>75</size>
+      <group>01-00-00-00-00-09</group>
+      <uniqueID>9</uniqueID>
+      <phase>0</phase>
+    </entry>
+  </host>
+</schedule>
