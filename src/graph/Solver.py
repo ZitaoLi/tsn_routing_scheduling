@@ -4,7 +4,7 @@ import os
 import pickle
 import random
 import time
-from typing import List, Tuple, Set
+from typing import List, Tuple, Set, Dict
 
 from math import floor, ceil
 
@@ -28,7 +28,7 @@ from src.graph.scheduling_strategy.SchedulingStrategy import SchedulingStrategy
 from src.graph.scheduling_strategy.SchedulingStrategyFactory import SchedulingStrategyFactory
 from src.graph.topo_strategy.TopoStrategy import TopoStrategy
 from src.type import FlowId, TOPO_STRATEGY, ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, \
-    RELIABILITY_STRATEGY
+    RELIABILITY_STRATEGY, NodeId, EdgeId
 from src.utils.Singleton import SingletonDecorator
 
 logger = logging.getLogger(__name__)
@@ -39,6 +39,7 @@ class Solution:
     graph: Graph
     flows: List[Flow]
     failure_flows: List[FlowId]
+    runtime: float
     topo_strategy: TOPO_STRATEGY
     routing_strategy: ROUTING_STRATEGY
     scheduling_strategy: SCHEDULING_STRATEGY
@@ -60,23 +61,23 @@ class Solution:
         self.scheduling_strategy = scheduling_strategy
         self.allocating_strategy = allocating_strategy
         self.reliability_strategy = reliability_strategy
+        self.solution_name = self.generate_solution_name()
+        self.runtime = 0.0
+
+    def generate_solution_name(self, prefix: str = '', postfix: str = '') -> str:
+        solution_name: str = str(self.topo_strategy) + \
+                             str(self.routing_strategy) + \
+                             str(self.scheduling_strategy) + \
+                             str(self.allocating_strategy)
+        solution_name = solution_name.replace('.', '_'). \
+            replace('ROUTING', '').replace('SCHEDULING', ''). \
+            replace('ALLOCATING', '').replace('TOPO', ''). \
+            replace('REDUNDANT', '').replace('STRATEGY', '').replace('SINGLE_', ''). \
+            replace('__', '_').replace('___', '_').replace('__', '_').rstrip('_').lstrip('_')
+        solution_name = prefix + solution_name + postfix
+        solution_name = solution_name.lower()
         self.solution_name = solution_name
-
-    def analyze_flow_routes_repetition_degree(self, filename: str = None):
-        '''
-        analyze repetition degree between the same talker/listener pair
-        :param filename:
-        :return:
-        '''
-        pass
-
-    def analyze_flow_routes_reuse_degree(self, filename: str = None):
-        '''
-        analyze repetition degree between different talker/listener pairs
-        :param filename:
-        :return:
-        '''
-        pass
+        return solution_name
 
 
 class Solver:
@@ -104,7 +105,7 @@ class Solver:
                                        topo_strategy=topo_strategy, routing_strategy=routing_strategy,
                                        scheduling_strategy=scheduling_strategy, allocating_strategy=allocating_strategy,
                                        reliability_strategy=reliability_strategy, solution_name=solution_name)
-        self.runtime = 0
+        self.runtime = 0.0
 
     @staticmethod
     def objective_function(s: Solution) -> float:
@@ -159,6 +160,7 @@ class Solver:
         _g.flow_scheduler.schedule(_F_s)  # schedule
         end_time: time.process_time = time.perf_counter()  # end time
         self.runtime = end_time - start_time
+        self.final_solution.runtime = self.runtime
         _g.combine_failure_queue()
         self.final_solution.failure_flows = list(_g.failure_queue)
         return self.final_solution
@@ -176,6 +178,7 @@ class Solver:
             self.apply_acceptance_criterion(_s_hat)
         end_time: time.process_time = time.perf_counter()
         self.runtime = end_time - start_time
+        self.final_solution.runtime = self.runtime
         logger.info('initial objective function value = ' + str(_o))
         logger.info('final objective function value = ' + str(self.objective_function(self.final_solution)))
         return self.final_solution
@@ -285,7 +288,8 @@ class Solver:
         solution_name = solution_name.replace('.', '_'). \
             replace('ROUTING', '').replace('SCHEDULING', ''). \
             replace('ALLOCATING', '').replace('TOPO', ''). \
-            replace('REDUNDANT', '').replace('STRATEGY', '').replace('SINGLE_', '').replace('__', '_')
+            replace('REDUNDANT', '').replace('STRATEGY', '').replace('SINGLE_', ''). \
+            replace('__', '_').replace('___', '_')
         solution_name = prefix + solution_name + postfix
         solution_name = solution_name.lower()
         solution.solution_name = solution_name  # 副作用

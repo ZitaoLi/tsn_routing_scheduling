@@ -13,6 +13,7 @@ graph_size_res_dir: str = os.path.join(res_dir, 'graph_size')
 redundancy_res_dir: str = os.path.join(res_dir, 'redundancy')
 solutions_res_dir: str = os.path.join(res_dir, 'solutions')
 test_scenario_res_dir: str = os.path.join(res_dir, 'test_scenario')
+flow_routes_repetition_degree_dir: str = os.path.join(res_dir, 'flow_routes_repetition_degree')
 json_dir: str = os.path.join(src_dir, 'json')
 flows_filename: str = os.path.join(json_dir, 'flows.json')
 template_dir: str = os.path.join(src_dir, 'templates')
@@ -68,10 +69,12 @@ FLOW_CONFIG = {
     'period-set': [int(1e5), int(1.5e5), int(3e5)],  # set of period, 周期能被最大周期整除
     'hyper-period': int(3e5),  # 300us = 3e5ns, [unit: ns],
     'size-set': [int(1.5e3), int(5e3), int(1e3)],  # 1500bit, [unit: bit],
-    'reliability-set': [0.97, 0.98, 0.99],
+    'reliability-set': [0.95, 0.90, 0.94],
     'deadline-set': [int(1e8), int(5e7), int(2e7)],
     'redundancy_degree': 1,
+    'max-redundancy-degree': 5,
     'max-hops': 16,  # max hops
+    'un-neighbors_degree': 1.0  # avoid source and node connecting at the same node
 }
 
 OPTIMIZATION = {

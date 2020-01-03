@@ -83,6 +83,8 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
                     for _eid in _route:
                         self.flow_mapper[fid].negative_walked_edges.add(_eid)  # add walked edge to negative walked set
                 else:
+                    logger.info('end-to-end reliability of flow [{}] cannot be met'.format(fid))
+                    logger.info('failed routes: {}'.format(self.flow_mapper[fid].routes_reliability))
                     self.flow_mapper[fid].routes_reliability = dict()  # recover routes_reliability
                     return False  # there is no path left
             __routes = self.find_all_e2e_routes(src, _d, __routes)  # extend routes set for one-to-one
@@ -137,6 +139,7 @@ class BackTrackingRedundantRoutingStrategy(RedundantRoutingStrategy):
                 walked_edges.add(_eid)
             return route[0]
         else:
+            logging.info('cannot find any route')
             return []
 
     def compute_hops(self, link_bandwidth: float = 0, flow_size: int = 0, flow_deadline: int = 0) -> int:

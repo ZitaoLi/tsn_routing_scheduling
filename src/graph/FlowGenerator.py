@@ -77,7 +77,8 @@ class FlowGenerator:
                 _p: int = \
                     config.FLOW_CONFIG['period-set'][random.randint(0, len(config.FLOW_CONFIG['period-set'])) - 1]
                 _rl: int = \
-                    config.FLOW_CONFIG['reliability-set'][random.randint(0, len(config.FLOW_CONFIG['reliability-set'])) - 1]
+                    config.FLOW_CONFIG['reliability-set'][
+                        random.randint(0, len(config.FLOW_CONFIG['reliability-set'])) - 1]
                 _dl: int = \
                     config.FLOW_CONFIG['deadline-set'][random.randint(0, len(config.FLOW_CONFIG['deadline-set'])) - 1]
                 _dn: int = \
@@ -93,7 +94,8 @@ class FlowGenerator:
             neighbors = list(filter(lambda n: list(graph.neighbors(n)).__len__() == 1, neighbors))
             _edge_nodes_t = list(set(_edge_nodes_t) - set(neighbors))
             if neighbors.__len__() >= 1:
-                _t: List[int] = random.sample(neighbors, int(np.ceil(0.2 * len(neighbors))))
+                _t: List[int] = random.sample(neighbors, int(
+                    np.ceil((1 - config.FLOW_CONFIG['un-neighbors_degree']) * len(neighbors))))
                 [_edge_nodes_t.append(n) for n in _t]
             _D = random.sample(_edge_nodes_t, _dn)
             _f: Flow = Flow(_fid, _s, _p, _o, _D, _rl, _dl)

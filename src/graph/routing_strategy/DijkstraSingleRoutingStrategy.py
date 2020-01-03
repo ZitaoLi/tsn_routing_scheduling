@@ -25,12 +25,22 @@ class DijkstraSingleRoutingStrategy(SingleRoutingStrategy):
             routes: List[List[List[int]]] = []  # routes of flow
             source: NodeId = self.flow_mapper[fid].source
             targets: List[NodeId] = self.flow_mapper[fid].destinations
+            flag: bool = True
             for target in targets:
                 dijkstra_path_n: List[NodeId] = nx.dijkstra_path(self.graph, source=source, target=target)
                 dijkstra_path_e: List[EdgeId] = self.nodes_to_edges(dijkstra_path_n)
-                routes.append([dijkstra_path_e])
-            self.flow_mapper[fid].routes = routes
-            logger.info(self.flow_mapper[fid].to_string())
+                if self.check_e2e_reliability(routes, source, target):
+                    routes.append([dijkstra_path_e])
+                else:
+                    flag = False
+                    break
+            if flag is False:
+                self.failure_queue.add(fid)
+                logger.info('routing for flow [{}] failed'.format(fid))
+                break
+            else:
+                self.flow_mapper[fid].routes = routes
+                logger.info('routing for flow [{}] successful: {}'.format(fid, self.flow_mapper[fid].to_string()))
         return self.failure_queue
 
     def nodes_to_edges(self, node_id_list: List[NodeId]) -> List[EdgeId]:

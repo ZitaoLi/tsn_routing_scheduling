@@ -19,7 +19,7 @@ class EnumerationMethodReliabilityStrategy(ReliabilityStrategy):
         if 'fid' not in kwargs.keys():
             raise RuntimeError('miss parameter "fid: FlowId"')
         reliability_value: float = self.compute_e2e_reliability(routes, src, dest)
-        if len(routes) == config.FLOW_CONFIG['redundancy_degree'] and \
+        if config.FLOW_CONFIG['redundancy_degree'] <= len(routes) <= config.FLOW_CONFIG['max-redundancy-degree'] and \
                 self.flow_mapper[kwargs['fid']].reliability <= reliability_value:
             self.flow_mapper[kwargs['fid']].routes_reliability[dest] = reliability_value
             return True

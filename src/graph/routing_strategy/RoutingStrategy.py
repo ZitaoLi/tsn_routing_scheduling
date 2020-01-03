@@ -7,7 +7,7 @@ from src.graph.Flow import Flow
 from src.graph.Node import Node
 from src.graph.reliability_strategy.MultiRoutesReliabilityStrategy import MultiRoutesReliabilityStrategy
 from src.graph.reliability_strategy.ReliabilityStrategy import ReliabilityStrategy
-from src.type import FlowId
+from src.type import FlowId, EdgeId, NodeId
 
 
 class RoutingStrategy(metaclass=abc.ABCMeta):
@@ -29,8 +29,7 @@ class RoutingStrategy(metaclass=abc.ABCMeta):
         self.edge_mapper = edge_mapper
         self.flow_mapper = flow_mapper
         self.failure_queue = set()
-        self._reliability_strategy = \
-            MultiRoutesReliabilityStrategy(nodes, edges, flows, node_mapper, edge_mapper, flow_mapper)
+        self._reliability_strategy = None
 
     @property
     def reliability_strategy(self):
@@ -70,3 +69,15 @@ class RoutingStrategy(metaclass=abc.ABCMeta):
         :return:
         '''
         pass
+
+    def check_e2e_reliability(self, routes: List[List[EdgeId]], src: NodeId, dest: NodeId, *args, **kwargs) -> bool:
+        '''
+        check end-to-end reliability between source/destination pair
+        :param routes:
+        :param src:
+        :param dest:
+        :param args:
+        :param kwargs:
+        :return:
+        '''
+        return self._reliability_strategy.check_e2e_reliability(routes, src, dest, *args, **kwargs)

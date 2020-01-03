@@ -1,10 +1,12 @@
 import logging
+import os
 import unittest
 from typing import List, Tuple
 
 import networkx as nx
 
 from src import config
+from src.graph.Analyzer import Analyzer
 from src.graph.Flow import Flow
 from src.graph.FlowGenerator import FlowGenerator
 from src.graph.Solver import Solver
@@ -33,8 +35,8 @@ class ReliabilityStrategyTestCase(unittest.TestCase):
         # f1: Flow = Flow(1, int(1.2e4), int(3e5), 1, [6, 7], 0.95, int(1e6))
         self.flows: List[Flow] = [f1]
 
-        config.FLOW_CONFIG['redundancy_degree'] = 2
-        config.GRAPH_CONFIG['all-per'] = 0.001
+        config.FLOW_CONFIG['redundancy_degree'] = 4
+        config.GRAPH_CONFIG['all-per'] = 0.01
         config.GRAPH_CONFIG['routing_strategy'] = ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY
         config.GRAPH_CONFIG['scheduling_strategy'] = SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY
         config.GRAPH_CONFIG['allocating_strategy'] = ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
@@ -50,6 +52,8 @@ class ReliabilityStrategyTestCase(unittest.TestCase):
                                 reliability_strategy=config.GRAPH_CONFIG['reliability-strategy'])
         self.solution = solver.generate_init_solution()
         solver.draw_gantt_chart(self.solution)  # draw gantt chart
+        target_filename: str = os.path.join(config.flow_routes_repetition_degree_dir, self.solution.solution_name)
+        Analyzer.analyze_flow_routes_repetition_degree(self.solution, target_filename=target_filename)
 
 
 if __name__ == '__main__':

@@ -20,6 +20,8 @@ class Graph:
     edges: List[int]
     flows: List[int]
     nx_graph: nx.Graph
+    edge_nodes: List[int]  # edge node id list
+    core_nodes: List[int]  # core node id list
     node_mapper: Dict[int, Node]
     edge_mapper: Dict[int, Edge]
     flow_mapper: Dict[int, Flow]
