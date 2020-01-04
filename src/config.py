@@ -23,7 +23,8 @@ GRAPH_CONFIG = {
     'hyper-period': int(3e5),  # 300us = 3e5ns, [unit: ns],
     'all-bandwidth': int(1e0),  # 1Gbps = 1bit/ns, [unit: bpns]
     'max-bandwidth': int(1e0),  # maximum bandwidth of all edges
-    'all-propagation-delay': 0,
+    'all-propagation-delay': 1e2,  # propagation delay of all edges
+    'all-process-delay': 5e3,  # process daley of all edges
     'all-per': 0.02,
     'overlapped-routing': True,  # whether routing with overlapping or not
     'time-granularity': TIME_GRANULARITY.NS,  # time granularity, default is ns
@@ -73,7 +74,7 @@ FLOW_CONFIG = {
     'deadline-set': [int(1e8), int(5e7), int(2e7)],
     'redundancy_degree': 1,
     'max-redundancy-degree': 5,
-    'max-hops': 16,  # max hops
+    'max-hops': 7,  # max hops
     'un-neighbors_degree': 1.0  # avoid source and node connecting at the same node
 }
 

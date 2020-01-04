@@ -108,12 +108,17 @@ class Graph:
         pass
 
     def set_all_edges_propagation_delay(self, prop_d: int):
-        # TODO set all edges propagation delay
-        pass
+        '''
+        set propagation delay of all edges
+        :param prop_d:
+        :return:
+        '''
+        for edge in self.edge_mapper.values():
+            edge.set_propagation_delay(prop_d)
 
     def set_all_edges_process_delay(self, proc_d: int):
-        # TODO set all edges propagation delay
-        pass
+        for edge in self.edge_mapper.values():
+            edge.set_process_delay(proc_d)
 
     def set_all_error_rate(self, error_rate: float):
         '''

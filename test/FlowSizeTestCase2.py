@@ -1,0 +1,135 @@
+import logging
+import os
+import unittest
+from enum import Enum
+from typing import List, Tuple, Dict
+
+import networkx as nx
+
+from src.graph.Analyzer import Analyzer
+from src.graph.Edge import Edge
+from src.graph.Flow import Flow
+from src.graph.FlowGenerator import FlowGenerator
+from src.graph.Solver import Solver, Solution
+from src.graph.TopoGenerator import TopoGenerator
+from src.graph.topo_strategy.ErdosRenyiStrategy import ErdosRenyiStrategy
+from src.graph.topo_strategy.TopoStrategy import TopoStrategy
+from src.graph.topo_strategy.TopoStrategyFactory import TopoStrategyFactory
+from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY, ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, \
+    RELIABILITY_STRATEGY, TIME_GRANULARITY
+import src.config as config
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+# logging.disable(logging.INFO)
+
+
+class FlowSizeTestCase2(unittest.TestCase):
+
+    def setUp(self):
+        config.TESTING['round'] = [1, 5]  # [1, 5]
+        config.TESTING['flow-size'] = [10, 100]
+        config.TESTING['x-axis-gap'] = 5
+        config.TESTING['draw-gantt-chart'] = False
+        config.OPTIMIZATION['enable'] = False
+        config.FLOW_CONFIG['redundancy_degree'] = 2  # at least 2 end-to-end routes
+        config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
+        config.FLOW_CONFIG['un-neighbors_degree'] = 1  # avoid source and node connecting at the same node
+        config.FLOW_CONFIG['size-set'] = [int(1.6e3), int(5e3), int(1e3)]  # [200B, 625B, 125B]
+        config.FLOW_CONFIG['period-set'] = [int(1e5), int(1.5e5), int(3e5)]  # [100us, 150us, 300us]
+        config.FLOW_CONFIG['hyper-period'] = int(3e5)  # [300us]
+        config.FLOW_CONFIG['deadline-set'] = [int(1e8), int(5e7), int(2e7)]  # [100ms, 50ms, 20ms]
+        config.FLOW_CONFIG['reliability-set'] = [0.99]
+        config.GRAPH_CONFIG['time-granularity'] = TIME_GRANULARITY.NS
+        config.GRAPH_CONFIG['all-bandwidth'] = 0.5  # 500Mbps
+        config.GRAPH_CONFIG['all-propagation-delay'] = 1e2
+        config.GRAPH_CONFIG['all-process-delay'] = 5e3
+        config.GRAPH_CONFIG['all-per'] = 0.004  # 0.4%
+        config.GRAPH_CONFIG['core-node-num'] = 10
+        config.GRAPH_CONFIG['edge-node-num'] = 10
+        config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = 6
+
+    def tearDown(self):
+        pass
+
+    def test_flow_size(self, topo_strategy_entity: Dict = None,
+                       routing_strategy: ROUTING_STRATEGY = None,
+                       reliability_strategy: RELIABILITY_STRATEGY = None,
+                       scheduling_strategy: SCHEDULING_STRATEGY = None,
+                       allocating_strategy: ALLOCATING_STRATEGY = None):
+        if topo_strategy_entity is None:
+            raise RuntimeError('miss parameter "topo_strategy_entity"')
+        if routing_strategy is None:
+            raise RuntimeError('miss parameter "routing_strategy"')
+        if reliability_strategy is None:
+            raise RuntimeError('miss parameter "reliability_strategy"')
+        if scheduling_strategy is None:
+            raise RuntimeError('miss parameter "scheduling_strategy"')
+        if allocating_strategy is None:
+            raise RuntimeError('miss parameter "allocating_strategy"')
+        # set topology strategy
+        self.topo_generator.topo_strategy = TopoStrategyFactory.get_instance(**topo_strategy_entity)
+        # generate topology
+        graph: nx.Graph = self.topo_generator.generate_core_topo()
+        attached_edge_nodes_num: int = config.GRAPH_CONFIG['edge-node-num']
+        attached_edge_nodes: List[NodeId] = self.topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
+        self.topo_generator.draw(graph)
+        # generate flows
+        flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes,
+                                                         graph=graph,
+                                                         flow_num=config.TESTING['flow-size'][1])
+        for i in range(config.TESTING['flow-size'][0],
+                       config.TESTING['flow-size'][1] + 1,
+                       config.TESTING['x-axis-gap']):
+            solver: Solver = Solver(nx_graph=graph,
+                                    flows=flows[:i],
+                                    topo_strategy=topo_strategy_entity['strategy'],
+                                    routing_strategy=routing_strategy,
+                                    scheduling_strategy=scheduling_strategy,
+                                    allocating_strategy=allocating_strategy,
+                                    reliability_strategy=reliability_strategy)
+            # origin method
+            solution = solver.generate_init_solution()  # get initial solution
+            solution.generate_solution_name(
+                prefix='b_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
+            Analyzer.analyze_flow_size(
+                solution,
+                target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
+            solution.generate_solution_name(
+                prefix='b_fz_t{}_n{}_f{}_'.format(self.test_round, len(solution.graph.nodes), i))
+            Analyzer.analyze_flow_routes_repetition_degree(
+                solution,
+                target_filename=os.path.join(config.flow_routes_repetition_degree_dir,
+                                             solution.solution_name))
+            # optimized method
+            if config.OPTIMIZATION['enable'] is False:
+                continue
+            solution = solver.optimize()  # optimize
+            solution.generate_solution_name(
+                prefix='o_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
+            Analyzer.analyze_flow_size(
+                solution,
+                target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
+            solution.generate_solution_name(
+                prefix='o_fz_t{}_n{}_f{}_'.format(self.test_round, len(solution.graph.nodes), i))
+            Analyzer.analyze_flow_routes_repetition_degree(
+                solution,
+                target_filename=os.path.join(config.flow_routes_repetition_degree_dir,
+                                             solution.solution_name))
+
+    def test(self):
+        self.topo_generator: TopoGenerator = TopoGenerator()
+        for test_round in range(config.TESTING['round'][0], config.TESTING['round'][1] + 1):
+            self.test_round = test_round
+            self.test_flow_size(topo_strategy_entity={'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
+                                routing_strategy=ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+                                reliability_strategy=RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
+                                scheduling_strategy=SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+                                allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY)
+
+
+if __name__ == '__main__':
+    unittest.main()
+

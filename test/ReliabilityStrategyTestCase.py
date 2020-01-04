@@ -35,12 +35,12 @@ class ReliabilityStrategyTestCase(unittest.TestCase):
         # f1: Flow = Flow(1, int(1.2e4), int(3e5), 1, [6, 7], 0.95, int(1e6))
         self.flows: List[Flow] = [f1]
 
-        config.FLOW_CONFIG['redundancy_degree'] = 4
-        config.GRAPH_CONFIG['all-per'] = 0.01
-        config.GRAPH_CONFIG['routing_strategy'] = ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY
+        config.FLOW_CONFIG['redundancy_degree'] = 2
+        config.GRAPH_CONFIG['all-per'] = 0.004
+        config.GRAPH_CONFIG['routing_strategy'] = ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY
         config.GRAPH_CONFIG['scheduling_strategy'] = SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY
         config.GRAPH_CONFIG['allocating_strategy'] = ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
-        config.GRAPH_CONFIG['reliability-strategy'] = RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY
+        config.GRAPH_CONFIG['reliability-strategy'] = RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY
 
     def test_reliability_strategy(self):
         solver: Solver = Solver(nx_graph=self.graph,

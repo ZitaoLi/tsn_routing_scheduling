@@ -26,19 +26,20 @@ class FlowSizeTestCase(unittest.TestCase):
 
     def setUp(self):
         config.TESTING['round'] = [1, 1]  # [1, 5]
-        config.TESTING['flow-size'] = [10, 20]
+        config.TESTING['flow-size'] = [10, 15]
         config.TESTING['x-axis-gap'] = 5
         config.TESTING['draw-gantt-chart'] = False
         config.OPTIMIZATION['enable'] = False
         config.FLOW_CONFIG['redundancy_degree'] = 2  # at least 2 end-to-end routes
         config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
         config.FLOW_CONFIG['un-neighbors_degree'] = 1  # avoid source and node connecting at the same node
-        config.FLOW_CONFIG['size-set'] = [int(1.5e3), int(5e3), int(1e3)]
-        config.FLOW_CONFIG['period-set'] = [int(1e5), int(1.5e5), int(3e5)]
-        config.FLOW_CONFIG['hyper-period'] = int(3e5)
-        config.FLOW_CONFIG['deadline-set'] = [int(1e8), int(5e7), int(2e7)]
-        config.FLOW_CONFIG['reliability-set'] = [0.90, 0.91, 0.92]
+        config.FLOW_CONFIG['size-set'] = [int(1.6e3), int(5e3), int(1e3)]  # [200B, 625B, 125B]
+        config.FLOW_CONFIG['period-set'] = [int(1e5), int(1.5e5), int(3e5)]  # [100us, 150us, 300us]
+        config.FLOW_CONFIG['hyper-period'] = int(3e5)  # [300us]
+        config.FLOW_CONFIG['deadline-set'] = [int(1e8), int(5e7), int(2e7)]  # [100ms, 50ms, 20ms]
+        config.FLOW_CONFIG['reliability-set'] = [0.99]
         config.GRAPH_CONFIG['all-bandwidth'] = 0.5  # 500Mbps
+        config.GRAPH_CONFIG['all-per'] = 0.004  # 0.4%
         config.GRAPH_CONFIG['core-node-num'] = 10
         config.GRAPH_CONFIG['edge-node-num'] = 10
         config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = 6
@@ -106,7 +107,6 @@ class FlowSizeTestCase(unittest.TestCase):
                         self.solution = solver.generate_init_solution()  # get initial solution
                         self.solution.generate_solution_name(
                             prefix='b_fz_t{}_n{}_'.format(test_round, len(self.solution.graph.nodes)))
-                        solver.save_solution()
                         Analyzer.analyze_flow_size(
                             self.solution,
                             target_filename=os.path.join(config.flow_size_res_dir, self.solution.solution_name))
@@ -121,7 +121,6 @@ class FlowSizeTestCase(unittest.TestCase):
                             self.solution = solver.optimize()  # optimize
                             self.solution.generate_solution_name(
                                 prefix='o_fz_t{}_n{}_'.format(test_round, len(self.solution.graph.nodes)))
-                            solver.save_solution()
                             Analyzer.analyze_flow_size(
                                 self.solution,
                                 target_filename=os.path.join(config.flow_size_res_dir, self.solution.solution_name))

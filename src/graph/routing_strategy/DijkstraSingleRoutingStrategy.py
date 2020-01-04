@@ -29,7 +29,7 @@ class DijkstraSingleRoutingStrategy(SingleRoutingStrategy):
             for target in targets:
                 dijkstra_path_n: List[NodeId] = nx.dijkstra_path(self.graph, source=source, target=target)
                 dijkstra_path_e: List[EdgeId] = self.nodes_to_edges(dijkstra_path_n)
-                if self.check_e2e_reliability(routes, source, target):
+                if self.check_e2e_reliability([dijkstra_path_e], source, target, fid=fid):
                     routes.append([dijkstra_path_e])
                 else:
                     flag = False

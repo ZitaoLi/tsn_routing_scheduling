@@ -100,6 +100,10 @@ class Solver:
         graph.set_all_edges_bandwidth(config.GRAPH_CONFIG['all-bandwidth'])  # set bandwidth
         # TODO set error rate to edges
         graph.set_all_error_rate(config.GRAPH_CONFIG['all-per'])  # set error rate
+        # TODO set propagation delay to edges
+        graph.set_all_edges_process_delay(config.GRAPH_CONFIG['all-propagation-delay'])
+        # TODO set process delay to edges
+        graph.set_all_edges_process_delay(config.GRAPH_CONFIG['all-process-delay'])
         graph.add_flows(flows)
         self.final_solution = Solution(graph, flows,
                                        topo_strategy=topo_strategy, routing_strategy=routing_strategy,
