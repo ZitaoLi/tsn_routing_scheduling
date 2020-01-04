@@ -29,8 +29,8 @@ logger = logging.getLogger(__name__)
 class FlowSizeTestCase2(unittest.TestCase):
 
     def setUp(self):
-        config.TESTING['round'] = [1, 5]  # [1, 5]
-        config.TESTING['flow-size'] = [10, 100]
+        config.TESTING['round'] = [1, 1]  # [1, 5]
+        config.TESTING['flow-size'] = [10, 15]
         config.TESTING['x-axis-gap'] = 5
         config.TESTING['draw-gantt-chart'] = False
         config.OPTIMIZATION['enable'] = False
@@ -54,80 +54,82 @@ class FlowSizeTestCase2(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_flow_size(self, topo_strategy_entity: Dict = None,
-                       routing_strategy: ROUTING_STRATEGY = None,
-                       reliability_strategy: RELIABILITY_STRATEGY = None,
-                       scheduling_strategy: SCHEDULING_STRATEGY = None,
-                       allocating_strategy: ALLOCATING_STRATEGY = None):
-        if topo_strategy_entity is None:
-            raise RuntimeError('miss parameter "topo_strategy_entity"')
-        if routing_strategy is None:
-            raise RuntimeError('miss parameter "routing_strategy"')
-        if reliability_strategy is None:
-            raise RuntimeError('miss parameter "reliability_strategy"')
-        if scheduling_strategy is None:
-            raise RuntimeError('miss parameter "scheduling_strategy"')
-        if allocating_strategy is None:
-            raise RuntimeError('miss parameter "allocating_strategy"')
-        # set topology strategy
-        self.topo_generator.topo_strategy = TopoStrategyFactory.get_instance(**topo_strategy_entity)
-        # generate topology
-        graph: nx.Graph = self.topo_generator.generate_core_topo()
-        attached_edge_nodes_num: int = config.GRAPH_CONFIG['edge-node-num']
-        attached_edge_nodes: List[NodeId] = self.topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
-        self.topo_generator.draw(graph)
-        # generate flows
-        flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes,
-                                                         graph=graph,
-                                                         flow_num=config.TESTING['flow-size'][1])
-        for i in range(config.TESTING['flow-size'][0],
-                       config.TESTING['flow-size'][1] + 1,
-                       config.TESTING['x-axis-gap']):
-            solver: Solver = Solver(nx_graph=graph,
-                                    flows=flows[:i],
-                                    topo_strategy=topo_strategy_entity['strategy'],
-                                    routing_strategy=routing_strategy,
-                                    scheduling_strategy=scheduling_strategy,
-                                    allocating_strategy=allocating_strategy,
-                                    reliability_strategy=reliability_strategy)
-            # origin method
-            solution = solver.generate_init_solution()  # get initial solution
-            solution.generate_solution_name(
-                prefix='b_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
-            Analyzer.analyze_flow_size(
-                solution,
-                target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
-            solution.generate_solution_name(
-                prefix='b_fz_t{}_n{}_f{}_'.format(self.test_round, len(solution.graph.nodes), i))
-            Analyzer.analyze_flow_routes_repetition_degree(
-                solution,
-                target_filename=os.path.join(config.flow_routes_repetition_degree_dir,
-                                             solution.solution_name))
-            # optimized method
-            if config.OPTIMIZATION['enable'] is False:
-                continue
-            solution = solver.optimize()  # optimize
-            solution.generate_solution_name(
-                prefix='o_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
-            Analyzer.analyze_flow_size(
-                solution,
-                target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
-            solution.generate_solution_name(
-                prefix='o_fz_t{}_n{}_f{}_'.format(self.test_round, len(solution.graph.nodes), i))
-            Analyzer.analyze_flow_routes_repetition_degree(
-                solution,
-                target_filename=os.path.join(config.flow_routes_repetition_degree_dir,
-                                             solution.solution_name))
+    def test_flow_size(self, topo_strategy_entities: List, combinations: List = None):
+        for topo_strategy_entity in topo_strategy_entities:
+            # set topology strategy
+            self.topo_generator.topo_strategy = TopoStrategyFactory.get_instance(**topo_strategy_entity)
+            # generate topology
+            graph: nx.Graph = self.topo_generator.generate_core_topo()
+            attached_edge_nodes_num: int = config.GRAPH_CONFIG['edge-node-num']
+            attached_edge_nodes: List[NodeId] = self.topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
+            self.topo_generator.draw(graph)
+            # generate flows
+            flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes,
+                                                             graph=graph,
+                                                             flow_num=config.TESTING['flow-size'][1])
+            for combination in combinations:
+                for i in range(config.TESTING['flow-size'][0],
+                               config.TESTING['flow-size'][1] + 1,
+                               config.TESTING['x-axis-gap']):
+                    solver: Solver = Solver(nx_graph=graph,
+                                            flows=flows[:i],
+                                            topo_strategy=topo_strategy_entity['strategy'],
+                                            routing_strategy=combination['routing_strategy'],
+                                            scheduling_strategy=combination['scheduling_strategy'],
+                                            allocating_strategy=combination['allocating_strategy'],
+                                            reliability_strategy=combination['reliability_strategy'])
+                    # origin method
+                    solution = solver.generate_init_solution()  # get initial solution
+                    solution.generate_solution_name(
+                        prefix='b_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
+                    Analyzer.analyze_flow_size(
+                        solution,
+                        target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
+                    # solution.generate_solution_name(
+                    #     prefix='b_fz_t{}_n{}_f{}_'.format(self.test_round, len(solution.graph.nodes), i))
+                    # Analyzer.analyze_flow_routes_repetition_degree(
+                    #     solution,
+                    #     target_filename=os.path.join(config.flow_routes_repetition_degree_dir,
+                    #                                  solution.solution_name))
+                    # optimized method
+                    if config.OPTIMIZATION['enable'] is False:
+                        continue
+                    solution = solver.optimize()  # optimize
+                    solution.generate_solution_name(
+                        prefix='o_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
+                    Analyzer.analyze_flow_size(
+                        solution,
+                        target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
+                    # solution.generate_solution_name(
+                    #     prefix='o_fz_t{}_n{}_f{}_'.format(self.test_round, len(solution.graph.nodes), i))
+                    # Analyzer.analyze_flow_routes_repetition_degree(
+                    #     solution,
+                    #     target_filename=os.path.join(config.flow_routes_repetition_degree_dir,
+                    #                                  solution.solution_name))
 
     def test(self):
         self.topo_generator: TopoGenerator = TopoGenerator()
         for test_round in range(config.TESTING['round'][0], config.TESTING['round'][1] + 1):
             self.test_round = test_round
-            self.test_flow_size(topo_strategy_entity={'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
-                                routing_strategy=ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
-                                reliability_strategy=RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
-                                scheduling_strategy=SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                                allocating_strategy=ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY)
+            self.test_flow_size(
+                [
+                    {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
+                ],
+                [
+                    # {
+                    #     'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+                    #     'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
+                    #     'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+                    #     'allocating_strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
+                    #  },
+                    {
+                        'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
+                        'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
+                        'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+                        'allocating_strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
+                    },
+                ]
+            )
 
 
 if __name__ == '__main__':

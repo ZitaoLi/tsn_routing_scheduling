@@ -37,10 +37,14 @@ class DijkstraSingleRoutingStrategy(SingleRoutingStrategy):
             if flag is False:
                 self.failure_queue.add(fid)
                 logger.info('routing for flow [{}] failed'.format(fid))
-                break
+                logger.info('end-to-end reliability of flow [{}] cannot be met'.format(fid))
+                logger.info('failed flow: {}'.format(self.flow_mapper[fid]))
+                self.flow_mapper[fid].routes_reliability = dict()  # recover routes_reliability
+                continue
             else:
                 self.flow_mapper[fid].routes = routes
                 logger.info('routing for flow [{}] successful: {}'.format(fid, self.flow_mapper[fid].to_string()))
+                logger.info('succeed flow: {}'.format(self.flow_mapper[fid]))
         return self.failure_queue
 
     def nodes_to_edges(self, node_id_list: List[NodeId]) -> List[EdgeId]:
