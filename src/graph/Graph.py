@@ -209,8 +209,8 @@ class Graph:
             _time_slot_len: int = _allocator.time_slot_len
             _gantt_blocks: List[GanttBlock] = []
             for _j, _block in enumerate(_allocator.allocation_blocks):
-                _caption: str = 'f=' + str(_block.flow_id) + '\n' + 'p=' + str(_block.phase)
-                # _caption: str = ''
+                # _caption: str = 'f=' + str(_block.flow_id) + '\n' + 'p=' + str(_block.phase)
+                _caption: str = ''
                 _gantt_block: GanttBlock = GanttBlock(
                     _block.interval.lower * _time_slot_len,
                     (_block.interval.upper + 1 - _block.interval.lower) * _time_slot_len,

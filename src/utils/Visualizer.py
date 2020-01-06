@@ -72,8 +72,8 @@ class Visualizer:
         gnt.set_xlim(xlim[0], xlim[1])
 
         # Setting labels for x-axis and y-axis
-        gnt.set_xlabel('y-axis')
-        gnt.set_ylabel('x-axis')
+        # gnt.set_xlabel('y-axis')
+        # gnt.set_ylabel('x-axis')
 
         _yticks: List[int] = []
         _yticklabels: List[str] = []
@@ -93,7 +93,7 @@ class Visualizer:
         gnt.set_yticklabels(_yticklabels)
 
         # Setting graph attribute
-        gnt.grid(b=True, which='major', color='#666666', linestyle='-')
+        # gnt.grid(b=True, which='major', color='#666666', linestyle='-')
         # gnt.minorticks_on()
         # gnt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 
