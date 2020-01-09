@@ -192,7 +192,7 @@ class Graph:
 
     # draw gantt chart for raw time slots allocation blocks
 
-    def draw_gantt(self):
+    def draw_gantt(self, title: str = None, filename: str = None):
         '''
         gant chart without merging operation
         :return:
@@ -218,4 +218,5 @@ class Graph:
                 _gantt_blocks.append(_gantt_block)
             _gantt_entry: GanttEntry = GanttEntry(10 * _i, 'edge ' + str(_e.edge_id), 5, _gantt_blocks)
             gantt_entries.append(_gantt_entry)
-        Visualizer.draw_gantt([0, self.hyper_period], [0, 10 * len(self.edges)], gantt_entries)
+        Visualizer.draw_gantt([0, self.hyper_period], [0, 10 * len(self.edges)], gantt_entries,
+                              title=title, filename=filename)

@@ -29,10 +29,10 @@ logger = logging.getLogger(__name__)
 class FlowSizeTestCase2(unittest.TestCase):
 
     def setUp(self):
-        config.TESTING['round'] = [1, 2]  # [1, 5]
+        config.TESTING['round'] = [1, 5]  # [1, 5]
         config.TESTING['flow-size'] = [10, 100]
         config.TESTING['x-axis-gap'] = 5
-        config.TESTING['draw-gantt-chart'] = True
+        config.TESTING['draw-gantt-chart'] = False
         config.OPTIMIZATION['enable'] = False
         config.FLOW_CONFIG['redundancy_degree'] = 2  # at least 2 end-to-end routes
         config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
@@ -41,11 +41,11 @@ class FlowSizeTestCase2(unittest.TestCase):
         config.FLOW_CONFIG['period-set'] = [int(1e5), int(1.5e5), int(3e5)]  # [100us, 150us, 300us]
         config.FLOW_CONFIG['hyper-period'] = int(3e5)  # [300us]
         config.FLOW_CONFIG['deadline-set'] = [int(1e8), int(5e7), int(2e7)]  # [100ms, 50ms, 20ms]
-        config.FLOW_CONFIG['reliability-set'] = [0.99]
+        config.FLOW_CONFIG['reliability-set'] = [0.5]  # [0.98]
         config.GRAPH_CONFIG['time-granularity'] = TIME_GRANULARITY.NS
-        config.GRAPH_CONFIG['all-bandwidth'] = 0.1  # 100Mbps
-        config.GRAPH_CONFIG['all-propagation-delay'] = 1e2  # 100ns
-        config.GRAPH_CONFIG['all-process-delay'] = 5e3
+        config.GRAPH_CONFIG['all-bandwidth'] = 0.5  # 500Mbps
+        config.GRAPH_CONFIG['all-propagation-delay'] = 0  # 1e2 100ns
+        config.GRAPH_CONFIG['all-process-delay'] = 0  # 5e3 5us
         config.GRAPH_CONFIG['all-per'] = 0.004  # 0.4%
         config.GRAPH_CONFIG['core-node-num'] = 10
         config.GRAPH_CONFIG['edge-node-num'] = 10
@@ -80,7 +80,6 @@ class FlowSizeTestCase2(unittest.TestCase):
                                             reliability_strategy=combination['reliability_strategy'])
                     # origin method
                     solution = solver.generate_init_solution()  # get initial solution
-                    solver.draw_gantt_chart(solution)
                     solution.generate_solution_name(
                         prefix='b_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
                     Analyzer.analyze_flow_size(
@@ -96,7 +95,6 @@ class FlowSizeTestCase2(unittest.TestCase):
                     if config.OPTIMIZATION['enable'] is False:
                         continue
                     solution = solver.optimize()  # optimize
-                    solver.draw_gantt_chart(solution)
                     solution.generate_solution_name(
                         prefix='o_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
                     Analyzer.analyze_flow_size(
@@ -116,14 +114,18 @@ class FlowSizeTestCase2(unittest.TestCase):
             self.test_flow_size(
                 [
                     {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
+                    {'strategy': TOPO_STRATEGY.ER_STRATEGY, 'type': ErdosRenyiStrategy.ER_TYPE.GNP, 'n': 10, 'm': 14,
+                     'p': 0.2},
+                    {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 2},
+                    {'strategy': TOPO_STRATEGY.WS_STRATEGY, 'n': 10, 'k': 2, 'p': 1.0}
                 ],
                 [
-                    {
-                        'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
-                        'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
-                        'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                        'allocating_strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
-                     },
+                    # {
+                    #     'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+                    #     'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
+                    #     'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+                    #     'allocating_strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
+                    #  },
                     {
                         'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
                         'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
@@ -136,4 +138,3 @@ class FlowSizeTestCase2(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

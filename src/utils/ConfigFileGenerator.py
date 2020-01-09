@@ -1,5 +1,6 @@
 import copy
 import logging
+import os
 from enum import Enum
 from typing import List, Dict, Tuple
 
@@ -330,8 +331,10 @@ class ConfigFileGenerator:
     @staticmethod
     def create_test_scenario(tsn_network: TSNNetwork = None,
                              solution: Solution = None,
-                             node_edge_mac_info: MAG.NodeEdgeMacInfo = None):
-        import os
+                             node_edge_mac_info: MAG.NodeEdgeMacInfo = None,
+                             test_scenario_dirname: str = None):
+        if test_scenario_dirname is not None:
+            config.test_scenario_res_dir = test_scenario_dirname
         if not os.path.exists(config.test_scenario_res_dir):
             os.makedirs(config.test_scenario_res_dir)
         test_scenario_dir = os.path.join(config.test_scenario_res_dir, solution.solution_name.lower())

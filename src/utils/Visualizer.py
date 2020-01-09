@@ -56,7 +56,8 @@ class Visualizer:
                 plt.text(np.sum(t[:j]) + t[j] / 8, i, 'J%s\nT%s' % ((j + 1), t[j]), color="white", size=8)
 
     @classmethod
-    def draw_gantt(cls, xlim: List[int], ylim: List[int], gantt_entries: List[GanttEntry]):
+    def draw_gantt(cls, xlim: List[int], ylim: List[int], gantt_entries: List[GanttEntry],
+                   title: str = None, filename: str = None):
         plt.rcParams['savefig.dpi'] = 300  # 图片像素
         plt.rcParams['figure.dpi'] = 300  # 分辨率
         plt.rcParams.update({'font.size': 5})  # set font size
@@ -64,6 +65,10 @@ class Visualizer:
 
         # Declaring a figure "gnt"
         fig, gnt = plt.subplots()
+
+        # Setting title
+        if title is not None:
+            gnt.set_title(title, fontsize=10)
 
         # Setting Y-axis limits
         gnt.set_ylim(ylim[0], ylim[1])
@@ -73,7 +78,7 @@ class Visualizer:
 
         # Setting labels for x-axis and y-axis
         # gnt.set_xlabel('y-axis')
-        # gnt.set_ylabel('x-axis')
+        gnt.set_xlabel('time(ns)',  fontsize=8)
 
         _yticks: List[int] = []
         _yticklabels: List[str] = []
@@ -88,14 +93,19 @@ class Visualizer:
                 _t: Tuple = (_gb.begin, _gb.end)
                 _interval.append(_t)
                 gnt.text(_gb.begin, _ge.y_tick, _gb.caption)
-                gnt.broken_barh([_interval[_i]], (_ge.y_tick, _ge.high), facecolor=_gb.color)  # TODO facecolors
+                gnt.broken_barh([_interval[_i]], (_ge.y_tick, _ge.high), facecolor=_gb.color)
         gnt.set_yticks(_yticks)
         gnt.set_yticklabels(_yticklabels)
 
         # Setting graph attribute
+        gnt.grid(b=True)
         # gnt.grid(b=True, which='major', color='#666666', linestyle='-')
         # gnt.minorticks_on()
         # gnt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+
+        # save gannt chart
+        if filename is not None:
+            plt.savefig(title + '.png')
 
         # show gantt chart
         plt.show()

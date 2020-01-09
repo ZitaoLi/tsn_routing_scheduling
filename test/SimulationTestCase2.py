@@ -11,7 +11,7 @@ from src.graph.Solver import Solver
 from src.graph.TopoGenerator import TopoGenerator
 from src.net_envs.network.TSNNetwork import TSNNetwork
 from src.net_envs.network.TSNNetworkFactory import TSNNetworkFactory
-from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, NodeId
+from src.type import ROUTING_STRATEGY, SCHEDULING_STRATEGY, ALLOCATING_STRATEGY, NodeId, RELIABILITY_STRATEGY
 from src.utils.ConfigFileGenerator import ConfigFileGenerator
 
 logging.basicConfig(level=logging.INFO)
@@ -27,7 +27,9 @@ class SimulationTestCase2(unittest.TestCase):
         self.graph = self.graph.to_directed()
         TopoGenerator.draw(self.graph)
 
-        config.TESTING['generate-flow'] = False  # whether enable flow generation or not
+        config.TESTING['generate-flow'] = True  # whether enable flow generation or not
+        config.FLOW_CONFIG['reliability-set'] = [0.5]
+        config.FLOW_CONFIG['redundancy_degree'] = 2
         if config.TESTING['generate-flow']:
             attached_nodes: List[NodeId] = [1, 2, 3, 4]
             config.FLOW_CONFIG['dest-num-set'] = [1, 2, 3]
@@ -42,19 +44,21 @@ class SimulationTestCase2(unittest.TestCase):
         # config.GRAPH_CONFIG['routing_strategy'] = ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY
         config.GRAPH_CONFIG['scheduling_strategy'] = SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY
         config.GRAPH_CONFIG['allocating_strategy'] = ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
+        config.GRAPH_CONFIG['reliability-strategy'] = RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY
         solver: Solver = Solver(nx_graph=self.graph,
                                 flows=self.flows,
                                 topo_strategy=None,
                                 routing_strategy=config.GRAPH_CONFIG['routing_strategy'],
                                 scheduling_strategy=config.GRAPH_CONFIG['scheduling_strategy'],
-                                allocating_strategy=config.GRAPH_CONFIG['allocating_strategy'])
+                                allocating_strategy=config.GRAPH_CONFIG['allocating_strategy'],
+                                reliability_strategy=config.GRAPH_CONFIG['reliability-strategy'])
         self.solution = solver.generate_init_solution()
         solver.draw_gantt_chart(self.solution)  # draw gantt chart
         solution_name: str = solver.generate_solution_name(solution=self.solution, prefix='n7_f10_r6_')
         import os
         filename: str = os.path.join(config.res_dir, solution_name)
         solver.analyze(solution=self.solution, target_filename=filename)  # analyze solution
-        config.OPTIMIZATION['enable'] = True
+        config.OPTIMIZATION['enable'] = False
         if config.OPTIMIZATION['enable'] is True:
             # optimized method
             self.solution = solver.optimize()  # optimize

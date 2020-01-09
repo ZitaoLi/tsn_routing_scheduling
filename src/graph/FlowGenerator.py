@@ -177,6 +177,10 @@ class FlowGenerator:
     def flows2json(cls, flows: List[Flow]) -> str:
         _F: Dict[str] = dict()
         for _i, flow in enumerate(flows):
+            flow.routes_reliability = dict()
+            flow.routes = []
+            flow.walked_edges = set()
+            flow.negative_walked_edges = set()
             _F['f' + str(_i)] = json.dumps(flow.__dict__, default=cls._obj2json_helper)
         return json.dumps(_F)
 
@@ -186,6 +190,10 @@ class FlowGenerator:
         _F: List[Flow] = []
         for _flow_str in _flows_str.values():
             _f: Flow = json.loads(_flow_str, object_hook=cls._json2obj_helper)
+            _f.routes_reliability = dict()
+            _f.routes = []
+            _f.walked_edges = set()
+            _f.negative_walked_edges = set()
             _F.append(_f)
         return _F
 

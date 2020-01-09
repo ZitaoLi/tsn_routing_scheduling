@@ -64,20 +64,25 @@ class Solution:
         self.solution_name = self.generate_solution_name()
         self.runtime = 0.0
 
-    def generate_solution_name(self, prefix: str = '', postfix: str = '') -> str:
+    def generate_solution_name(self, prefix: str = '', postfix: str = '', name: str = None) -> str:
         solution_name: str = str(self.topo_strategy) + \
                              str(self.routing_strategy) + \
                              str(self.scheduling_strategy) + \
                              str(self.allocating_strategy)
-        solution_name = solution_name.replace('.', '_'). \
-            replace('ROUTING', '').replace('SCHEDULING', ''). \
-            replace('ALLOCATING', '').replace('TOPO', ''). \
-            replace('REDUNDANT', '').replace('STRATEGY', '').replace('SINGLE_', ''). \
-            replace('__', '_').replace('___', '_').replace('__', '_').rstrip('_').lstrip('_')
-        solution_name = prefix + solution_name + postfix
-        solution_name = solution_name.lower()
-        self.solution_name = solution_name
-        return solution_name
+        if name is not None and len(name) != 0:
+            self.solution_name = name
+        else:
+            solution_name = solution_name.replace('.', '_'). \
+                replace('ROUTING', '').replace('SCHEDULING', ''). \
+                replace('ALLOCATING', '').replace('TOPO', ''). \
+                replace('REDUNDANT', '').replace('STRATEGY', '').replace('SINGLE_', ''). \
+                replace('__', '_').replace('___', '_').replace('__', '_').rstrip('_').lstrip('_')
+            solution_name = prefix + solution_name + postfix
+            solution_name = solution_name.lower()
+            # solution_name = solution_name.replace('_', '-')
+            # solution_name = solution_name.upper()
+            self.solution_name = solution_name
+        return self.solution_name
 
 
 class Solver:
