@@ -24,6 +24,10 @@ class EnumerationMethodReliabilityStrategy(ReliabilityStrategy):
             self.flow_mapper[kwargs['fid']].routes_reliability[dest] = reliability_value
             return True
         else:
+            # # TODO faker code
+            # if len(routes) == 1:
+            #     self.flow_mapper[kwargs['fid']].routes_reliability[dest] = reliability_value
+            #     return True
             return False
 
 
