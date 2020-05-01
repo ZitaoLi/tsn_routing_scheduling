@@ -1,5 +1,6 @@
 import logging
 import json
+import copy
 from typing import List, Dict
 
 from math import ceil
@@ -37,11 +38,11 @@ class TimeSlotAllocator:
     min_flow_size: int  # minimal flow size, [unit: b]
     flow_times_mapper: Dict[int, List[AllocationBlock]]
     flow_times_mapper_c: Dict[int, List[AllocationBlock]]
-    # flow_times_mapper: dict[int, list[AllocationBlock]]
     allocation_blocks: List[AllocationBlock]  # time windows without merging operation
     allocation_blocks_c: List[AllocationBlock]
     allocation_blocks_m: List[AllocationBlock]  # time windows with merging operation
     allocation_blocks_m_c: List[AllocationBlock]
+    free_intervals: List[IntInterval]  # free intervals
     time_slot_len: int  # time slot length, [unit: us]
     time_slot_num: int  # number of time slots
     load: float  # load of edge
@@ -85,6 +86,9 @@ class TimeSlotAllocator:
         for _block_m in self.allocation_blocks_m:
             _interval: IntInterval = _block_m.interval
             _B_m.append([_interval.lower, _interval.upper])
+        _B_f: List[List[int]] = []
+        for _block_f in self.free_intervals:
+            _B_f.append([_block_f.lower, _block_f.upper])
         o = {
             'edge id': self.edge_id,
             'hyper_period': str(self.__hyper_period) + ' ns',
@@ -100,6 +104,8 @@ class TimeSlotAllocator:
             'raw_allocation_blocks': _B,
             'merged allocation blocks num': len(self.allocation_blocks_m),
             'merged_allocation_blocks': _B_m,
+            'free allocation blocks num': len(self.free_intervals),
+            'free_allocation_blocks': _B_f,
         }
         _json = json.dumps(o)
         logger.info(_json)
@@ -143,12 +149,14 @@ class TimeSlotAllocator:
             # self.time_slot_num = floor(self.__hyper_period / self.time_slot_len)
             self.time_slot_len = ceil(self.min_flow_size / config.GRAPH_CONFIG['max-bandwidth'])  # TODO fix bug here
             self.time_slot_num = floor(self.__hyper_period / self.time_slot_len)
+            self.free_intervals = [IntInterval.closed(0, self.time_slot_num - 1)]
         else:
             self.time_slot_len = 0
             self.time_slot_num = 0
+            self.free_intervals = []
         self.to_string()
 
-    def set_bandwidth(self, b: float) -> bool:
+    def set_bandwidth(self, b: float):
         '''
         change bandwidth will affect time slots at the same time
         :param b: bandwidth
@@ -173,6 +181,36 @@ class TimeSlotAllocator:
             logger.info('time slots allocation on edge [' + str(self.edge_id) + '] has been reset')
         else:
             logger.info('time slots of edge [' + str(self.edge_id) + '] has no change')
+
+    def merge_allocation_blocks(self) -> List[AllocationBlock]:
+        # self.allocation_blocks.sort(key=lambda b: b.interval.lower)
+        merged_allocation_blocks: List[AllocationBlock] = []
+        for block in self.allocation_blocks:
+            if not merged_allocation_blocks or merged_allocation_blocks[-1].interval.upper < block.interval.lower:
+                _block: AllocationBlock = copy.deepcopy(block)
+                merged_allocation_blocks.append(_block)
+            elif self._is_same_flow(merged_allocation_blocks[-1].flow_id,
+                                    block.flow_id,
+                                    merged_allocation_blocks[-1].send_time_offset,
+                                    block.send_time_offset,
+                                    block.interval.upper - block.interval.lower + 1):
+                merged_allocation_blocks[-1].interval.upper = max(merged_allocation_blocks[-1].interval.upper,
+                                                                  block.interval.upper)
+            else:
+                _block: AllocationBlock = copy.deepcopy(block)
+                merged_allocation_blocks.append(block)
+        return merged_allocation_blocks
+
+    def calculate_free_blocks(self) -> List[IntInterval]:
+        free_blocks: List[IntInterval] = []
+        lower: int = 0
+        for block in self.allocation_blocks_m:
+            if block.interval.lower != 0 and lower < block.interval.lower:
+                free_blocks.append(IntInterval.closed(lower, block.interval.lower - 1))
+            lower = block.interval.upper + 1
+        if lower < self.time_slot_num:
+            free_blocks.append(IntInterval.closed(lower, self.time_slot_num - 1))
+        return free_blocks
 
     def allocate(self, flow: Flow, arrival_time_offset, send_time_offset: int, phase_num: int, allocation_num: int):
         for _phase in range(phase_num):
@@ -216,7 +254,7 @@ class TimeSlotAllocator:
                             self.allocation_blocks.insert(_i, __block)
                             break
                         else:
-                            if _i >= _block_num - 1:
+                            if _i >= _block_num - 1:  # append to last
                                 self.allocation_blocks.insert(_i + 1, __block)
                                 break
             if _phase == 0:
@@ -229,108 +267,121 @@ class TimeSlotAllocator:
             else:
                 __blocks: List[AllocationBlock] = _blocks.copy()
                 self.flow_times_mapper[flow.flow_id] = __blocks
-            # insert with merging operation
-            for __block in _blocks:
-                if len(self.allocation_blocks_m) == 0:
-                    self.allocation_blocks_m.append(__block)
-                else:
-                    for _i, block_m in enumerate(self.allocation_blocks_m):
-                        if __block.interval.lower <= block_m.interval.lower:
-                            self.allocation_blocks_m.insert(_i, __block)
-                            if __block.interval.upper in block_m.interval and __block.flow_id == block_m.flow_id:
-                                __block.interval.upper = block_m.interval.upper
-                                del self.allocation_blocks_m[_i + 1]
-                            if _i != 0:
-                                _pre_block_m: AllocationBlock = self.allocation_blocks_m[_i - 1]
-                                if __block.interval.lower in _pre_block_m.interval and __block.flow_id == block_m.flow_id:
-                                    __block.interval.lower = _pre_block_m.interval.lower
-                                    del self.allocation_blocks_m[_i - 1]
-                            break
-                        else:
-                            if _i >= _block_m_num - 1:
-                                self.allocation_blocks_m.insert(_i + 1, __block)
-                                _pre_block_m: AllocationBlock = self.allocation_blocks_m[_i]
-                                if __block.interval.lower in _pre_block_m.interval and __block.flow_id == block_m.flow_id:
-                                    __block.interval.lower = _pre_block_m.interval.lower
-                                    del self.allocation_blocks_m[_i]
-                                break
-            # compute edge load and time slot that used by flow
-            _sum: int = 0
-            for _block_m in self.allocation_blocks_m:
-                _sum += _block_m.interval.upper - _block_m.interval.lower + 1
-            self.time_slot_used = _sum
-            self.load = self.time_slot_used / self.time_slot_num
+            # # insert with merging operation
+            # for __block in _blocks:
+            #     if len(self.allocation_blocks_m) == 0:
+            #         self.allocation_blocks_m.append(__block)
+            #     else:
+            #         for _i, block_m in enumerate(self.allocation_blocks_m):
+            #             if __block.interval.lower <= block_m.interval.lower:
+            #                 self.allocation_blocks_m.insert(_i, __block)
+            #                 if __block.interval.upper in block_m.interval and __block.flow_id == block_m.flow_id:
+            #                     __block.interval.upper = block_m.interval.upper
+            #                     del self.allocation_blocks_m[_i + 1]
+            #                 if _i != 0:
+            #                     _pre_block_m: AllocationBlock = self.allocation_blocks_m[_i - 1]
+            #                     if __block.interval.lower in _pre_block_m.interval and __block.flow_id == block_m.flow_id:
+            #                         __block.interval.lower = _pre_block_m.interval.lower
+            #                         del self.allocation_blocks_m[_i - 1]
+            #                 break
+            #             else:
+            #                 if _i >= _block_m_num - 1:
+            #                     self.allocation_blocks_m.insert(_i + 1, __block)
+            #                     _pre_block_m: AllocationBlock = self.allocation_blocks_m[_i]
+            #                     if __block.interval.lower in _pre_block_m.interval and __block.flow_id == block_m.flow_id:
+            #                         __block.interval.lower = _pre_block_m.interval.lower
+            #                         del self.allocation_blocks_m[_i]
+            #                     break
             # if flow not exit, then the number of flow add 1
             if flow.flow_id not in self.flow_times_mapper:
                 self.flow_num += 1
             # add to next phase
             send_time_offset += flow.period
+        # calculate merged allocation blocks
+        self.allocation_blocks_m = self.merge_allocation_blocks()
+        # calculate free allocation blocks
+        self.free_intervals = self.calculate_free_blocks()
+        # calculate time slot used
+        _sum: int = 0
+        for _block_m in self.allocation_blocks_m:
+            _sum += _block_m.interval.upper - _block_m.interval.lower + 1
+        self.time_slot_used = _sum
+        # add guard band
+        total_guard_band: int = 0
+        block_num = len(self.allocation_blocks_m)
+        for i in range(block_num):
+            if i + 1 < block_num and self.allocation_blocks_m[i].interval.upper + 1 != \
+                    self.allocation_blocks_m[i + 1].interval.lower:
+                total_guard_band += 1
+        self.time_slot_used += total_guard_band
+        # calculate payload
+        self.load = self.time_slot_used / self.time_slot_num
 
-    def allocate_aeap_overlap(self, flow: Flow, arrival_time_offset: int) -> int:
-        allocation_num: int = ceil(flow.size / self.bandwidth / self.time_slot_len)  # needed time slots
-        phase_num: int = ceil(self.hyper_period / flow.period)  # number of repetitions
-        _send_time_offset: int = 0
-        _next_arrival_time_offset: int = 0
-        _B: List[AllocationBlock] = self.flow_times_mapper.get(flow.flow_id)
-        _flag: bool = False
-        if _B is not None:
-            _b: AllocationBlock = list(filter(lambda b: b.phase == 0, _B))[0]
-            # if arrival time offset dost not exceed send time offset, then we can delay it and make it overlapped fully
-            # otherwise, we can just allocate it as early as possible
-            if arrival_time_offset <= _b.send_time_offset:
-                _send_time_offset = _b.send_time_offset
-                if self.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period,
-                                     overlaped=True):
-                    self.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
-                    _flag = True
-                else:
-                    logger.error('allocate time slots error on edge [' + str(self.edge_id) + ']')
-                    logger.error('send time offset: ' + str(_send_time_offset))
-                    logger.error('error interval: ' + str([_b.interval.lower, _b.interval.upper]))
-                    # self.to_string()
-                    return -1
-        if _flag is False:
-            _send_time_offset = arrival_time_offset
-            # flow cannot be delayed more than (number of time slots on edge - number of needed time slots)
-            for _i in range(self.time_slot_num - allocation_num):
-                if self.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period):
-                    self.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
-                    _flag = True
-                    break
-                _send_time_offset += self.time_slot_len
-        # allocation failure
-        if _flag is False:
-            logger.info('allocate time slots for flow [' + str(flow.flow_id) + '] failure')
-            return -1
-        else:
-            _next_arrival_time_offset = \
-                _send_time_offset + (allocation_num * self.time_slot_len) + self.propagation_delay + self.process_delay
-            self.to_string()
-            return _next_arrival_time_offset
+    # def allocate_aeap_overlap(self, flow: Flow, arrival_time_offset: int) -> int:
+    #     allocation_num: int = ceil(flow.size / self.bandwidth / self.time_slot_len)  # needed time slots
+    #     phase_num: int = ceil(self.hyper_period / flow.period)  # number of repetitions
+    #     _send_time_offset: int = 0
+    #     _next_arrival_time_offset: int = 0
+    #     _B: List[AllocationBlock] = self.flow_times_mapper.get(flow.flow_id)
+    #     _flag: bool = False
+    #     if _B is not None:
+    #         _b: AllocationBlock = list(filter(lambda b: b.phase == 0, _B))[0]
+    #         # if arrival time offset dost not exceed send time offset, then we can delay it and make it overlapped fully
+    #         # otherwise, we can just allocate it as early as possible
+    #         if arrival_time_offset <= _b.send_time_offset:
+    #             _send_time_offset = _b.send_time_offset
+    #             if self.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period,
+    #                                  overlaped=True):
+    #                 self.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
+    #                 _flag = True
+    #             else:
+    #                 logger.error('allocate time slots error on edge [' + str(self.edge_id) + ']')
+    #                 logger.error('send time offset: ' + str(_send_time_offset))
+    #                 logger.error('error interval: ' + str([_b.interval.lower, _b.interval.upper]))
+    #                 # self.to_string()
+    #                 return -1
+    #     if _flag is False:
+    #         _send_time_offset = arrival_time_offset
+    #         # flow cannot be delayed more than (number of time slots on edge - number of needed time slots)
+    #         for _i in range(self.time_slot_num - allocation_num):
+    #             if self.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period):
+    #                 self.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
+    #                 _flag = True
+    #                 break
+    #             _send_time_offset += self.time_slot_len
+    #     # allocation failure
+    #     if _flag is False:
+    #         logger.info('allocate time slots for flow [' + str(flow.flow_id) + '] failure')
+    #         return -1
+    #     else:
+    #         _next_arrival_time_offset = \
+    #             _send_time_offset + (allocation_num * self.time_slot_len) + self.propagation_delay + self.process_delay
+    #         self.to_string()
+    #         return _next_arrival_time_offset
 
-    def allocate_aeap(self, flow: Flow, arrival_time_offset: int) -> int:
-        allocation_num: int = ceil(flow.size / self.bandwidth / self.time_slot_len)  # needed time slots
-        phase_num: int = ceil(self.hyper_period / flow.period)  # number of repetitions
-        _send_time_offset: int = arrival_time_offset
-        _next_arrival_time_offset: int = 0
-        _flag: bool = False
-        # flow cannot be delayed more than (number of time slots on edge - number of needed time slots)
-        for _i in range(self.time_slot_num - allocation_num):
-            if self.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period,
-                                 overlaped=True):
-                self.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
-                _flag = True
-                break
-            _send_time_offset += self.time_slot_len
-        # allocation failure
-        if _flag is False:
-            logger.info('allocate time slots for flow [' + str(flow.flow_id) + '] failure')
-            return -1
-        else:
-            _next_arrival_time_offset = \
-                _send_time_offset + (allocation_num * self.time_slot_len) + self.propagation_delay + self.process_delay
-            self.to_string()
-            return _next_arrival_time_offset
+    # def allocate_aeap(self, flow: Flow, arrival_time_offset: int) -> int:
+    #     allocation_num: int = ceil(flow.size / self.bandwidth / self.time_slot_len)  # needed time slots
+    #     phase_num: int = ceil(self.hyper_period / flow.period)  # number of repetitions
+    #     _send_time_offset: int = arrival_time_offset
+    #     _next_arrival_time_offset: int = 0
+    #     _flag: bool = False
+    #     # flow cannot be delayed more than (number of time slots on edge - number of needed time slots)
+    #     for _i in range(self.time_slot_num - allocation_num):
+    #         if self.try_allocate(_send_time_offset, flow.flow_id, allocation_num, phase_num, flow.period,
+    #                              overlaped=True):
+    #             self.allocate(flow, arrival_time_offset, _send_time_offset, phase_num, allocation_num)
+    #             _flag = True
+    #             break
+    #         _send_time_offset += self.time_slot_len
+    #     # allocation failure
+    #     if _flag is False:
+    #         logger.info('allocate time slots for flow [' + str(flow.flow_id) + '] failure')
+    #         return -1
+    #     else:
+    #         _next_arrival_time_offset = \
+    #             _send_time_offset + (allocation_num * self.time_slot_len) + self.propagation_delay + self.process_delay
+    #         self.to_string()
+    #         return _next_arrival_time_offset
 
     @staticmethod
     def _is_same_flow(id1: int, id2: int, offset1: int, offset2: int, allocation_num: int) -> bool:

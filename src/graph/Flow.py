@@ -17,7 +17,8 @@ class Flow:
     reliability: float  # reliability requirement of flow
     deadline: int  # end-to-end delay requirement of flow [unit: ns]
     routes: List[List[List[int]]]  # routes of flow
-    routes_reliability: Dict[int, float]  # reliability of routes, e.g., [(s, d1, e2e_r), ...]
+    routes_reliability: Dict[int, float]  # reliability of routes, e.g., [(d1, e2e_r), ...]
+    # routes_delay: Dict[int, float]  # end-to-end delay of routes, e.g., [(d1, e2e_d), ...]
     walked_edges: Set[int]  # the edge flow walked
     negative_walked_edges: Set[int]  # negative walked set used for flow sorting during routing phase
 

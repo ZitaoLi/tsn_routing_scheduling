@@ -143,7 +143,7 @@ class Solver:
         _g: Graph = self.final_solution.graph
         _F_r: List[int] = [_flow.flow_id for _flow in self.final_solution.flows]
         logger.info('route ' + str(_F_r) + '...')
-        # _g.flow_router.route_flows(_F)  # routing
+        # initialize strategies
         _routing_strategy: RoutingStrategy = \
             RoutingStrategyFactory.get_instance(self.final_solution.routing_strategy, _g)
         _scheduling_strategy: SchedulingStrategy = \
@@ -153,7 +153,6 @@ class Solver:
         _reliability_strategy: ReliabilityStrategy = \
             ReliabilityStrategyFactory.get_instance(self.final_solution.reliability_strategy, _g)
         # set routing strategy and route flows
-        # _routing_strategy.reliability_strategy = _reliability_strategy
         _g.flow_router.routing_strategy = _routing_strategy
         _g.flow_router.reliability_strategy = _reliability_strategy
         _g.flow_router.overlapped = config.GRAPH_CONFIG['overlapped-routing']
@@ -162,7 +161,6 @@ class Solver:
         _F_s = [_fid for _fid in _F_r if
                 _fid not in _g.flow_router.failure_queue]  # select successful flows after routing
         logger.info('schedule ' + str(_F_s) + '...')
-        # _g.flow_scheduler.schedule_flows(_F)  # scheduling
         # set scheduling and allocating strategy and schedule flows
         _g.flow_scheduler.scheduling_strategy = _scheduling_strategy
         _g.flow_scheduler.allocating_strategy = _allocating_strategy
@@ -178,11 +176,16 @@ class Solver:
                  max_iterations: int = config.OPTIMIZATION['max_iterations'],
                  max_no_improve: int = config.OPTIMIZATION['max_no_improve'],
                  k: int = config.OPTIMIZATION['k']) -> Solution:
+        allocation_strategies: List[AllocatingStrategy] = [
+            AllocatingStrategyFactory.get_instance(ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY),
+            AllocatingStrategyFactory.get_instance(ALLOCATING_STRATEGY.AEAPBF_ALLOCATING_STRATEGY),
+            AllocatingStrategyFactory.get_instance(ALLOCATING_STRATEGY.AEAPWF_ALLOCATING_STRATEGY),
+        ]
         start_time: time.process_time = time.perf_counter()
         _o: float = self.objective_function(self.final_solution)
         for i in range(max_iterations):
             _s: Solution = self.perturbate(k)  # perturbation to generate a new solution
-            _s_hat: Solution = self.local_search(_s, max_no_improve)
+            _s_hat: Solution = self.local_search(_s, max_no_improve, allocation_strategies)
             logger.info('local search objective function value = ' + str(self.objective_function(_s_hat)))
             self.apply_acceptance_criterion(_s_hat)
         end_time: time.process_time = time.perf_counter()
@@ -192,7 +195,8 @@ class Solver:
         logger.info('final objective function value = ' + str(self.objective_function(self.final_solution)))
         return self.final_solution
 
-    def local_search(self, _s: Solution, max_no_improve: int) -> Solution:
+    def local_search(self, _s: Solution, max_no_improve: int,
+                     allocation_strategies: List[AllocatingStrategy]) -> Solution:
         # TODO local search
         _sf: Solution = _s
         _o: float = 0.0
@@ -209,6 +213,7 @@ class Solver:
             _sc.graph.flow_router.route_flows(_F)
             _F = [_fid for _fid in _F if _fid not in _s.graph.flow_router.failure_queue]
             # rescheduling
+            _sc.graph.flow_scheduler.allocating_strategy = random.choice(allocation_strategies)
             _sc.graph.flow_scheduler.schedule(_F)  # scheduling
             # recombination failure queue
             _sc.graph.combine_failure_queue()
@@ -304,49 +309,54 @@ class Solver:
         solution.solution_name = solution_name  # 副作用
         return solution_name
 
-    def analyze(self, solution: Solution, target_filename: str = None):
-        flow_id_list: List[FlowId] = [flow.flow_id for flow in solution.flows]
-        failed_flow_id_list: List[FlowId] = solution.failure_flows
-        successful_flow_id_list: List[FlowId] = list(set(flow_id_list) - set(failed_flow_id_list))
-        successful_flow: List[Flow] = list(filter(lambda flow: flow.flow_id in successful_flow_id_list, solution.flows))
-        bandwidth_list: List[float] = [flow.bandwidth for flow in successful_flow]
-        flow_num: int = len(flow_id_list)  # number of flows
-        edge_list: List[Edge] = list(solution.graph.edge_mapper.values())
-        edge_num: int = len(edge_list)
-        node_num: int = len(solution.graph.nodes)
-        load_list: List[float] = [edge.time_slot_allocator.load for edge in edge_list]
-        import numpy as np
-        successful_flow_num: int = len(successful_flow_id_list)  # number of successful flows
-        ideal_throughput: float = sum(bandwidth_list)  # ideal throughput
-        actual_throughput: float = 0.0  # actual throughput
-        max_load: float = np.max(load_list)  # maximum load
-        min_load: float = np.min(load_list)  # min load
-        average_load: float = np.average(load_list)  # averaged load
-        median_load: float = np.median(load_list)  # median load
-        runtime: float = '{:.9f}'.format(self.runtime)
-        logging.info('number of flows: {}'.format(flow_num))
-        logging.info('number of nodes: {}'.format(node_num))
-        logger.info('number of available flows: ' + str(successful_flow_num))
-        logger.info('ideal throughput: ' + str(ideal_throughput * 1000) + 'Mbps')
-        logger.info('actual throughput: ' + str(actual_throughput * 1000) + 'Mbps')
-        logger.info('runtime: {}s'.format(runtime))
-        logger.info('maximum load {}%'.format(max_load * 100))
-        logger.info('average load {}%'.format(average_load * 100))
-        logger.info('median load {}%'.format(median_load * 100))
-        import csv
-        with open(target_filename + '.csv', 'a', newline='') as file:
-            writer: csv.writer = csv.writer(file)
-            line: list = [
-                flow_num,  # number of flows
-                node_num,  # number of nodes
-                edge_num,  # number of edges
-                successful_flow_num,  # number of successful flows
-                ideal_throughput,  # ideal throughput
-                actual_throughput,  # actual throughput
-                runtime,  # runtime
-                max_load,  # maximum load
-                min_load,  # minimum load
-                average_load,  # average load
-                median_load  # median load
-            ]
-            writer.writerow(line)
+    # def analyze(self, solution: Solution, target_filename: str = None):
+    #     import numpy as np
+    #     flow_id_list: List[FlowId] = [flow.flow_id for flow in solution.flows]
+    #     edge_list: List[Edge] = list(solution.graph.edge_mapper.values())
+    #     load_list: List[float] = [edge.time_slot_allocator.load for edge in edge_list]
+    #     failed_flow_id_list: List[FlowId] = solution.failure_flows
+    #     successful_flow_id_list: List[FlowId] = list(set(flow_id_list) - set(failed_flow_id_list))
+    #     successful_flow: List[Flow] = list(filter(lambda flow: flow.flow_id in successful_flow_id_list, solution.flows))
+    #     bandwidth_list: List[float] = [flow.bandwidth for flow in successful_flow]
+    #     flow_reliability_list: List[float] = [rel for rel in
+    #                                           [flow.routes_reliability for flow in successful_flow].values()]
+    #     flow_num: int = len(flow_id_list)  # number of flows
+    #     edge_num: int = len(edge_list)  # number of edges
+    #     node_num: int = len(solution.graph.nodes)  # number of nodes
+    #     successful_flow_num: int = len(successful_flow_id_list)  # number of successful flows
+    #     ideal_throughput: float = sum(bandwidth_list)  # ideal throughput
+    #     actual_throughput: float = 0.0  # actual throughput
+    #     max_load: float = np.max(load_list)  # maximum load
+    #     min_load: float = np.min(load_list)  # min load
+    #     average_load: float = np.average(load_list)  # averaged load
+    #     median_load: float = np.median(load_list)  # median load
+    #     actual_reliability: float = sum(flow_reliability_list) / len(flow_reliability_list)  # actual reliability
+    #     runtime: float = '{:.9f}'.format(self.runtime)
+    #     logging.info('number of flows: {}'.format(flow_num))
+    #     logging.info('number of nodes: {}'.format(node_num))
+    #     logger.info('number of available flows: ' + str(successful_flow_num))
+    #     logger.info('ideal throughput: ' + str(ideal_throughput * 1000) + 'Mbps')
+    #     logger.info('actual throughput: ' + str(actual_throughput * 1000) + 'Mbps')
+    #     logger.info('runtime: {}s'.format(runtime))
+    #     logger.info('maximum load {}%'.format(max_load * 100))
+    #     logger.info('average load {}%'.format(average_load * 100))
+    #     logger.info('median load {}%'.format(median_load * 100))
+    #     logger.info('actual reliability {}%'.format(actual_reliability * 100))
+    #     import csv
+    #     with open(target_filename + '.csv', 'a', newline='') as file:
+    #         writer: csv.writer = csv.writer(file)
+    #         line: list = [
+    #             flow_num,  # number of flows
+    #             node_num,  # number of nodes
+    #             edge_num,  # number of edges
+    #             successful_flow_num,  # number of successful flows
+    #             ideal_throughput,  # ideal throughput
+    #             actual_throughput,  # actual throughput
+    #             runtime,  # runtime
+    #             max_load,  # maximum load
+    #             min_load,  # minimum load
+    #             average_load,  # average load
+    #             median_load,  # median load
+    #             actual_reliability,  # actual reliability
+    #         ]
+    #         writer.writerow(line)

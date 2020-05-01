@@ -74,7 +74,7 @@ FLOW_CONFIG = {
     'deadline-set': [int(1e8), int(5e7), int(2e7)],
     'redundancy_degree': 1,
     'max-redundancy-degree': 5,
-    'max-hops': 8,  # max hops
+    'max-hops': 10,  # max hops
     'un-neighbors_degree': 1.0  # avoid source and node connecting at the same node
 }
 
@@ -82,7 +82,7 @@ OPTIMIZATION = {
     'enable': False,  # whether enable optimization or not
     'flows-generator': False,  # whether generate new flows or not
     'max_iterations': 50,  # maximum iteration times
-    'max_no_improve': 50,  # maximum local search width
+    'max_no_improve': 10,  # maximum local search width
     'k': 0.3,  # ratio of removed flows
     'results-root-path': '/src/json/'  # root path of results
 }
