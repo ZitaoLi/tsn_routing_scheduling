@@ -26,12 +26,12 @@ logger = logging.getLogger(__name__)
 # logging.disable(logging.INFO)
 
 
-class MergeAllocationBlocksTestCase(unittest.TestCase):
+class GraphSizeTestCase(unittest.TestCase):
 
     def setUp(self):
         config.TESTING['round'] = [1, 1]  # [1, 5]
-        config.TESTING['flow-size'] = [10, 100]
-        config.TESTING['x-axis-gap'] = 5
+        config.TESTING['flow-size'] = [50, 50]
+        config.TESTING['x-axis-gap'] = 1
         config.TESTING['draw-gantt-chart'] = False
         config.OPTIMIZATION['enable'] = True
         config.FLOW_CONFIG['redundancy_degree'] = 2  # at least 2 end-to-end routes
@@ -47,7 +47,7 @@ class MergeAllocationBlocksTestCase(unittest.TestCase):
         config.GRAPH_CONFIG['all-propagation-delay'] = 0  # 1e2 100ns
         config.GRAPH_CONFIG['all-process-delay'] = 0  # 5e3 5us
         config.GRAPH_CONFIG['all-per'] = 0.004  # 0.4%
-        config.GRAPH_CONFIG['core-node-num'] = 10
+        config.GRAPH_CONFIG['core-node-num'] = [10, 20]
         config.GRAPH_CONFIG['edge-node-num'] = 10
         config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = 6
 
@@ -56,23 +56,25 @@ class MergeAllocationBlocksTestCase(unittest.TestCase):
 
     def test_allocation_methods(self, topo_strategy_entities: List, combinations: List = None):
         for topo_strategy_entity in topo_strategy_entities:
-            # set topology strategy
-            self.topo_generator.topo_strategy = TopoStrategyFactory.get_instance(**topo_strategy_entity)
-            # generate topology
-            graph: nx.Graph = self.topo_generator.generate_core_topo()
-            attached_edge_nodes_num: int = config.GRAPH_CONFIG['edge-node-num']
-            attached_edge_nodes: List[NodeId] = self.topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
-            self.topo_generator.draw(graph)
-            # generate flows
-            flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes,
-                                                             graph=graph,
-                                                             flow_num=config.TESTING['flow-size'][1])
-            for combination in combinations:
-                for i in range(config.TESTING['flow-size'][0],
-                               config.TESTING['flow-size'][1] + 1,
-                               config.TESTING['x-axis-gap']):
+            for i in range(config.GRAPH_CONFIG['core-node-num'][0],
+                           config.GRAPH_CONFIG['core-node-num'][1] + 1,
+                           config.TESTING['x-axis-gap']):
+                # set topology strategy
+                topo_strategy_entity['n'] = i
+                self.topo_generator.topo_strategy = TopoStrategyFactory.get_instance(**topo_strategy_entity)
+                # generate topology
+                graph: nx.Graph = self.topo_generator.generate_core_topo()
+                attached_edge_nodes_num: int = config.GRAPH_CONFIG['edge-node-num']
+                attached_edge_nodes: List[NodeId] = self.topo_generator.attach_edge_nodes(graph,
+                                                                                          attached_edge_nodes_num)
+                # self.topo_generator.draw(graph)
+                # generate flows
+                flows: List[Flow] = FlowGenerator.generate_flows(edge_nodes=attached_edge_nodes,
+                                                                 graph=graph,
+                                                                 flow_num=config.TESTING['flow-size'][1])
+                for combination in combinations:
                     solver: Solver = Solver(nx_graph=graph,
-                                            flows=flows[:i],
+                                            flows=flows,
                                             topo_strategy=topo_strategy_entity['strategy'],
                                             routing_strategy=combination['routing_strategy'],
                                             scheduling_strategy=combination['scheduling_strategy'],
@@ -81,10 +83,10 @@ class MergeAllocationBlocksTestCase(unittest.TestCase):
                     # origin method
                     solution = solver.generate_init_solution()  # get initial solution
                     solution.generate_solution_name(
-                        prefix='b_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
+                        prefix='b_gz_t{}_f{}_'.format(self.test_round, len(flows)))
                     Analyzer.analyze_flow_size(
                         solution,
-                        target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
+                        target_filename=os.path.join(config.graph_size_res_dir, solution.solution_name))
                     if config.TESTING['draw-gantt-chart'] is True:
                         solver.draw_gantt_chart(solution)
                     logger.info('Native Objective: ' + str(solver.objective_function(solution)))
@@ -96,10 +98,10 @@ class MergeAllocationBlocksTestCase(unittest.TestCase):
                         continue
                     solution = solver.optimize()  # optimize
                     solution.generate_solution_name(
-                        prefix='o_fz_t{}_n{}_'.format(self.test_round, len(solution.graph.nodes)))
+                        prefix='o_gz_t{}_f{}_'.format(self.test_round, len(flows)))
                     Analyzer.analyze_flow_size(
                         solution,
-                        target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
+                        target_filename=os.path.join(config.graph_size_res_dir, solution.solution_name))
                     if config.TESTING['draw-gantt-chart'] is True:
                         solver.draw_gantt_chart(solution)
                     logger.info('Optimal Objective: ' + str(solver.objective_function(solution)))
@@ -110,7 +112,7 @@ class MergeAllocationBlocksTestCase(unittest.TestCase):
             self.test_round = test_round
             self.test_allocation_methods(
                 [
-                    {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
+                    {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 4, 'n': 10},
                     # {'strategy': TOPO_STRATEGY.ER_STRATEGY, 'type': ErdosRenyiStrategy.ER_TYPE.GNP, 'n': 10, 'm': 14,
                     #  'p': 0.2},
                     # {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 2},
