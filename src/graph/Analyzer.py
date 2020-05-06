@@ -26,7 +26,10 @@ class Analyzer(object):
         for edge in destination_edges:
             for block in edge.time_slot_allocator.flow_times_mapper[flow.flow_id]:
                 delay_list.append(block.send_time_offset + math.ceil(flow.size / edge.time_slot_allocator.bandwidth))
-        return int(np.mean(delay_list))
+        if len(delay_list) == 0:
+            return 0
+        else:
+            return int(np.mean(delay_list))
 
     @staticmethod
     def calculate_guard_band_on_edge(allocator: TimeSlotAllocator) -> int:
