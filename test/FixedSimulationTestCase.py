@@ -56,11 +56,16 @@ class FixedSimulationTestCase(unittest.TestCase):
 
         # create flows
         self.flows: List[Flow] = [
-            Flow(1, int(1e3), int(1e5), 1, [9, 10], 0.5, int(1e8)),
-            Flow(2, int(1e3), int(1e5), 2, [9, 10], 0.5, int(1e8)),
-            Flow(3, int(1e3), int(1e5), 9, [1, 2], 0.5, int(1e8)),
-            Flow(4, int(1e3), int(1e5), 9, [10, 11], 0.5, int(1e8)),
-            Flow(5, int(1e3), int(1e5), 10, [2], 0.5, int(1e8))
+            Flow(1, int(1e3), int(1e5), 1, [9, 10], 0.5, int(2e7)),  # 125B 100us 20ms
+            Flow(2, int(1e3), int(1e5), 2, [1, 10], 0.5, int(2e7)),  # 125B 100us 20ms
+            Flow(3, int(1e3), int(1e5), 9, [2, 11], 0.5, int(2e7)),  # 125B 100us 20ms
+            Flow(4, int(1.6e3), int(1e5), 10, [1, 2], 0.5, int(5e7)),  # 200B 100us 50ms
+            Flow(5, int(2.4e3), int(1e5), 11, [1, 2], 0.5, int(5e7)),  # 300B 100us 50ms
+            Flow(6, int(2.4e3), int(1.5e5), 1, [11], 0.5, int(5e7)),  # 300B 150us 50ms
+            Flow(7, int(5e3), int(1.5e5), 2, [9, 10], 0.5, int(1e8)),  # 625B 150us 100ms
+            Flow(8, int(5e3), int(1.5e5), 9, [2], 0.5, int(1e8)),  # 625B 150us 100ms
+            Flow(9, int(1.184e4), int(3e5), 10, [2], 0.5, int(1e8)),  # 1480B 300us 100ms
+            Flow(10, int(1.184e4), int(3e5), 11, [1, 2], 0.5, int(1e8)),  # 1480B 300us 100ms
         ]
         # create topology
         edges: List[Tuple[int, int]] = [(1, 3), (2, 4), (3, 4), (3, 5), (3, 6), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8),
