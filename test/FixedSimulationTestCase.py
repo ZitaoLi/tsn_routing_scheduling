@@ -37,7 +37,7 @@ class FixedSimulationTestCase(unittest.TestCase):
         config.TESTING['x-axis-gap'] = 5
         config.TESTING['draw-gantt-chart'] = False
         config.OPTIMIZATION['enable'] = False
-        config.FLOW_CONFIG['redundancy_degree'] = 2  # at least 2 end-to-end routes
+        config.FLOW_CONFIG['redundancy_degree'] = 5  # at least 2 end-to-end routes
         config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
         config.FLOW_CONFIG['un-neighbors_degree'] = 1  # avoid source and node connecting at the same node
         config.FLOW_CONFIG['size-set'] = [int(1.6e3), int(5e3), int(1e3)]  # [200B, 625B, 125B]
@@ -70,6 +70,8 @@ class FixedSimulationTestCase(unittest.TestCase):
         # create topology
         edges: List[Tuple[int, int]] = [(1, 3), (2, 4), (3, 4), (3, 5), (3, 6), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8),
                                         (7, 9), (8, 10), (8, 11)]
+        # edges: List[Tuple[int, int]] = [(1, 5), (2, 6), (3, 8), (4, 11), (5, 6), (5, 9),
+        #                                 (6, 7), (7, 9), (7, 8), (8, 9), (8, 11), (9, 10), (10, 11)]
         self.graph: nx.Graph = nx.Graph()
         self.graph.add_edges_from(edges)
         self.graph = self.graph.to_directed()
