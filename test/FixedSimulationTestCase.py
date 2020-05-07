@@ -56,10 +56,14 @@ class FixedSimulationTestCase(unittest.TestCase):
 
         # create flows
         self.flows: List[Flow] = [
-            Flow(1, int(1e3), int(1e5), 1, [9, 10], 0.5, int(1e8))
+            Flow(1, int(1e3), int(1e5), 1, [9, 10], 0.5, int(1e8)),
+            Flow(2, int(1e3), int(1e5), 2, [9, 10], 0.5, int(1e8)),
+            Flow(3, int(1e3), int(1e5), 9, [1, 2], 0.5, int(1e8)),
+            Flow(4, int(1e3), int(1e5), 9, [10, 11], 0.5, int(1e8)),
+            Flow(5, int(1e3), int(1e5), 10, [2], 0.5, int(1e8))
         ]
         # create topology
-        edges: List[Tuple[int, int]] = [(1, 3), (2, 4), (3, 4), (3.5), (3, 6), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8),
+        edges: List[Tuple[int, int]] = [(1, 3), (2, 4), (3, 4), (3, 5), (3, 6), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8),
                                         (7, 9), (8, 10), (8, 11)]
         self.graph: nx.Graph = nx.Graph()
         self.graph.add_edges_from(edges)
@@ -81,7 +85,7 @@ class FixedSimulationTestCase(unittest.TestCase):
                                     reliability_strategy=combination['reliability_strategy'])
             solution = solver.generate_init_solution()
             solution.generate_solution_name(prefix='b_fixed_f{}_n{}_'.format(10, 10))
-            Analyzer.analyze_flow_size(
+            Analyzer.analyze_per_flow(
                 solution,
                 target_filename=os.path.join(config.solutions_res_dir, solution.solution_name))
             if config.TESTING['draw-gantt-chart'] is True:
@@ -90,9 +94,9 @@ class FixedSimulationTestCase(unittest.TestCase):
             # optimization method
             solution = solver.optimize()  # optimize
             solution.generate_solution_name(prefix='o_fixed_f{}_n{}_'.format(10, 10))
-            Analyzer.analyze_flow_size(
+            Analyzer.analyze_per_flow(
                 solution,
-                target_filename=os.path.join(config.flow_size_res_dir, solution.solution_name))
+                target_filename=os.path.join(config.solutions_res_dir, solution.solution_name))
             if config.TESTING['draw-gantt-chart'] is True:
                 solver.draw_gantt_chart(solution)
             logger.info('Optimal Objective: ' + str(solver.objective_function(solution)))

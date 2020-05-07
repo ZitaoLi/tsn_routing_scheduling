@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class FlowSizeTestCase3(unittest.TestCase):
 
     def setUp(self):
-        config.TESTING['round'] = [1, 1]  # [1, 5]
+        config.TESTING['round'] = [3, 10]  # [1, 5]
         config.TESTING['flow-size'] = [10, 100]
         config.TESTING['x-axis-gap'] = 5
         config.TESTING['draw-gantt-chart'] = False
@@ -114,7 +114,7 @@ class FlowSizeTestCase3(unittest.TestCase):
                     {'strategy': TOPO_STRATEGY.ER_STRATEGY, 'type': ErdosRenyiStrategy.ER_TYPE.GNP, 'n': 10, 'm': 14,
                      'p': 0.2},
                     {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 2},
-                    {'strategy': TOPO_STRATEGY.WS_STRATEGY, 'n': 10, 'k': 2, 'p': 1.0}
+                    # {'strategy': TOPO_STRATEGY.WS_STRATEGY, 'n': 10, 'k': 2, 'p': 1.0}
                 ],
                 [
                     {

@@ -88,12 +88,12 @@ class TopoGeneratorTestCase(unittest.TestCase):
         topo_generator.draw(graph)
 
     def test_my_topology(self):
-        edges: List[Tuple[int, int]] = [(1, 3), (2, 4), (3, 4), (3.5), (3, 6), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8),
+        edges: List[Tuple[int, int]] = [(1, 3), (2, 4), (3, 4), (3, 5), (3, 6), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8),
                                         (7, 9), (8, 10), (8, 11)]
-        self.graph: nx.Graph = nx.Graph()
-        self.graph.add_edges_from(edges)
-        self.graph = self.graph.to_directed()
-        TopoGenerator.draw(self.graph)
+        graph: nx.Graph = nx.Graph()
+        graph.add_edges_from(edges)
+        graph = graph.to_directed()
+        TopoGenerator.draw(graph)
 
 
 if __name__ == '__main__':
