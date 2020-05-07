@@ -36,7 +36,7 @@ class FixedSimulationTestCase(unittest.TestCase):
         config.TESTING['flow-size'] = [10, 100]
         config.TESTING['x-axis-gap'] = 5
         config.TESTING['draw-gantt-chart'] = False
-        config.OPTIMIZATION['enable'] = False
+        config.OPTIMIZATION['enable'] = True
         config.FLOW_CONFIG['redundancy_degree'] = 5  # at least 2 end-to-end routes
         config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
         config.FLOW_CONFIG['un-neighbors_degree'] = 1  # avoid source and node connecting at the same node
@@ -99,6 +99,11 @@ class FixedSimulationTestCase(unittest.TestCase):
                 solver.draw_gantt_chart(solution)
             logger.info('Native Objective: ' + str(solver.objective_function(solution)))
             # optimization method
+            if config.OPTIMIZATION['enable'] is False or \
+                    combination['allocating_strategy'] == ALLOCATING_STRATEGY.AEAPBF_ALLOCATING_STRATEGY or \
+                    combination['allocating_strategy'] == ALLOCATING_STRATEGY.AEAPWF_ALLOCATING_STRATEGY or \
+                    combination['routing_strategy'] == ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY:
+                continue
             solution = solver.optimize()  # optimize
             solution.generate_solution_name(prefix='o_fixed_f{}_n{}_'.format(10, 10))
             Analyzer.analyze_per_flow(
