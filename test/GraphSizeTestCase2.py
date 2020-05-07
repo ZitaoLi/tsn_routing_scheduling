@@ -30,7 +30,7 @@ class GraphSizeTestCase(unittest.TestCase):
 
     def setUp(self):
         config.TESTING['round'] = [1, 1]  # [1, 5]
-        config.TESTING['flow-size'] = [50, 50]
+        config.TESTING['flow-size'] = [10, 10]
         config.TESTING['x-axis-gap'] = 1
         config.TESTING['draw-gantt-chart'] = False
         config.OPTIMIZATION['enable'] = True
