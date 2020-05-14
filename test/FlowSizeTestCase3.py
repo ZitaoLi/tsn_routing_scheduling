@@ -29,11 +29,11 @@ logger = logging.getLogger(__name__)
 class FlowSizeTestCase3(unittest.TestCase):
 
     def setUp(self):
-        config.TESTING['round'] = [3, 10]  # [1, 5]
+        config.TESTING['round'] = [3, 3]  # [1, 5]
         config.TESTING['flow-size'] = [10, 100]
         config.TESTING['x-axis-gap'] = 5
         config.TESTING['draw-gantt-chart'] = False
-        config.OPTIMIZATION['enable'] = False
+        config.OPTIMIZATION['enable'] = True
         config.FLOW_CONFIG['redundancy_degree'] = 2  # at least 2 end-to-end routes
         config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
         config.FLOW_CONFIG['un-neighbors_degree'] = 1  # avoid source and node connecting at the same node
@@ -110,10 +110,10 @@ class FlowSizeTestCase3(unittest.TestCase):
             self.test_round = test_round
             self.test_allocation_methods(
                 [
-                    {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
+                    # {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
                     {'strategy': TOPO_STRATEGY.ER_STRATEGY, 'type': ErdosRenyiStrategy.ER_TYPE.GNP, 'n': 10, 'm': 14,
-                     'p': 0.2},
-                    {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 2},
+                     'p': 0.3},
+                    # {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 2},
                     # {'strategy': TOPO_STRATEGY.WS_STRATEGY, 'n': 10, 'k': 2, 'p': 1.0}
                 ],
                 [
