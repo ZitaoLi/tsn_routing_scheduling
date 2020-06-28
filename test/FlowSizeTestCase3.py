@@ -19,7 +19,7 @@ from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY, ROUTING_STRATEGY, SC
     RELIABILITY_STRATEGY, TIME_GRANULARITY
 import src.config as config
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 

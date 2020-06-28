@@ -35,8 +35,8 @@ class FixedSimulationTestCase(unittest.TestCase):
         config.TESTING['round'] = [1, 1]  # [1, 5]
         config.TESTING['flow-size'] = [10, 100]
         config.TESTING['x-axis-gap'] = 5
-        config.TESTING['draw-gantt-chart'] = False
-        config.OPTIMIZATION['enable'] = True
+        config.TESTING['draw-gantt-chart'] = True
+        config.OPTIMIZATION['enable'] = False
         config.FLOW_CONFIG['redundancy_degree'] = 5  # at least 2 end-to-end routes
         config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
         config.FLOW_CONFIG['un-neighbors_degree'] = 1  # avoid source and node connecting at the same node
@@ -127,42 +127,42 @@ class FixedSimulationTestCase(unittest.TestCase):
 
     def test(self):
         self.run_test([
+            # {
+            #     'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
+            #     'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
+            #     'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+            #     'allocating_strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
+            # },
+            # {
+            #     'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
+            #     'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
+            #     'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+            #     'allocating_strategy': ALLOCATING_STRATEGY.AEAPBF_ALLOCATING_STRATEGY
+            # },
+            # {
+            #     'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
+            #     'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
+            #     'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+            #     'allocating_strategy': ALLOCATING_STRATEGY.AEAPWF_ALLOCATING_STRATEGY
+            # },
             {
-                'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
-                'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
+                'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+                'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
                 'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
                 'allocating_strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
             },
-            {
-                'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
-                'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
-                'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                'allocating_strategy': ALLOCATING_STRATEGY.AEAPBF_ALLOCATING_STRATEGY
-            },
-            {
-                'routing_strategy': ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY,
-                'reliability_strategy': RELIABILITY_STRATEGY.UNI_ROUTES_RELIABILITY_STRATEGY,
-                'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                'allocating_strategy': ALLOCATING_STRATEGY.AEAPWF_ALLOCATING_STRATEGY
-            },
-            {
-                'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
-                'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
-                'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                'allocating_strategy': ALLOCATING_STRATEGY.AEAP_ALLOCATING_STRATEGY
-            },
-            {
-                'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
-                'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
-                'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                'allocating_strategy': ALLOCATING_STRATEGY.AEAPBF_ALLOCATING_STRATEGY
-            },
-            {
-                'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
-                'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
-                'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
-                'allocating_strategy': ALLOCATING_STRATEGY.AEAPWF_ALLOCATING_STRATEGY
-            },
+            # {
+            #     'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+            #     'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
+            #     'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+            #     'allocating_strategy': ALLOCATING_STRATEGY.AEAPBF_ALLOCATING_STRATEGY
+            # },
+            # {
+            #     'routing_strategy': ROUTING_STRATEGY.BACKTRACKING_REDUNDANT_ROUTING_STRATEGY,
+            #     'reliability_strategy': RELIABILITY_STRATEGY.ENUMERATION_METHOD_RELIABILITY_STRATEGY,
+            #     'scheduling_strategy': SCHEDULING_STRATEGY.LRF_REDUNDANT_SCHEDULING_STRATEGY,
+            #     'allocating_strategy': ALLOCATING_STRATEGY.AEAPWF_ALLOCATING_STRATEGY
+            # },
         ])
 
 
