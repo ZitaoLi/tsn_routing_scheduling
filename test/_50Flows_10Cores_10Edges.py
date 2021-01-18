@@ -105,7 +105,7 @@ class _50Flows_10Cores_10Edges(unittest.TestCase):
         self.topo_generator: TopoGenerator = TopoGenerator()
         self.run_test(
             [
-                {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
+                # {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 3, 'n': 10},
                 {'strategy': TOPO_STRATEGY.ER_STRATEGY, 'type': ErdosRenyiStrategy.ER_TYPE.GNP, 'n': 10, 'm': 14,
                  'p': 0.3},
                 # {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 3},
