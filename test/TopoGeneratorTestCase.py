@@ -51,7 +51,7 @@ class TopoGeneratorTestCase(unittest.TestCase):
 
     def test_ba_strategy(self):
         topo_generator: TopoGenerator = TopoGenerator()
-        topo_generator.topo_strategy = BarabasiAlbertStrategy(20, 2)
+        topo_generator.topo_strategy = BarabasiAlbertStrategy(10, 3)
         graph: nx.Graph = topo_generator.generate_core_topo()
         attached_edge_nodes_num: int = 4
         attached_edge_nodes: List[NodeId] = topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
@@ -60,7 +60,7 @@ class TopoGeneratorTestCase(unittest.TestCase):
 
     def test_rrg_strategy(self):
         topo_generator: TopoGenerator = TopoGenerator()
-        topo_generator.topo_strategy = RandomRegularGraphStrategy(4, 5)
+        topo_generator.topo_strategy = RandomRegularGraphStrategy(3, 10)
         graph: nx.Graph = topo_generator.generate_core_topo()
         attached_edge_nodes_num: int = 10
         attached_edge_nodes: List[NodeId] = topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)
@@ -69,7 +69,7 @@ class TopoGeneratorTestCase(unittest.TestCase):
 
     def test_ws_strategy(self):
         topo_generator: TopoGenerator = TopoGenerator()
-        topo_generator.topo_strategy = WattsStrogatzStrategy(n=20, k=2, p=1.0)
+        topo_generator.topo_strategy = WattsStrogatzStrategy(n=20, k=4, p=1.0)
         graph: nx.Graph = topo_generator.generate_core_topo()
         attached_edge_nodes_num: int = 4
         attached_edge_nodes: List[NodeId] = topo_generator.attach_edge_nodes(graph, attached_edge_nodes_num)

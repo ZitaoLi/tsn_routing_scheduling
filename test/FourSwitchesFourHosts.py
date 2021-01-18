@@ -35,50 +35,37 @@ class FixedSimulationTestCase(unittest.TestCase):
         config.TESTING['round'] = [1, 1]  # [1, 5]
         config.TESTING['flow-size'] = [10, 100]
         config.TESTING['x-axis-gap'] = 5
-        config.TESTING['draw-gantt-chart'] = False
+        config.TESTING['draw-gantt-chart'] = True
         config.OPTIMIZATION['enable'] = True
         config.FLOW_CONFIG['redundancy_degree'] = 2  # at least 2 end-to-end routes
         config.FLOW_CONFIG['max-redundancy-degree'] = 5  # the most no. of end-to-end routes
         config.FLOW_CONFIG['un-neighbors_degree'] = 1  # avoid source and node connecting at the same node
-        config.FLOW_CONFIG['size-set'] = [int(1.6e3), int(5e3), int(1e3)]  # [200B, 625B, 125B]
-        config.FLOW_CONFIG['period-set'] = [int(1e5), int(1.5e5), int(3e5)]  # [100us, 150us, 300us]
-        config.FLOW_CONFIG['hyper-period'] = int(3e5)  # [300us]
-        config.FLOW_CONFIG['deadline-set'] = [int(1e8), int(5e7), int(2e7)]  # [100ms, 50ms, 20ms]
-        config.FLOW_CONFIG['reliability-set'] = [0.5]  # [0.98]
         config.GRAPH_CONFIG['time-granularity'] = TIME_GRANULARITY.NS
-        config.GRAPH_CONFIG['all-bandwidth'] = 1  # 500Mbps
+        config.GRAPH_CONFIG['all-bandwidth'] = 0.1  # 100Mbps
         config.GRAPH_CONFIG['all-propagation-delay'] = 0  # 1e2 100ns
         config.GRAPH_CONFIG['all-process-delay'] = 0  # 5e3 5us
-        config.GRAPH_CONFIG['all-per'] = 0.004  # 0.4%
-        config.GRAPH_CONFIG['core-node-num'] = 10
-        config.GRAPH_CONFIG['edge-node-num'] = 10
-        config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = 6
+        config.GRAPH_CONFIG['all-per'] = 0.01  # 0.4%
+        config.GRAPH_CONFIG['edge-nodes-distribution-degree'] = 3
 
         # create flows
         self.flows: List[Flow] = [
-            Flow(1, int(1e3), int(1e5), 1, [9, 10], 0.5, int(2e7)),  # 125B 100us 20ms
-            Flow(2, int(1e3), int(1e5), 2, [1, 10], 0.5, int(2e7)),  # 125B 100us 20ms
-            Flow(3, int(1e3), int(1e5), 9, [2, 11], 0.5, int(2e7)),  # 125B 100us 20ms
-            Flow(4, int(1.6e3), int(1e5), 10, [1, 2], 0.5, int(5e7)),  # 200B 100us 50ms
-            Flow(5, int(2.4e3), int(1e5), 11, [1, 2], 0.5, int(5e7)),  # 300B 100us 50ms
-            Flow(6, int(2.4e3), int(1.5e5), 1, [11], 0.5, int(5e7)),  # 300B 150us 50ms
-            Flow(7, int(5e3), int(1.5e5), 2, [9, 10], 0.5, int(1e8)),  # 625B 150us 100ms
-            Flow(8, int(5e3), int(1.5e5), 9, [2], 0.5, int(1e8)),  # 625B 150us 100ms
-            Flow(9, int(1.184e4), int(3e5), 10, [2], 0.5, int(1e8)),  # 1480B 300us 100ms
-            Flow(10, int(1.184e4), int(3e5), 11, [1, 2], 0.5, int(1e8)),  # 1480B 300us 100ms
+            Flow(1, int(1e3), int(1e6), 5, [7, 8], 0.5, int(2e7)),  # 125B 1000us 20ms
+            Flow(2, int(1e3), int(1e6), 6, [5], 0.5, int(2e7)),  # 125B 1000us 20ms
+            Flow(3, int(1e3), int(1e6), 7, [5, 6], 0.5, int(2e7)),  # 125B 1000us 20ms
+            Flow(4, int(1.6e3), int(1e6), 8, [5], 0.5, int(5e7)),  # 200B 1000us 50ms
+            Flow(5, int(2.4e3), int(1e6), 6, [7, 8], 0.5, int(5e7)),  # 300B 1000us 50ms
+            Flow(6, int(2.4e3), int(1.5e6), 7, [5, 6], 0.5, int(5e7)),  # 300B 1500us 50ms
+            Flow(7, int(5e3), int(1.5e6), 5, [8], 0.5, int(1e8)),  # 625B 1500us 100ms
+            Flow(8, int(5e3), int(1.5e6), 6, [8], 0.5, int(1e8)),  # 625B 1500us 100ms
+            Flow(9, int(1.2e3), int(3e6), 8, [5, 6], 0.5, int(1e8)),  # 150B 3000us 100ms
+            Flow(10, int(1.2e3), int(3e6), 8, [5], 0.5, int(1e8)),  # 150B 3000us 100ms
         ]
         # create topology
-        edges: List[Tuple[int, int]] = [(1, 3), (2, 4), (3, 4), (3, 5), (3, 6), (4, 5), (5, 6), (5, 7), (6, 8), (7, 8),
-                                        (7, 9), (8, 10), (8, 11)]
-        # edges: List[Tuple[int, int]] = [(1, 5), (2, 6), (3, 8), (4, 11), (5, 6), (5, 9),
-        #                                 (6, 7), (7, 9), (7, 8), (8, 9), (8, 11), (9, 10), (10, 11)]
+        edges: List[Tuple[int, int]] = [(1, 2), (1, 3), (2, 3), (2, 4), (3, 4), (5, 1), (6, 2), (4, 7), (4, 8)]
         self.graph: nx.Graph = nx.Graph()
         self.graph.add_edges_from(edges)
         self.graph = self.graph.to_directed()
         TopoGenerator.draw(self.graph)
-
-    def tearDown(self):
-        pass
 
     def run_test(self, combinations: List = None):
         for combination in combinations:
@@ -91,34 +78,47 @@ class FixedSimulationTestCase(unittest.TestCase):
                                     allocating_strategy=combination['allocating_strategy'],
                                     reliability_strategy=combination['reliability_strategy'])
             solution = solver.generate_init_solution()
-            solution.generate_solution_name(prefix='b_fixed_f{}_n{}_'.format(10, 10))
+            solution.generate_solution_name(prefix='b_fixed_f{}_n{}_'.format(10, 8))
             Analyzer.analyze_per_flow(
                 solution,
                 target_filename=os.path.join(config.solutions_res_dir, solution.solution_name))
+            solver.save_solution(solution=solution)  # save solution
+            tsn_network_factory: TSNNetworkFactory = TSNNetworkFactory()
+            tsn_network: TSNNetwork = tsn_network_factory.product(
+                solution_filename=solution.solution_name,
+                enhancement_enable=config.XML_CONFIG['enhancement-tsn-switch-enable'])
+            node_edge_mac_info = tsn_network_factory.node_edge_mac_info
+            # create test scenario
+            ConfigFileGenerator.create_test_scenario(tsn_network=tsn_network,
+                                                     solution=solution,
+                                                     node_edge_mac_info=node_edge_mac_info)
+
             if config.TESTING['draw-gantt-chart'] is True:
                 solver.draw_gantt_chart(solution)
             logger.info('Native Objective: ' + str(solver.objective_function(solution)))
+
             # optimization method
             if config.OPTIMIZATION['enable'] is False or \
                     combination['allocating_strategy'] == ALLOCATING_STRATEGY.AEAPBF_ALLOCATING_STRATEGY or \
                     combination['allocating_strategy'] == ALLOCATING_STRATEGY.AEAPWF_ALLOCATING_STRATEGY or \
                     combination['routing_strategy'] == ROUTING_STRATEGY.DIJKSTRA_SINGLE_ROUTING_STRATEGY:
                 continue
+
             solution = solver.optimize()  # optimize
-            solution.generate_solution_name(prefix='o_fixed_f{}_n{}_'.format(10, 10))
+            solution.generate_solution_name(prefix='o_fixed_f{}_n{}_'.format(10, 8))
             Analyzer.analyze_per_flow(
                 solution,
                 target_filename=os.path.join(config.solutions_res_dir, solution.solution_name))
+
             if config.TESTING['draw-gantt-chart'] is True:
                 solver.draw_gantt_chart(solution)
             logger.info('Optimal Objective: ' + str(solver.objective_function(solution)))
+
             # create network
             solver.save_solution(solution=solution)  # save solution
-            tsn_network_factory: TSNNetworkFactory = TSNNetworkFactory()
-            tsn_network: TSNNetwork = tsn_network_factory.product(
+            tsn_network = tsn_network_factory.product(
                 solution_filename=solution.solution_name,
                 enhancement_enable=config.XML_CONFIG['enhancement-tsn-switch-enable'])
-            tsn_network = tsn_network
             node_edge_mac_info = tsn_network_factory.node_edge_mac_info
             # create test scenario
             ConfigFileGenerator.create_test_scenario(tsn_network=tsn_network,

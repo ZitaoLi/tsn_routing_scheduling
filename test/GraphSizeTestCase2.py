@@ -19,7 +19,7 @@ from src.type import NodeId, EdgeId, FlowId, TOPO_STRATEGY, ROUTING_STRATEGY, SC
     RELIABILITY_STRATEGY, TIME_GRANULARITY
 import src.config as config
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class GraphSizeTestCase(unittest.TestCase):
 
     def setUp(self):
-        config.TESTING['round'] = [1, 1]  # [1, 5]
+        config.TESTING['round'] = [10, 15]  # [1, 5]
         config.TESTING['flow-size'] = [10, 10]
         config.TESTING['x-axis-gap'] = 1
         config.TESTING['draw-gantt-chart'] = False
@@ -115,7 +115,7 @@ class GraphSizeTestCase(unittest.TestCase):
                     {'strategy': TOPO_STRATEGY.RRG_STRATEGY, 'd': 4, 'n': 10},
                     # {'strategy': TOPO_STRATEGY.ER_STRATEGY, 'type': ErdosRenyiStrategy.ER_TYPE.GNP, 'n': 10, 'm': 14,
                     #  'p': 0.2},
-                    # {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 2},
+                    # {'strategy': TOPO_STRATEGY.BA_STRATEGY, 'n': 10, 'm': 3},
                     # {'strategy': TOPO_STRATEGY.WS_STRATEGY, 'n': 10, 'k': 2, 'p': 1.0}
                 ],
                 [
